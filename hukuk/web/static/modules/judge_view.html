@@ -5,17 +5,17 @@
     </div>
 </header>
 
-<div class="flex-1 overflow-y-auto p-8 bg-gray-50 dark:bg-[#0f151c]">
+<div class="flex-1 overflow-y-auto p-4 sm:p-8 bg-gray-50 dark:bg-[#0f151c]">
     <div class="max-w-4xl mx-auto flex flex-col gap-6">
 
         <!-- CONTROLS TOOLBAR -->
         <div
-            class="flex items-center justify-between bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
-            <div class="flex items-center gap-3">
+            class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 gap-4">
+            <div class="flex items-center gap-2 sm:gap-3">
                 <!-- ROLE SELECTOR -->
                 <div class="relative">
                     <select id="judgeRoleSelect" onchange="updateJudgeRole(this.value)"
-                        class="appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-[#111418] dark:text-gray-300 text-sm rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer hover:border-gray-300 transition-colors font-medium">
+                        class="appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-[#111418] dark:text-gray-300 text-sm rounded-lg pl-3 pr-8 py-2 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer hover:border-gray-300 transition-colors font-medium">
                         <option value="all">Rol: Hepsi</option>
                         <option value="judge">Rol: Yargıç</option>
                         <option value="lawyer">Rol: Avukat</option>
@@ -38,9 +38,9 @@
             </div>
 
             <!-- EVALUATE BUTTON (PRIMARY ACTION) -->
-            <div>
+            <div class="flex items-center justify-end">
                 <button id="btnJudgeEvaluate" onclick="startJudgeEvaluation()"
-                    class="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors shadow-sm font-bold text-sm disabled:opacity-70 disabled:cursor-not-allowed">
+                    class="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors shadow-sm font-bold text-sm disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto">
                     <span class="material-symbols-outlined text-[20px]">gavel</span>
                     <span>DEĞERLENDİR</span>
                 </button>

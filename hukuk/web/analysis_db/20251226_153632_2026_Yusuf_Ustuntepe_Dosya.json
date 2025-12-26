@@ -1,0 +1,102 @@
+{
+    "name": "2026 Yusuf Ustuntepe Dosya",
+    "dashboardState": {
+        "inputs": {
+            "story": "Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et.",
+            "topic": "Miras hukuku",
+            "negatives": "Sendika"
+        },
+        "docs": [
+            {
+                "source": "Yargitay_3_HD_2023_145.pdf",
+                "page": 1,
+                "type": "EMSAL KARAR",
+                "role": "[EMSAL İLKE]",
+                "text": "<h1>Yargitay_3_HD_2023_145.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+                "score": 92.5,
+                "reason": "Bu belge, Miras hukuku konusundaki benzerlik derecesi nedeniyle seçilmiştir."
+            },
+            {
+                "source": "Yargitay_12_CD_2022_89.pdf",
+                "page": 2,
+                "type": "EMSAL KARAR",
+                "role": "[DOĞRUDAN DELİL]",
+                "text": "<h1>Yargitay_12_CD_2022_89.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+                "score": 88,
+                "reason": "Bu belge, Miras hukuku konusundaki emsal niteliği nedeniyle seçilmiştir."
+            },
+            {
+                "source": "TBK_Madde_444.pdf",
+                "page": 3,
+                "type": "MEVZUAT",
+                "role": "[EMSAL İLKE]",
+                "text": "<h1>TBK_Madde_444.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+                "score": 95,
+                "reason": "Bu belge, Miras hukuku konusundaki hukuki dayanağı nedeniyle seçilmiştir."
+            },
+            {
+                "source": "Bilirkişi_Raporu_Örnek.pdf",
+                "page": 4,
+                "type": "EMSAL KARAR",
+                "role": "[EMSAL İLKE]",
+                "text": "<h1>Bilirkişi_Raporu_Örnek.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+                "score": 75.4,
+                "reason": "Bu belge, Miras hukuku konusundaki emsal niteliği nedeniyle seçilmiştir."
+            },
+            {
+                "source": "Anayasa_Mahkemesi_Karari.pdf",
+                "page": 5,
+                "type": "EMSAL KARAR",
+                "role": "[DOĞRUDAN DELİL]",
+                "text": "<h1>Anayasa_Mahkemesi_Karari.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+                "score": 82.1,
+                "reason": "Bu belge, Miras hukuku konusundaki emsal niteliği nedeniyle seçilmiştir."
+            }
+        ],
+        "selected": [
+            0,
+            1,
+            3
+        ]
+    },
+    "reportData": [
+        {
+            "source": "Yargitay_3_HD_2023_145.pdf",
+            "page": 1,
+            "type": "EMSAL KARAR",
+            "role": "[EMSAL İLKE]",
+            "text": "<h1>Yargitay_3_HD_2023_145.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+            "score": 92.5,
+            "reason": "Bu belge, Miras hukuku konusundaki benzerlik derecesi nedeniyle seçilmiştir."
+        },
+        {
+            "source": "Yargitay_12_CD_2022_89.pdf",
+            "page": 2,
+            "type": "EMSAL KARAR",
+            "role": "[DOĞRUDAN DELİL]",
+            "text": "<h1>Yargitay_12_CD_2022_89.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+            "score": 88,
+            "reason": "Bu belge, Miras hukuku konusundaki emsal niteliği nedeniyle seçilmiştir."
+        },
+        {
+            "source": "Bilirkişi_Raporu_Örnek.pdf",
+            "page": 4,
+            "type": "EMSAL KARAR",
+            "role": "[EMSAL İLKE]",
+            "text": "<h1>Bilirkişi_Raporu_Örnek.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+            "score": 75.4,
+            "reason": "Bu belge, Miras hukuku konusundaki emsal niteliği nedeniyle seçilmiştir."
+        }
+    ],
+    "judgeMetadata": {
+        "role": "judge",
+        "status": "pending",
+        "judgeFiles": [
+            {
+                "name": "teqweqeq.pdf",
+                "size": 195
+            }
+        ]
+    },
+    "timestamp": "2025-12-26T12:36:32.213Z"
+}

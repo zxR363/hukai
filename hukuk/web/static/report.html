@@ -195,9 +195,14 @@
 
 <body class="bg-background-light dark:bg-background-dark text-[#111418] font-display h-screen flex overflow-hidden">
 
+    <!-- MOBILE OVERLAY -->
+    <div id="mobile-overlay" onclick="toggleSidebar()"
+        class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden backdrop-blur-sm transition-opacity opacity-0 pointer-events-none">
+    </div>
+
     <!-- SIDEBAR -->
-    <aside
-        class="w-72 bg-surface-light dark:bg-surface-dark border-r border-gray-200 dark:border-gray-800 flex flex-col z-20 hidden lg:flex shrink-0">
+    <aside id="sidebar"
+        class="fixed lg:relative w-72 h-full bg-surface-light dark:bg-surface-dark border-r border-gray-200 dark:border-gray-800 flex flex-col z-40 transition-transform duration-300 -translate-x-full lg:translate-x-0 shrink-0">
         <div class="p-6 border-b border-gray-100 dark:border-gray-800/50">
             <div class="flex items-center gap-3">
                 <div class="bg-primary/10 flex items-center justify-center rounded-lg size-10 text-primary">
@@ -267,11 +272,20 @@
         </div>
     </aside>
 
+    <!-- MOBILE TOP BAR (Burger Menu) -->
+    <div class="lg:hidden fixed bottom-6 right-6 z-50">
+        <button onclick="toggleSidebar()"
+            class="size-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform">
+            <span id="burger-icon" class="material-symbols-outlined !text-[28px]">menu</span>
+        </button>
+    </div>
+
     <!-- REPORT CONTENT WRAPPER -->
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden h-full">
 
         <!-- MIDDLE PANEL: MULTI-VIEW MAIN CONTENT -->
-        <main class="flex-1 flex flex-col min-w-0 bg-background-light dark:bg-background-dark relative">
+        <main
+            class="lg:flex-1 flex flex-col min-w-0 bg-background-light dark:bg-background-dark relative shrink-0 h-auto lg:h-full">
 
             <!-- VIEW: REPORT VIEWER -->
             <div id="view-report" class="flex flex-col h-full w-full">
@@ -290,9 +304,9 @@
         </main>
 
         <!-- RIGHT PANEL: SELECTED RESULTS LIST -->
-        <!-- Reduced width by another ~20% -->
+        <!-- Responsive width -->
         <section
-            class="w-full lg:w-[300px] xl:w-[350px] flex flex-col border-l border-[#f0f2f4] bg-[#fcfdfd] shrink-0 transition-all min-h-0">
+            class="w-full lg:w-[300px] xl:w-[350px] flex flex-col border-t lg:border-t-0 lg:border-l border-[#f0f2f4] bg-[#fcfdfd] shrink-0 transition-all min-h-0 h-[400px] lg:h-full">
             <div
                 class="p-4 border-b border-[#f0f2f4] bg-white flex items-center justify-between sticky top-0 z-10 h-16 shrink-0">
                 <div class="flex items-center gap-2">
@@ -366,7 +380,8 @@
                 <h3 id="restoreAnalysisTitle" class="text-xl font-bold text-slate-900 dark:text-white mb-2">Analiz Yükle
                 </h3>
                 <p id="restoreAnalysisDesc" class="text-sm text-slate-500 mb-6">"<strong><span
-                            id="restoreAnalysisTargetName">...</span></strong>" analizi geri yüklenecek.<br>Mevcut ekran
+                            class="break-all max-w-full" id="restoreAnalysisTargetName">...</span></strong>" analizi
+                    geri yüklenecek.<br>Mevcut ekran
                     verileriniz kaybolacak. Onaylıyor musunuz?</p>
 
                 <!-- Buttons -->
@@ -405,7 +420,8 @@
                 <h3 id="deleteAnalysisTitle" class="text-xl font-bold text-slate-900 dark:text-white mb-2">Analizi Sil
                 </h3>
                 <p id="deleteAnalysisDesc" class="text-sm text-slate-500 mb-6">"<strong><span
-                            id="deleteAnalysisTargetName">...</span></strong>" analizi kalıcı olarak silinecek.<br>Bu
+                            class="break-all max-w-full" id="deleteAnalysisTargetName">...</span></strong>" analizi
+                    kalıcı olarak silinecek.<br>Bu
                     işlem geri alınamaz. Onaylıyor musunuz?</p>
 
                 <!-- Buttons -->
@@ -429,6 +445,31 @@
 
         <!-- LOGIC -->
         <script>
+            // --- SIDEBAR TOGGLE ---
+            let isSidebarOpen = false;
+            function toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('mobile-overlay');
+                const burgerIcon = document.getElementById('burger-icon');
+
+                isSidebarOpen = !isSidebarOpen;
+
+                if (isSidebarOpen) {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden', 'pointer-events-none');
+                    setTimeout(() => overlay.classList.add('opacity-100'), 10);
+                    burgerIcon.innerText = 'close';
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.remove('opacity-100');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden', 'pointer-events-none');
+                    }, 300);
+                    burgerIcon.innerText = 'menu';
+                }
+            }
+            window.toggleSidebar = toggleSidebar;
+
             // --- DATA ---
             let reportDocs = [];
             let selectedIndices = new Set();
@@ -481,7 +522,7 @@
                 }
 
                 pendingRestoreFilename = filename;
-                if (targetName) targetName.innerText = filename;
+                if (targetName) targetName.innerText = filename.replace('.json', '');
 
                 // Force Button Binding (Safe)
                 const btn = document.getElementById('btnConfirmRestore');
@@ -613,7 +654,7 @@
                 }
 
                 pendingDeleteFilename = filename;
-                if (targetName) targetName.innerText = filename;
+                if (targetName) targetName.innerText = filename.replace('.json', '');
 
                 // Reset UI
                 if (desc) desc.classList.remove('hidden');

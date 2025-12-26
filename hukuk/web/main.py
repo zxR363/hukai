@@ -34,8 +34,11 @@ if project_root not in sys.path:
 os.chdir(project_root)
 
 import uuid
-# from web.legal_engine import LegalSearchEngine, create_pdf_report_file
-from web.mock_legal_engine import LegalSearchEngine, create_pdf_report_file
+try:
+    from web.legal_engine import LegalSearchEngine, create_pdf_report_file
+except ImportError:
+    from legal_engine import LegalSearchEngine, create_pdf_report_file
+# from web.mock_legal_engine import LegalSearchEngine, create_pdf_report_file
 
 app = FastAPI(title="Legal Suite V55 Web")
 
@@ -74,36 +77,56 @@ class SearchRequest(BaseModel):
     topic: str
     negatives: str = ""
 
+class EvaluateRequest(BaseModel):
+    story: str
+    topic: str
+    negatives: str = ""
+    candidates: List[dict]
+
 # ================== LOGIC ==================
-async def run_search_task(search_id: str, req: SearchRequest):
-    """Background task to run the search and stream logs explicitly to the specific client logic (broadcast for now)"""
-    
+async def run_search_task(req: SearchRequest):
+    """Sadece belgeleri arar ve aday listesini döner."""
     async def log_callback(msg: str):
-        # We prefix logs with simple text. Frontend parses them.
+        await manager.broadcast(f"LOG|{msg}")
+
+    try:
+        engine = LegalSearchEngine(log_callback=log_callback)
+        docs = await engine.search_docs(req.story, req.topic)
+        
+        # Arama bittiğinde adayları UI'a gönder
+        import json
+        await manager.broadcast(f"SEARCH_RESULT|{json.dumps(docs)}")
+
+    except Exception as e:
+        await manager.broadcast(f"ERROR|{str(e)}")
+
+async def run_evaluation_task(search_id: str, req: EvaluateRequest):
+    """Seçili belgeleri değerlendirir ve analiz yazar."""
+    async def log_callback(msg: str):
         await manager.broadcast(f"LOG|{msg}")
 
     try:
         engine = LegalSearchEngine(log_callback=log_callback)
         neg_list = [w.strip().lower() for w in req.negatives.split(",")] if req.negatives else []
         
-        advice, docs = await engine.run_analysis(req.story, req.topic, neg_list)
+        advice, docs = await engine.evaluate_documents(req.story, req.topic, neg_list, req.candidates)
         
-        # Generator PDF
-        pdf_filename = f"Hukuki_Rapor_{search_id}.pdf"
-        output_path = os.path.join("results", pdf_filename)
-        
-        if create_pdf_report_file(req.story, docs, advice, output_path):
-             await manager.broadcast(f"PDF|{pdf_filename}")
-        
-        # Send final structured results as specialized JSON-like string
-        # Or better yet, we can send a "DONE" event with data, but since we are simple:
-        # We will send a large JSON payload via websocket for the UI to render results
-        import json
-        result_payload = {
-            "advice": advice,
-            "docs": docs
-        }
-        await manager.broadcast(f"RESULT|{json.dumps(result_payload)}")
+        if advice and docs:
+            # Generator PDF
+            pdf_filename = f"Hukuki_Rapor_{search_id}.pdf"
+            output_path = os.path.join("results", pdf_filename)
+            
+            if create_pdf_report_file(req.story, docs, advice, output_path):
+                 await manager.broadcast(f"PDF|{pdf_filename}")
+            
+            import json
+            result_payload = {
+                "advice": advice,
+                "docs": docs
+            }
+            await manager.broadcast(f"RESULT|{json.dumps(result_payload)}")
+        else:
+             await manager.broadcast(f"LOG|🔴 Değerlendirme tamamlanamadı (Uygun belge kalmadı).")
 
     except Exception as e:
         await manager.broadcast(f"ERROR|{str(e)}")
@@ -125,8 +148,13 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.post("/api/search")
 async def start_search(req: SearchRequest, background_tasks: BackgroundTasks):
+    background_tasks.add_task(run_search_task, req)
+    return {"status": "started"}
+
+@app.post("/api/evaluate")
+async def start_evaluate(req: EvaluateRequest, background_tasks: BackgroundTasks):
     search_id = str(uuid.uuid4())[:8]
-    background_tasks.add_task(run_search_task, search_id, req)
+    background_tasks.add_task(run_evaluation_task, search_id, req)
     return {"status": "started", "search_id": search_id}
 
 @app.get("/api/download/{filename}")

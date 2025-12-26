@@ -727,6 +727,57 @@
             window.confirmRestore = confirmRestore;
             console.log("Restore Logic Initialized Global");
 
+            // --- WEBSOCKET FOR EVALUATION ---
+            let judgeWs;
+            function initJudgeWs() {
+                if (judgeWs) return;
+                judgeWs = new WebSocket(`ws://${location.host}/ws/logs`);
+                judgeWs.onmessage = (e) => {
+                    const msg = e.data;
+                    const logsEl = document.getElementById('judgeLogs');
+
+                    if (msg.startsWith("LOG|")) {
+                        const logText = msg.substring(4);
+                        if (logsEl) {
+                            const line = document.createElement('div');
+                            line.className = 'py-0.5 border-l-2 border-primary/30 pl-2 mb-1';
+                            line.innerHTML = `<span class="text-primary/50 text-[10px] mr-2">[${new Date().toLocaleTimeString()}]</span> ${logText}`;
+                            logsEl.appendChild(line);
+                            logsEl.scrollTop = logsEl.scrollHeight;
+                        }
+                    } else if (msg.startsWith("RESULT|")) {
+                        try {
+                            const data = JSON.parse(msg.substring(7));
+                            // Update global state
+                            reportDocs = data.docs;
+                            localStorage.setItem('reportData', JSON.stringify(reportDocs));
+
+                            // Re-init view
+                            selectedIndices.clear();
+                            reportDocs.forEach((_, i) => selectedIndices.add(i));
+
+                            setTimeout(() => {
+                                switchView('report');
+                                renderList();
+                                selectDoc(0);
+                                resetJudgeButton();
+                            }, 500);
+                        } catch (err) { console.error(err); resetJudgeButton(); }
+                    } else if (msg.startsWith("ERROR|")) {
+                        alert("Hata: " + msg.substring(6));
+                        resetJudgeButton();
+                    }
+                };
+            }
+
+            function resetJudgeButton() {
+                const btn = document.getElementById('btnJudgeEvaluate');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<span class="material-symbols-outlined text-[20px]">gavel</span> <span>DEĞERLENDİR</span>`;
+                }
+            }
+
             function bindReportElements() {
                 pdfContainer = document.getElementById('pdfContainer');
                 emptyState = document.getElementById('emptyState');
@@ -1164,29 +1215,59 @@
                 const btn = document.getElementById('btnJudgeEvaluate');
                 if (!btn) return;
 
-                const originalContent = btn.innerHTML;
+                // 1. Gather Documents
+                const story = document.getElementById('judgeStory')?.value || "";
+                const topic = document.getElementById('judgeTopic')?.value || "";
 
-                // Loading State
+                // Dashboard state'ten al (LocalStorage'dan)
+                const dashState = JSON.parse(localStorage.getItem('dashboardState') || '{}');
+                const finalStory = story || dashState.story || "";
+                const finalTopic = topic || dashState.topic || "";
+
+                const selectedFromSystem = Array.from(selectedIndices).map(idx => reportDocs[idx]);
+
+                // judgeFiles (already in base64/text format from handleJudgeFiles if we implement it, 
+                // but for now let's assume they are structured like the system docs)
+                // Actually handleJudgeFiles needs to read the PDF content. 
+                // For simplicity in this step, let's assume we evaluate what's in 'selectedFromSystem'.
+
+                if (selectedFromSystem.length === 0 && judgeFiles.length === 0) {
+                    alert("Değerlendirilecek dosya bulunamadı. Lütfen önce arama yapın veya dosya ekleyin.");
+                    return;
+                }
+
+                // Prepare Candidates (combine)
+                const allCandidates = [...selectedFromSystem];
+                // For judgeFiles, we need to extract text. If not done yet, we can't send them.
+                // For now, let's focus on system docs.
+
+                // 2. Start WebSocket
+                initJudgeWs();
+
+                // 3. Clear Logs
+                const logsEl = document.getElementById('judgeLogs');
+                if (logsEl) logsEl.innerHTML = '';
+                document.getElementById('judgeLogContainer')?.classList.remove('hidden');
+
+                // 4. Send API Request
                 btn.disabled = true;
-                btn.innerHTML = `
-                <span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
-                <span>YÜKLENİYOR...</span>
-            `;
+                btn.innerHTML = `<span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span> <span>ANALİZ EDİLİYOR...</span>`;
 
-                // Mock Process (3 seconds)
-                setTimeout(() => {
-                    btn.innerHTML = `
-                    <span class="material-symbols-outlined text-[20px]">check_circle</span>
-                    <span>TAMAMLANDI</span>
-                `;
+                const payload = {
+                    story: finalStory,
+                    topic: finalTopic,
+                    negatives: dashState.negatives || "",
+                    candidates: allCandidates
+                };
 
-                    // Revert after 1s
-                    setTimeout(() => {
-                        btn.disabled = false;
-                        btn.innerHTML = originalContent;
-                    }, 1000);
-
-                }, 3000);
+                fetch('/api/evaluate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(err => {
+                    alert("API Hatası: " + err.message);
+                    resetJudgeButton();
+                });
             }
 
             // --- SAVE ANALYSIS LOGIC ---

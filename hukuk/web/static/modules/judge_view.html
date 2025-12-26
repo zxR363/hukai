@@ -89,17 +89,25 @@
             </div>
         </div>
 
-        <!-- PLACEHOLDER FOR FUTURE CONTENT -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-60 pointer-events-none">
+        <!-- EVALUATION LOGS AREA -->
+        <div id="judgeLogContainer" class="hidden flex flex-col gap-4">
             <div
-                class="h-48 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-transparent flex flex-col items-center justify-center text-center p-6">
-                <span class="material-symbols-outlined text-4xl text-gray-300 mb-2">analytics</span>
-                <span class="text-sm text-gray-400 font-medium">Analiz Sonuçları (Yakında)</span>
-            </div>
-            <div
-                class="h-48 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-transparent flex flex-col items-center justify-center text-center p-6">
-                <span class="material-symbols-outlined text-4xl text-gray-300 mb-2">edit_note</span>
-                <span class="text-sm text-gray-400 font-medium">Değerlendirme Notları (Yakında)</span>
+                class="bg-gray-900 rounded-xl shadow-xl border border-gray-800 p-4 font-mono text-sm overflow-hidden flex flex-col h-[400px]">
+                <div class="flex items-center justify-between mb-3 border-b border-gray-800 pb-2">
+                    <div class="flex items-center gap-2">
+                        <div class="flex gap-1.5">
+                            <div class="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
+                        </div>
+                        <span class="text-gray-500 text-xs font-bold uppercase tracking-widest ml-2">Analiz
+                            Konsolu</span>
+                    </div>
+                </div>
+                <div id="judgeLogs" class="flex-1 overflow-y-auto space-y-1 pr-2 custom-scrollbar text-gray-300">
+                    <!-- Logs will be injected here -->
+                    <div class="text-primary/70 animate-pulse">Değerlendirme başlatılması bekleniyor...</div>
+                </div>
             </div>
         </div>
 

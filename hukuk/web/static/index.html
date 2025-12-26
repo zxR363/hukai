@@ -260,8 +260,8 @@
                             </button>
                             <button id="submitBtn" type="submit"
                                 class="flex items-center justify-center rounded-lg h-10 px-6 bg-primary text-white text-sm font-bold shadow-md hover:bg-blue-600 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span class="material-symbols-outlined text-[20px] mr-2">play_arrow</span>
-                                Analizi Başlat
+                                <span class="material-symbols-outlined text-[20px] mr-2">search</span>
+                                Belgeleri Tespit Et
                             </button>
                         </div>
                     </div>
@@ -293,394 +293,402 @@
                                     placeholder="Örn: Yargıtay Emsalleri" type="text" />
                             </div>
 
-                            <!-- Dummy Filters for Visual Completeness -->
+                            <!-- Tarih ve Tip (Görsel tamlık için) -->
                             <div class="md:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4">
                                 <div class="sm:col-span-2">
                                     <label class="text-[#111418] text-sm font-medium leading-normal pb-1.5">Tarih
                                         Aralığı</label>
                                     <div class="flex items-center gap-2">
                                         <input
-                                            class="form-input w-full rounded-lg border border-[#dbe0e6] bg-white px-3 py-2 text-sm text-slate-600"
+                                            class="form-input w-full rounded-lg border border-[#dbe0e6] bg-white px-3 py-2 text-xs"
                                             type="date" />
                                         <span class="text-slate-400">-</span>
                                         <input
-                                            class="form-input w-full rounded-lg border border-[#dbe0e6] bg-white px-3 py-2 text-sm text-slate-600"
+                                            class="form-input w-full rounded-lg border border-[#dbe0e6] bg-white px-3 py-2 text-xs"
                                             type="date" />
                                     </div>
                                 </div>
-                                <div>
+                                <div class="sm:col-span-2">
                                     <label class="text-[#111418] text-sm font-medium leading-normal pb-1.5">Belge
                                         Tipi</label>
                                     <select
-                                        class="form-select w-full rounded-lg border border-[#dbe0e6] bg-white px-3 py-2.5 text-sm text-slate-700">
+                                        class="form-select w-full rounded-lg border border-[#dbe0e6] bg-white px-3 py-2 text-xs">
                                         <option>Tümü</option>
-                                        <option>Karar</option>
+                                        <option>Yargıtay Kararı</option>
+                                        <option>Danıştay Kararı</option>
                                         <option>Mevzuat</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label
-                                        class="text-[#111418] text-sm font-medium leading-normal pb-1.5">Kaynak</label>
-                                    <select
-                                        class="form-select w-full rounded-lg border border-[#dbe0e6] bg-white px-3 py-2.5 text-sm text-slate-700">
-                                        <option>Tümü</option>
-                                        <option>Yargıtay</option>
-                                        <option>Danıştay</option>
-                                    </select>
-                                </div>
+                                </select>
                             </div>
                         </div>
                     </div>
-                </form>
-            </section>
+    </div>
+    </form>
+    </section>
 
-            <!-- BOTTOM CONTENT: Responsive Stack on Mobile, Side-by-Side on Desktop -->
-            <div id="bottomContent"
-                class="flex flex-col lg:flex-row overflow-hidden min-h-0 h-auto lg:h-[85vh] border-t border-[#f0f2f4] transition-all duration-500 ease-in-out">
+    <!-- BOTTOM CONTENT: Responsive Stack on Mobile, Side-by-Side on Desktop -->
+    <div id="bottomContent"
+        class="flex flex-col lg:flex-row overflow-hidden min-h-0 h-auto lg:h-[85vh] border-t border-[#f0f2f4] transition-all duration-500 ease-in-out">
 
-                <!-- LEFT PANEL: RESULTS LIST -->
-                <section
-                    class="w-full lg:w-[450px] xl:w-[500px] flex flex-col border-r border-[#f0f2f4] bg-[#fcfdfd] shrink-0 transition-all min-h-0 overflow-hidden h-[500px] lg:h-full">
-                    <div
-                        class="p-4 border-b border-[#f0f2f4] bg-white flex items-center justify-between sticky top-0 z-10">
-                        <div class="flex items-center gap-2">
-                            <h3 class="font-bold text-[#111418]">Sonuçlar</h3>
-                            <span id="resCountBadge"
-                                class="bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+        <!-- LEFT PANEL: RESULTS LIST -->
+        <section
+            class="w-full lg:w-[450px] xl:w-[500px] flex flex-col border-r border-[#f0f2f4] bg-[#fcfdfd] shrink-0 transition-all min-h-0 overflow-hidden h-[500px] lg:h-full">
+            <div class="p-4 border-b border-[#f0f2f4] bg-white flex items-center justify-between sticky top-0 z-10">
+                <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-[#111418]">Sonuçlar</h3>
+                    <span id="resCountBadge"
+                        class="bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                </div>
+                <label class="inline-flex items-center cursor-pointer">
+                    <input id="selectAllCb"
+                        class="form-checkbox text-primary rounded border-gray-300 focus:ring-primary/20 size-4"
+                        type="checkbox" onclick="toggleSelectAll()" />
+                    <span class="ml-2 text-xs font-medium text-slate-500 select-none">Tümünü Seç</span>
+                </label>
+            </div>
+
+            <!-- FILTER BAR (MODERN) -->
+            <div id="filterBar"
+                class="px-4 py-3 border-b border-slate-100 bg-slate-50/30 backdrop-blur-sm flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
+                <div onclick="setFilter('all')" id="filter-all" class="filter-pill filter-pill-active">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Tümü</span>
+                </div>
+                <div onclick="setFilter('[EMSAL İLKE]')" id="filter-emsal" class="filter-pill filter-pill-inactive">
+                    <span class="material-symbols-outlined">gavel</span>
+                    <span>Emsal İlke</span>
+                </div>
+                <div onclick="setFilter('[DOĞRUDAN DELİL]')" id="filter-delil" class="filter-pill filter-pill-inactive">
+                    <span class="material-symbols-outlined">verified</span>
+                    <span>Doğrudan Delil</span>
+                </div>
+            </div>
+
+            <div id="resultsList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar h-full">
+                <div class="flex flex-col items-center justify-center h-full text-center text-slate-400">
+                    <span class="material-symbols-outlined text-4xl mb-2">find_in_page</span>
+                    <p class="text-sm">Analiz başlatıldığında sonuçlar burada görünecektir.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: DASHBOARD / STATS / PDF -->
+        <section id="rightPanel"
+            class="flex-1 bg-white flex flex-col relative overflow-hidden min-h-[500px] lg:min-h-0 h-auto lg:h-full">
+
+            <!-- 1. PLACEHOLDER STATE -->
+            <div id="defaultPlaceholder" class="flex-1 flex flex-col items-center justify-center p-8 relative">
+                <div class="absolute inset-0 opacity-[0.03] z-0"
+                    style="background-image: radial-gradient(#137fec 1px, transparent 1px); background-size: 24px 24px;">
+                </div>
+                <div class="z-10 flex flex-col items-center max-w-md text-center">
+                    <div class="size-24 bg-primary/10 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                        <span class="material-symbols-outlined text-primary text-[48px]">analytics</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-[#111418] mb-3">Analiz Kontrol Merkezi</h2>
+                    <p class="text-slate-500 mb-8 leading-relaxed">
+                        Detaylı analiz sonuçlarını görüntülemek, karşılaştırma yapmak veya yapay zeka
+                        özetini
+                        okumak için lütfen analiz başlatın.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 2. STATS DASHBOARD (Visible after search) -->
+            <div id="statsView" class="hidden flex-1 overflow-y-auto p-8 w-full max-w-5xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-[#111418]">Analiz Özeti</h2>
+                    <p class="text-slate-500 text-sm">Bulunan belgelerin dağılımı ve analiz durumu.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-blue-50 border border-blue-100 p-6 rounded-xl">
+                        <div class="text-xs font-bold text-blue-600 uppercase mb-1">TOPLAM BELGE</div>
+                        <div id="statTotal" class="text-4xl font-bold text-[#111418]">0</div>
+                    </div>
+                    <div id="cardSelected" class="bg-slate-50 border border-slate-200 p-6 rounded-xl transition-all">
+                        <div class="text-xs font-bold text-slate-600 uppercase mb-1">SEÇİLEN</div>
+                        <div id="statSelected" class="text-4xl font-bold text-[#111418]">0</div>
+                    </div>
+                    <div class="bg-yellow-50 border border-yellow-100 p-6 rounded-xl">
+                        <div class="text-xs font-bold text-yellow-600 uppercase mb-1">ORTALAMA GÜVEN</div>
+                        <div id="statScore" class="text-4xl font-bold text-[#111418]">-</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-6 border-t border-slate-100">
+                    <button id="bulkActionBtn" disabled
+                        class="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:shadow-none">
+                        <span class="material-symbols-outlined text-[20px]">done_all</span>
+                        Seçilenlerle Rapor Oluştur
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. PDF VIEWER (In-Flow) -->
+            <div id="pdfView" class="hidden flex-1 w-full h-full bg-[#f3f4f6] flex-col overflow-hidden">
+
+                <!-- TOOLBAR -->
+                <div
+                    class="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
+
+                    <!-- Left: File Info -->
+                    <div class="flex items-center gap-4 min-w-0 max-w-[30%]">
+                        <div
+                            class="size-10 bg-red-50 text-red-600 rounded-lg flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-2xl">picture_as_pdf</span>
                         </div>
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input id="selectAllCb"
-                                class="form-checkbox text-primary rounded border-gray-300 focus:ring-primary/20 size-4"
-                                type="checkbox" onclick="toggleSelectAll()" />
-                            <span class="ml-2 text-xs font-medium text-slate-500 select-none">Tümünü Seç</span>
-                        </label>
+                        <div class="flex flex-col min-w-0">
+                            <h3 id="pdfTitle" class="text-sm font-bold text-gray-900 truncate" title="Filename">
+                                Belge.pdf</h3>
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <div class="size-2 rounded-full bg-green-500"></div>
+                                <span>Analiz Edildi</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- FILTER BAR (MODERN) -->
-                    <div id="filterBar"
-                        class="px-4 py-3 border-b border-slate-100 bg-slate-50/30 backdrop-blur-sm flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
-                        <div onclick="setFilter('all')" id="filter-all" class="filter-pill filter-pill-active">
-                            <span class="material-symbols-outlined">dashboard</span>
-                            <span>Tümü</span>
-                        </div>
-                        <div onclick="setFilter('[EMSAL İLKE]')" id="filter-emsal"
-                            class="filter-pill filter-pill-inactive">
-                            <span class="material-symbols-outlined">gavel</span>
-                            <span>Emsal İlke</span>
-                        </div>
-                        <div onclick="setFilter('[DOĞRUDAN DELİL]')" id="filter-delil"
-                            class="filter-pill filter-pill-inactive">
-                            <span class="material-symbols-outlined">verified</span>
-                            <span>Doğrudan Delil</span>
-                        </div>
+                    <!-- Center: Zoom Controls -->
+                    <div class="hidden md:flex items-center bg-gray-100 rounded-lg p-1 gap-2">
+                        <button onclick="zoom(-0.1)"
+                            class="size-8 flex items-center justify-center hover:bg-white rounded-md transition-shadow text-gray-600">
+                            <span class="material-symbols-outlined text-[18px]">remove</span>
+                        </button>
+                        <span id="zoomLevel"
+                            class="text-xs font-bold text-gray-700 w-12 text-center select-none">100%</span>
+                        <button onclick="zoom(0.1)"
+                            class="size-8 flex items-center justify-center hover:bg-white rounded-md transition-shadow text-gray-600">
+                            <span class="material-symbols-outlined text-[18px]">add</span>
+                        </button>
                     </div>
 
-                    <div id="resultsList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar h-full">
-                        <div class="flex flex-col items-center justify-center h-full text-center text-slate-400">
-                            <span class="material-symbols-outlined text-4xl mb-2">find_in_page</span>
-                            <p class="text-sm">Analiz başlatıldığında sonuçlar burada görünecektir.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- RIGHT PANEL: DASHBOARD / STATS / PDF -->
-                <section id="rightPanel"
-                    class="flex-1 bg-white flex flex-col relative overflow-hidden min-h-[500px] lg:min-h-0 h-auto lg:h-full">
-
-                    <!-- 1. PLACEHOLDER STATE -->
-                    <div id="defaultPlaceholder" class="flex-1 flex flex-col items-center justify-center p-8 relative">
-                        <div class="absolute inset-0 opacity-[0.03] z-0"
-                            style="background-image: radial-gradient(#137fec 1px, transparent 1px); background-size: 24px 24px;">
-                        </div>
-                        <div class="z-10 flex flex-col items-center max-w-md text-center">
-                            <div
-                                class="size-24 bg-primary/10 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                                <span class="material-symbols-outlined text-primary text-[48px]">analytics</span>
-                            </div>
-                            <h2 class="text-2xl font-bold text-[#111418] mb-3">Analiz Kontrol Merkezi</h2>
-                            <p class="text-slate-500 mb-8 leading-relaxed">
-                                Detaylı analiz sonuçlarını görüntülemek, karşılaştırma yapmak veya yapay zeka
-                                özetini
-                                okumak için lütfen analiz başlatın.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- 2. STATS DASHBOARD (Visible after search) -->
-                    <div id="statsView" class="hidden flex-1 overflow-y-auto p-8 w-full max-w-5xl mx-auto">
-                        <div class="mb-8">
-                            <h2 class="text-2xl font-bold text-[#111418]">Analiz Özeti</h2>
-                            <p class="text-slate-500 text-sm">Bulunan belgelerin dağılımı ve analiz durumu.</p>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <div class="bg-blue-50 border border-blue-100 p-6 rounded-xl">
-                                <div class="text-xs font-bold text-blue-600 uppercase mb-1">TOPLAM BELGE</div>
-                                <div id="statTotal" class="text-4xl font-bold text-[#111418]">0</div>
-                            </div>
-                            <div id="cardSelected"
-                                class="bg-slate-50 border border-slate-200 p-6 rounded-xl transition-all">
-                                <div class="text-xs font-bold text-slate-600 uppercase mb-1">SEÇİLEN</div>
-                                <div id="statSelected" class="text-4xl font-bold text-[#111418]">0</div>
-                            </div>
-                            <div class="bg-yellow-50 border border-yellow-100 p-6 rounded-xl">
-                                <div class="text-xs font-bold text-yellow-600 uppercase mb-1">ORTALAMA GÜVEN</div>
-                                <div id="statScore" class="text-4xl font-bold text-[#111418]">-</div>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end pt-6 border-t border-slate-100">
-                            <button id="bulkActionBtn" disabled
-                                class="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:shadow-none">
-                                <span class="material-symbols-outlined text-[20px]">done_all</span>
-                                Seçilenlerle Rapor Oluştur
+                    <!-- Right: Actions -->
+                    <div class="flex items-center gap-2">
+                        <div class="hidden sm:flex items-center border-r border-gray-200 pr-2 mr-2 gap-1">
+                            <button onclick="window.print()"
+                                class="size-9 flex items-center justify-center hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
+                                title="Yazdır">
+                                <span class="material-symbols-outlined text-[20px]">print</span>
+                            </button>
+                            <button id="pdfDownloadBtn"
+                                class="size-9 flex items-center justify-center hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
+                                title="İndir">
+                                <span class="material-symbols-outlined text-[20px]">download</span>
                             </button>
                         </div>
+                        <button onclick="closePdf()"
+                            class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-sm font-bold transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">close</span>
+                            Kapat
+                        </button>
                     </div>
+                </div>
 
-                    <!-- 3. PDF VIEWER (In-Flow) -->
-                    <div id="pdfView" class="hidden flex-1 w-full h-full bg-[#f3f4f6] flex-col overflow-hidden">
+                <!-- DOCUMENT AREA -->
+                <div class="flex-1 overflow-y-auto p-8 flex justify-center custom-scrollbar" id="pdfContainer">
+                    <div id="viewPage"
+                        class="bg-white shadow-2xl transition-transform origin-top duration-200 ease-out w-[21cm] min-h-[29.7cm] flex flex-col relative print:shadow-none print:w-full">
 
-                        <!-- TOOLBAR -->
+                        <!-- Document Header Meta -->
+                        <div class="absolute top-12 right-12 text-right">
+                            <p class="text-[10px] text-gray-400 font-mono tracking-widest uppercase">AI
+                                LAWYER
+                                ANALYSIS REF: #2024-XA</p>
+                        </div>
+
+                        <div class="p-16 flex-1 flex flex-col">
+                            <!-- AI Context Box -->
+                            <div id="pdfReason"
+                                class="mb-10 p-6 bg-slate-50 border-l-4 border-primary rounded-r-lg text-slate-700 text-sm leading-relaxed font-medium print:hidden">
+                            </div>
+
+                            <!-- Content -->
+                            <div id="pdfBody" class="font-serif leading-8 text-[11pt] text-justify text-gray-800"></div>
+                        </div>
+
+                        <!-- Pagination Pill -->
                         <div
-                            class="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
-
-                            <!-- Left: File Info -->
-                            <div class="flex items-center gap-4 min-w-0 max-w-[30%]">
-                                <div
-                                    class="size-10 bg-red-50 text-red-600 rounded-lg flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-2xl">picture_as_pdf</span>
-                                </div>
-                                <div class="flex flex-col min-w-0">
-                                    <h3 id="pdfTitle" class="text-sm font-bold text-gray-900 truncate" title="Filename">
-                                        Belge.pdf</h3>
-                                    <div class="flex items-center gap-2 text-xs text-gray-500">
-                                        <div class="size-2 rounded-full bg-green-500"></div>
-                                        <span>Analiz Edildi</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Center: Zoom Controls -->
-                            <div class="hidden md:flex items-center bg-gray-100 rounded-lg p-1 gap-2">
-                                <button onclick="zoom(-0.1)"
-                                    class="size-8 flex items-center justify-center hover:bg-white rounded-md transition-shadow text-gray-600">
-                                    <span class="material-symbols-outlined text-[18px]">remove</span>
-                                </button>
-                                <span id="zoomLevel"
-                                    class="text-xs font-bold text-gray-700 w-12 text-center select-none">100%</span>
-                                <button onclick="zoom(0.1)"
-                                    class="size-8 flex items-center justify-center hover:bg-white rounded-md transition-shadow text-gray-600">
-                                    <span class="material-symbols-outlined text-[18px]">add</span>
-                                </button>
-                            </div>
-
-                            <!-- Right: Actions -->
-                            <div class="flex items-center gap-2">
-                                <div class="hidden sm:flex items-center border-r border-gray-200 pr-2 mr-2 gap-1">
-                                    <button onclick="window.print()"
-                                        class="size-9 flex items-center justify-center hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
-                                        title="Yazdır">
-                                        <span class="material-symbols-outlined text-[20px]">print</span>
-                                    </button>
-                                    <button id="pdfDownloadBtn"
-                                        class="size-9 flex items-center justify-center hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
-                                        title="İndir">
-                                        <span class="material-symbols-outlined text-[20px]">download</span>
-                                    </button>
-                                </div>
-                                <button onclick="closePdf()"
-                                    class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-sm font-bold transition-colors">
-                                    <span class="material-symbols-outlined text-[18px]">close</span>
-                                    Kapat
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- DOCUMENT AREA -->
-                        <div class="flex-1 overflow-y-auto p-8 flex justify-center custom-scrollbar" id="pdfContainer">
-                            <div id="viewPage"
-                                class="bg-white shadow-2xl transition-transform origin-top duration-200 ease-out w-[21cm] min-h-[29.7cm] flex flex-col relative print:shadow-none print:w-full">
-
-                                <!-- Document Header Meta -->
-                                <div class="absolute top-12 right-12 text-right">
-                                    <p class="text-[10px] text-gray-400 font-mono tracking-widest uppercase">AI
-                                        LAWYER
-                                        ANALYSIS REF: #2024-XA</p>
-                                </div>
-
-                                <div class="p-16 flex-1 flex flex-col">
-                                    <!-- AI Context Box -->
-                                    <div id="pdfReason"
-                                        class="mb-10 p-6 bg-slate-50 border-l-4 border-primary rounded-r-lg text-slate-700 text-sm leading-relaxed font-medium print:hidden">
-                                    </div>
-
-                                    <!-- Content -->
-                                    <div id="pdfBody"
-                                        class="font-serif leading-8 text-[11pt] text-justify text-gray-800"></div>
-                                </div>
-
-                                <!-- Pagination Pill -->
-                                <div
-                                    class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur border border-gray-200 shadow-lg rounded-full px-4 py-2 flex items-center gap-4 text-xs font-bold text-gray-600 print:hidden z-40">
-                                    <button class="hover:text-primary"><span
-                                            class="material-symbols-outlined text-[16px]">chevron_left</span></button>
-                                    <span>Sayfa 1 / 1</span>
-                                    <button class="hover:text-primary"><span
-                                            class="material-symbols-outlined text-[16px]">chevron_right</span></button>
-                                </div>
-                            </div>
+                            class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur border border-gray-200 shadow-lg rounded-full px-4 py-2 flex items-center gap-4 text-xs font-bold text-gray-600 print:hidden z-40">
+                            <button class="hover:text-primary"><span
+                                    class="material-symbols-outlined text-[16px]">chevron_left</span></button>
+                            <span>Sayfa 1 / 1</span>
+                            <button class="hover:text-primary"><span
+                                    class="material-symbols-outlined text-[16px]">chevron_right</span></button>
                         </div>
                     </div>
-
-                </section>
+                </div>
             </div>
-        </main>
+
+        </section>
+    </div>
+    </main>
 
 
-        <script>
-            // --- STATE ---
-            let searchResults = [];
-            let selectedIndices = new Set();
-            let currentZoom = 1;
-            let activeFilter = 'all';
+    <script>
+        // --- STATE ---
+        let searchResults = [];
+        let selectedIndices = new Set();
+        let currentZoom = 1;
+        let activeFilter = 'all';
 
-            function setFilter(type) {
-                activeFilter = type;
+        function setFilter(type) {
+            activeFilter = type;
 
-                // Update UI Pills
-                const pills = {
-                    'all': document.getElementById('filter-all'),
-                    '[EMSAL İLKE]': document.getElementById('filter-emsal'),
-                    '[DOĞRUDAN DELİL]': document.getElementById('filter-delil')
-                };
-
-                Object.keys(pills).forEach(key => {
-                    const el = pills[key];
-                    if (!el) return;
-                    if (key === type) {
-                        el.classList.remove('filter-pill-inactive');
-                        el.classList.add('filter-pill-active');
-                    } else {
-                        el.classList.remove('filter-pill-active');
-                        el.classList.add('filter-pill-inactive');
-                    }
-                });
-
-                renderList();
-            }
-            window.setFilter = setFilter;
-
-            // --- ELEMENTS ---
-            const resultsList = document.getElementById('resultsList');
-            const selectAllCb = document.getElementById('selectAllCb');
-            const resCountBadge = document.getElementById('resCountBadge');
-
-            // View Sections
-            const defaultPlaceholder = document.getElementById('defaultPlaceholder');
-            const statsView = document.getElementById('statsView');
-            const pdfView = document.getElementById('pdfView');
-
-            // Stats Elements
-            const statTotal = document.getElementById('statTotal');
-            const statSelected = document.getElementById('statSelected');
-            const statScore = document.getElementById('statScore');
-            const cardSelected = document.getElementById('cardSelected');
-            const bulkActionBtn = document.getElementById('bulkActionBtn');
-
-            // PDF Elements
-            const pdfTitle = document.getElementById('pdfTitle');
-            const pdfBody = document.getElementById('pdfBody');
-            const pdfReason = document.getElementById('pdfReason');
-            const viewPage = document.getElementById('viewPage');
-
-            const headerDownloadBtn = document.getElementById('headerDownloadBtn');
-            const submitBtn = document.getElementById('submitBtn');
-
-            // --- WEBSOCKET ---
-            const ws = new WebSocket(`ws://${location.host}/ws/logs`);
-            ws.onmessage = (e) => {
-                const msg = e.data;
-                if (msg.startsWith("PDF|")) {
-                    const f = msg.substring(4);
-                    headerDownloadBtn.href = `/api/download/${f}`;
-                    headerDownloadBtn.classList.remove('hidden');
-                    headerDownloadBtn.classList.add('flex');
-                } else if (msg.startsWith("RESULT|")) {
-                    try {
-                        const data = JSON.parse(msg.substring(7));
-                        searchResults = data.docs;
-                        selectedIndices.clear();
-                        selectAllCb.checked = false;
-
-                        setLoading(false);
-                        renderList();
-                        showStats();
-                    } catch (err) { console.error(err); setLoading(false); }
-                }
+            // Update UI Pills
+            const pills = {
+                'all': document.getElementById('filter-all'),
+                '[EMSAL İLKE]': document.getElementById('filter-emsal'),
+                '[DOĞRUDAN DELİL]': document.getElementById('filter-delil')
             };
 
-            // --- INTERACTIONS ---
-            document.getElementById('searchForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const story = document.getElementById('story').value;
-                const topic = document.getElementById('topic').value;
-                const negatives = document.getElementById('negatives').value;
-
-                if (!story || !topic) return alert("Hukuki olay ve odak noktası gereklidir.");
-                setLoading(true);
-                searchResults = [];
-                setFilter('all'); // Reset filter on new search
-                renderList();
-
-                try { await fetch('/api/search', { method: 'POST', body: JSON.stringify({ story, topic, negatives }), headers: { 'Content-Type': 'application/json' } }); }
-                catch (err) { console.error(err); setLoading(false); }
+            Object.keys(pills).forEach(key => {
+                const el = pills[key];
+                if (!el) return;
+                if (key === type) {
+                    el.classList.remove('filter-pill-inactive');
+                    el.classList.add('filter-pill-active');
+                } else {
+                    el.classList.remove('filter-pill-active');
+                    el.classList.add('filter-pill-inactive');
+                }
             });
 
-            function setLoading(isLoading) {
-                if (isLoading) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin mr-2">progress_activity</span> İşleniyor...';
-                } else {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] mr-2">play_arrow</span> Analizi Başlat';
-                }
+            renderList();
+        }
+        window.setFilter = setFilter;
+
+        // --- ELEMENTS ---
+        const resultsList = document.getElementById('resultsList');
+        const selectAllCb = document.getElementById('selectAllCb');
+        const resCountBadge = document.getElementById('resCountBadge');
+
+        // View Sections
+        const defaultPlaceholder = document.getElementById('defaultPlaceholder');
+        const statsView = document.getElementById('statsView');
+        const pdfView = document.getElementById('pdfView');
+
+        // Stats Elements
+        const statTotal = document.getElementById('statTotal');
+        const statSelected = document.getElementById('statSelected');
+        const statScore = document.getElementById('statScore');
+        const cardSelected = document.getElementById('cardSelected');
+        const bulkActionBtn = document.getElementById('bulkActionBtn');
+
+        // PDF Elements
+        const pdfTitle = document.getElementById('pdfTitle');
+        const pdfBody = document.getElementById('pdfBody');
+        const pdfReason = document.getElementById('pdfReason');
+        const viewPage = document.getElementById('viewPage');
+
+        const headerDownloadBtn = document.getElementById('headerDownloadBtn');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // --- WEBSOCKET ---
+        ws.onmessage = (e) => {
+            const msg = e.data;
+            if (msg.startsWith("PDF|")) {
+                const f = msg.substring(4);
+                headerDownloadBtn.href = `/api/download/${f}`;
+                headerDownloadBtn.classList.remove('hidden');
+                headerDownloadBtn.classList.add('flex');
+            } else if (msg.startsWith("SEARCH_RESULT|")) {
+                try {
+                    const data = JSON.parse(msg.substring(14));
+                    searchResults = data;
+                    selectedIndices.clear();
+                    selectAllCb.checked = false;
+
+                    setLoading(false);
+                    renderList();
+                    showStats();
+                } catch (err) { console.error(err); setLoading(false); }
+            } else if (msg.startsWith("RESULT|")) {
+                try {
+                    const data = JSON.parse(msg.substring(7));
+                    searchResults = data.docs;
+                    selectedIndices.clear();
+                    selectAllCb.checked = false;
+
+                    setLoading(false);
+                    renderList();
+                    showStats();
+                } catch (err) { console.error(err); setLoading(false); }
+            } else if (msg.startsWith("LOG|")) {
+                const logMsg = msg.substring(4);
+                const logConsole = document.getElementById('logConsole');
+                const logContainer = document.getElementById('logContainer');
+
+                logConsole.classList.remove('hidden');
+                const entry = document.createElement('div');
+                entry.className = "flex items-start gap-2 py-0.5 border-b border-slate-100 last:border-0";
+                entry.innerHTML = `<span class="text-slate-400 shrink-0 uppercase text-[9px] font-bold">[${new Date().toLocaleTimeString()}]</span><span>${logMsg}</span>`;
+                logContainer.appendChild(entry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+        };
+
+        // --- INTERACTIONS ---
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const story = document.getElementById('story').value;
+            const topic = document.getElementById('topic').value;
+            const negatives = document.getElementById('negatives').value;
+
+            if (!story || !topic) return alert("Hukuki olay ve odak noktası gereklidir.");
+            setLoading(true);
+            searchResults = [];
+            setFilter('all'); // Reset filter on new search
+            renderList();
+
+            try { await fetch('/api/search', { method: 'POST', body: JSON.stringify({ story, topic, negatives }), headers: { 'Content-Type': 'application/json' } }); }
+            catch (err) { console.error(err); setLoading(false); }
+        });
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin mr-2">progress_activity</span> İşleniyor...';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] mr-2">search</span> Belgeleri Tespit Et';
+            }
+        }
+
+        function renderList() {
+            resultsList.innerHTML = "";
+
+            // Filter Results
+            const filtered = activeFilter === 'all'
+                ? searchResults.map((doc, originalIdx) => ({ ...doc, originalIdx }))
+                : searchResults
+                    .map((doc, originalIdx) => ({ ...doc, originalIdx }))
+                    .filter(doc => doc.role === activeFilter);
+
+            resCountBadge.innerText = filtered.length;
+
+            if (filtered.length === 0) {
+                resultsList.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center text-slate-400"><span class="material-symbols-outlined text-4xl mb-2">find_in_page</span><p class="text-sm">Sonuç bulunamadı.</p></div>`;
+                return;
             }
 
-            function renderList() {
-                resultsList.innerHTML = "";
+            filtered.forEach((doc) => {
+                const idx = doc.originalIdx;
+                const isSel = selectedIndices.has(idx);
 
-                // Filter Results
-                const filtered = activeFilter === 'all'
-                    ? searchResults.map((doc, originalIdx) => ({ ...doc, originalIdx }))
-                    : searchResults
-                        .map((doc, originalIdx) => ({ ...doc, originalIdx }))
-                        .filter(doc => doc.role === activeFilter);
+                // Score styling
+                let barColor = "bg-green-500";
+                let txtColor = "text-green-600";
+                if (doc.score < 60) { barColor = "bg-red-500"; txtColor = "text-red-600"; }
+                else if (doc.score < 80) { barColor = "bg-yellow-500"; txtColor = "text-yellow-600"; }
 
-                resCountBadge.innerText = filtered.length;
+                const el = document.createElement('div');
+                el.className = `p-4 rounded-xl border shadow-sm transition-all cursor-pointer group ${isSel ? 'bg-primary/5 border-primary/50' : 'bg-white border-slate-200 hover:shadow-md hover:border-primary/50'}`;
+                el.onclick = (e) => {
+                    if (e.target.tagName !== 'INPUT' && !e.target.closest('button')) toggleSelection(idx);
+                };
 
-                if (filtered.length === 0) {
-                    resultsList.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center text-slate-400"><span class="material-symbols-outlined text-4xl mb-2">find_in_page</span><p class="text-sm">Sonuç bulunamadı.</p></div>`;
-                    return;
-                }
-
-                filtered.forEach((doc) => {
-                    const idx = doc.originalIdx;
-                    const isSel = selectedIndices.has(idx);
-
-                    // Score styling
-                    let barColor = "bg-green-500";
-                    let txtColor = "text-green-600";
-                    if (doc.score < 60) { barColor = "bg-red-500"; txtColor = "text-red-600"; }
-                    else if (doc.score < 80) { barColor = "bg-yellow-500"; txtColor = "text-yellow-600"; }
-
-                    const el = document.createElement('div');
-                    el.className = `p-4 rounded-xl border shadow-sm transition-all cursor-pointer group ${isSel ? 'bg-primary/5 border-primary/50' : 'bg-white border-slate-200 hover:shadow-md hover:border-primary/50'}`;
-                    el.onclick = (e) => {
-                        if (e.target.tagName !== 'INPUT' && !e.target.closest('button')) toggleSelection(idx);
-                    };
-
-                    el.innerHTML = `
+                el.innerHTML = `
                 <div class="flex items-start gap-3">
                     <div class="pt-1">
                         <input type="checkbox" onchange="toggleSelection(${idx})" ${isSel ? 'checked' : ''} class="form-checkbox text-primary rounded border-gray-300 focus:ring-primary/20 size-4 pointer-events-none"/>
@@ -716,172 +724,172 @@
                     </div>
                 </div>
             `;
-                    resultsList.appendChild(el);
-                });
-
-                updateStatsUI();
-            }
-
-            function toggleSelection(idx) {
-                if (selectedIndices.has(idx)) selectedIndices.delete(idx);
-                else selectedIndices.add(idx);
-                renderList();
-                updateStatsUI();
-            }
-
-            function toggleSelectAll() {
-                // Only affect visible items
-                const filteredIdxs = activeFilter === 'all'
-                    ? searchResults.map((_, i) => i)
-                    : searchResults.reduce((acc, doc, i) => {
-                        if (doc.role === activeFilter) acc.push(i);
-                        return acc;
-                    }, []);
-
-                if (selectAllCb.checked) {
-                    filteredIdxs.forEach(i => selectedIndices.add(i));
-                } else {
-                    filteredIdxs.forEach(i => selectedIndices.delete(i));
-                }
-                renderList();
-                updateStatsUI();
-            }
-
-            function showStats() {
-                defaultPlaceholder.classList.add('hidden');
-                pdfView.classList.add('hidden');
-                statsView.classList.remove('hidden');
-            }
-
-            function updateStatsUI() {
-                const total = searchResults.length;
-                const selected = selectedIndices.size;
-                let avg = 0;
-                if (total > 0) {
-                    const sum = searchResults.reduce((a, b) => a + b.score, 0);
-                    avg = (sum / total).toFixed(0);
-                }
-
-                statTotal.innerText = total;
-                statSelected.innerText = selected;
-                statScore.innerText = "%" + avg;
-
-                if (selected > 0) {
-                    cardSelected.classList.remove('bg-slate-50', 'border-slate-200');
-                    cardSelected.classList.add('bg-green-50', 'border-green-200');
-                    bulkActionBtn.disabled = false;
-                    bulkActionBtn.innerHTML = `<span class="material-symbols-outlined text-[20px] mr-2">done_all</span> ${selected} Belgeyi Analiz Et`;
-                    bulkActionBtn.onclick = openReportView;
-                } else {
-                    cardSelected.classList.add('bg-slate-50', 'border-slate-200');
-                    cardSelected.classList.remove('bg-green-50', 'border-green-200');
-                    bulkActionBtn.disabled = true;
-                    bulkActionBtn.innerHTML = `<span class="material-symbols-outlined text-[20px] mr-2">done_all</span> Seçilenlerle Rapor Oluştur`;
-                }
-            }
-
-            // --- REPORT VIEW NAVIGATION ---
-            function openReportView() {
-                saveDashboardState(); // Save state before navigating
-
-                const selectedDocs = [];
-                selectedIndices.forEach(idx => {
-                    if (searchResults[idx]) {
-                        selectedDocs.push(searchResults[idx]);
-                    }
-                });
-                localStorage.setItem('reportData', JSON.stringify(selectedDocs));
-                window.location.href = '/static/report.html';
-            }
-
-            // --- STATE PERSISTENCE ---
-            function saveDashboardState() {
-                const state = {
-                    inputs: {
-                        story: document.getElementById('story').value,
-                        topic: document.getElementById('topic').value,
-                        negatives: document.getElementById('negatives').value
-                    },
-                    docs: searchResults,
-                    selected: Array.from(selectedIndices)
-                };
-                localStorage.setItem('dashboardState', JSON.stringify(state));
-            }
-
-            function restoreDashboardState() {
-                try {
-                    const saved = localStorage.getItem('dashboardState');
-                    if (!saved) return;
-
-                    const state = JSON.parse(saved);
-
-                    // Restore Inputs
-                    if (state.inputs) {
-                        document.getElementById('story').value = state.inputs.story || '';
-                        document.getElementById('topic').value = state.inputs.topic || '';
-                        document.getElementById('negatives').value = state.inputs.negatives || '';
-                    }
-
-                    // Restore Results
-                    if (state.docs && state.docs.length > 0) {
-                        searchResults = state.docs;
-
-                        // Restore Selection
-                        selectedIndices.clear();
-                        if (state.selected) {
-                            state.selected.forEach(i => selectedIndices.add(i));
-                        }
-
-                        // Update UI
-                        renderList();
-                        showStats();
-                        updateStatsUI();
-                    }
-                } catch (e) {
-                    console.error("Error restoring state:", e);
-                }
-            }
-
-            // Add restore call to init
-            window.addEventListener('load', () => {
-                // Check if we have saved state and restore it
-                restoreDashboardState();
+                resultsList.appendChild(el);
             });
 
-            // --- PDF VIEWER ---
-            // --- PDF VIEWER ---
-            function openPdf(idx) {
-                const doc = searchResults[idx];
-                pdfTitle.innerText = doc.source;
-                pdfReason.innerHTML = `<strong>YAPAY ZEKA GEREKÇESİ:</strong> ${doc.reason}`;
+            updateStatsUI();
+        }
 
-                // Check if text is HTML (mock engine) or plain text
-                if (doc.text && doc.text.trim().startsWith("<")) {
-                    pdfBody.innerHTML = doc.text;
-                } else {
-                    pdfBody.innerHTML = (doc.text || "").replace(/</g, "&lt;").replace(/\n/g, '<br>');
+        function toggleSelection(idx) {
+            if (selectedIndices.has(idx)) selectedIndices.delete(idx);
+            else selectedIndices.add(idx);
+            renderList();
+            updateStatsUI();
+        }
+
+        function toggleSelectAll() {
+            // Only affect visible items
+            const filteredIdxs = activeFilter === 'all'
+                ? searchResults.map((_, i) => i)
+                : searchResults.reduce((acc, doc, i) => {
+                    if (doc.role === activeFilter) acc.push(i);
+                    return acc;
+                }, []);
+
+            if (selectAllCb.checked) {
+                filteredIdxs.forEach(i => selectedIndices.add(i));
+            } else {
+                filteredIdxs.forEach(i => selectedIndices.delete(i));
+            }
+            renderList();
+            updateStatsUI();
+        }
+
+        function showStats() {
+            defaultPlaceholder.classList.add('hidden');
+            pdfView.classList.add('hidden');
+            statsView.classList.remove('hidden');
+        }
+
+        function updateStatsUI() {
+            const total = searchResults.length;
+            const selected = selectedIndices.size;
+            let avg = 0;
+            if (total > 0) {
+                const sum = searchResults.reduce((a, b) => a + b.score, 0);
+                avg = (sum / total).toFixed(0);
+            }
+
+            statTotal.innerText = total;
+            statSelected.innerText = selected;
+            statScore.innerText = "%" + avg;
+
+            if (selected > 0) {
+                cardSelected.classList.remove('bg-slate-50', 'border-slate-200');
+                cardSelected.classList.add('bg-green-50', 'border-green-200');
+                bulkActionBtn.disabled = false;
+                bulkActionBtn.innerHTML = `<span class="material-symbols-outlined text-[20px] mr-2">done_all</span> ${selected} Belgeyi Analiz Et`;
+                bulkActionBtn.onclick = openReportView;
+            } else {
+                cardSelected.classList.add('bg-slate-50', 'border-slate-200');
+                cardSelected.classList.remove('bg-green-50', 'border-green-200');
+                bulkActionBtn.disabled = true;
+                bulkActionBtn.innerHTML = `<span class="material-symbols-outlined text-[20px] mr-2">done_all</span> Seçilenlerle Rapor Oluştur`;
+            }
+        }
+
+        // --- REPORT VIEW NAVIGATION ---
+        function openReportView() {
+            saveDashboardState(); // Save state before navigating
+
+            const selectedDocs = [];
+            selectedIndices.forEach(idx => {
+                if (searchResults[idx]) {
+                    selectedDocs.push(searchResults[idx]);
+                }
+            });
+            localStorage.setItem('reportData', JSON.stringify(selectedDocs));
+            window.location.href = '/static/report.html';
+        }
+
+        // --- STATE PERSISTENCE ---
+        function saveDashboardState() {
+            const state = {
+                inputs: {
+                    story: document.getElementById('story').value,
+                    topic: document.getElementById('topic').value,
+                    negatives: document.getElementById('negatives').value
+                },
+                docs: searchResults,
+                selected: Array.from(selectedIndices)
+            };
+            localStorage.setItem('dashboardState', JSON.stringify(state));
+        }
+
+        function restoreDashboardState() {
+            try {
+                const saved = localStorage.getItem('dashboardState');
+                if (!saved) return;
+
+                const state = JSON.parse(saved);
+
+                // Restore Inputs
+                if (state.inputs) {
+                    document.getElementById('story').value = state.inputs.story || '';
+                    document.getElementById('topic').value = state.inputs.topic || '';
+                    document.getElementById('negatives').value = state.inputs.negatives || '';
                 }
 
-                defaultPlaceholder.classList.add('hidden');
-                statsView.classList.add('hidden');
+                // Restore Results
+                if (state.docs && state.docs.length > 0) {
+                    searchResults = state.docs;
 
-                // Show PDF View (forcing flex to override hidden)
-                pdfView.classList.remove('hidden');
-                pdfView.classList.add('flex');
+                    // Restore Selection
+                    selectedIndices.clear();
+                    if (state.selected) {
+                        state.selected.forEach(i => selectedIndices.add(i));
+                    }
 
-                // Reset Zoom
-                viewPage.style.transform = `scale(1)`;
-                try {
-                    document.getElementById('zoomLevel').innerText = "100%";
-                } catch (e) { }
-                currentZoom = 1;
+                    // Update UI
+                    renderList();
+                    showStats();
+                    updateStatsUI();
+                }
+            } catch (e) {
+                console.error("Error restoring state:", e);
+            }
+        }
 
-                // Handle Download Button
-                const dlBtn = document.getElementById('pdfDownloadBtn');
-                dlBtn.onclick = () => {
-                    // Since this is a prototype/mock without a backend PDF generator for individual files,
-                    // we download the content as a readable HTML file.
-                    const htmlContent = `
+        // Add restore call to init
+        window.addEventListener('load', () => {
+            // Check if we have saved state and restore it
+            restoreDashboardState();
+        });
+
+        // --- PDF VIEWER ---
+        // --- PDF VIEWER ---
+        function openPdf(idx) {
+            const doc = searchResults[idx];
+            pdfTitle.innerText = doc.source;
+            pdfReason.innerHTML = `<strong>YAPAY ZEKA GEREKÇESİ:</strong> ${doc.reason}`;
+
+            // Check if text is HTML (mock engine) or plain text
+            if (doc.text && doc.text.trim().startsWith("<")) {
+                pdfBody.innerHTML = doc.text;
+            } else {
+                pdfBody.innerHTML = (doc.text || "").replace(/</g, "&lt;").replace(/\n/g, '<br>');
+            }
+
+            defaultPlaceholder.classList.add('hidden');
+            statsView.classList.add('hidden');
+
+            // Show PDF View (forcing flex to override hidden)
+            pdfView.classList.remove('hidden');
+            pdfView.classList.add('flex');
+
+            // Reset Zoom
+            viewPage.style.transform = `scale(1)`;
+            try {
+                document.getElementById('zoomLevel').innerText = "100%";
+            } catch (e) { }
+            currentZoom = 1;
+
+            // Handle Download Button
+            const dlBtn = document.getElementById('pdfDownloadBtn');
+            dlBtn.onclick = () => {
+                // Since this is a prototype/mock without a backend PDF generator for individual files,
+                // we download the content as a readable HTML file.
+                const htmlContent = `
                     <html>
                     <head><title>${doc.source}</title></head>
                     <body style="font-family: serif; line-height: 1.6; max-width: 800px; margin: 2rem auto;">
@@ -892,53 +900,53 @@
                     </body>
                     </html>
                 `;
-                    const blob = new Blob([htmlContent], { type: "text/html" });
-                    const link = document.createElement("a");
-                    link.href = URL.createObjectURL(blob);
-                    link.download = doc.source.replace('.pdf', '.html');
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                };
+                const blob = new Blob([htmlContent], { type: "text/html" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = doc.source.replace('.pdf', '.html');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
 
-                // ANIMATION: Collapse Filters & Expand Bottom
-                const fs = document.getElementById('filterSection');
-                if (fs) {
-                    fs.classList.remove('max-h-[1000px]', 'opacity-100', 'border-b');
-                    fs.classList.add('max-h-0', 'opacity-0', 'border-none');
-                }
-
-                const bc = document.getElementById('bottomContent');
-                if (bc) {
-                    bc.classList.remove('lg:h-[85vh]', 'h-auto', 'min-h-0');
-                    bc.classList.add('flex-1', 'h-full');
-                }
+            // ANIMATION: Collapse Filters & Expand Bottom
+            const fs = document.getElementById('filterSection');
+            if (fs) {
+                fs.classList.remove('max-h-[1000px]', 'opacity-100', 'border-b');
+                fs.classList.add('max-h-0', 'opacity-0', 'border-none');
             }
 
-            function closePdf() {
-                pdfView.classList.add('hidden');
-                pdfView.classList.remove('flex');
-                statsView.classList.remove('hidden');
-
-                // ANIMATION: Restore Filters
-                const fs = document.getElementById('filterSection');
-                fs.classList.remove('max-h-0', 'opacity-0', 'border-none');
-                fs.classList.add('max-h-[1000px]', 'opacity-100', 'border-b');
-
-                const bc = document.getElementById('bottomContent');
-                bc.classList.remove('flex-1', 'h-full');
-                bc.classList.add('lg:h-[85vh]', 'h-auto', 'min-h-0');
+            const bc = document.getElementById('bottomContent');
+            if (bc) {
+                bc.classList.remove('lg:h-[85vh]', 'h-auto', 'min-h-0');
+                bc.classList.add('flex-1', 'h-full');
             }
+        }
 
-            function zoom(z) {
-                currentZoom += z;
-                if (currentZoom < 0.5) currentZoom = 0.5;
-                if (currentZoom > 2) currentZoom = 2;
-                viewPage.style.transform = `scale(${currentZoom})`;
-                document.getElementById('zoomLevel').innerText = Math.round(currentZoom * 100) + "%";
-            }
+        function closePdf() {
+            pdfView.classList.add('hidden');
+            pdfView.classList.remove('flex');
+            statsView.classList.remove('hidden');
 
-        </script>
+            // ANIMATION: Restore Filters
+            const fs = document.getElementById('filterSection');
+            fs.classList.remove('max-h-0', 'opacity-0', 'border-none');
+            fs.classList.add('max-h-[1000px]', 'opacity-100', 'border-b');
+
+            const bc = document.getElementById('bottomContent');
+            bc.classList.remove('flex-1', 'h-full');
+            bc.classList.add('lg:h-[85vh]', 'h-auto', 'min-h-0');
+        }
+
+        function zoom(z) {
+            currentZoom += z;
+            if (currentZoom < 0.5) currentZoom = 0.5;
+            if (currentZoom > 2) currentZoom = 2;
+            viewPage.style.transform = `scale(${currentZoom})`;
+            document.getElementById('zoomLevel').innerText = Math.round(currentZoom * 100) + "%";
+        }
+
+    </script>
 </body>
 
 </html>

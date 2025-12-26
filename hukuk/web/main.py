@@ -1,13 +1,23 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, BackgroundTasks
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, BackgroundTasks, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import uvicorn
 import asyncio
 import os
 import sys
+import json
+from datetime import datetime
+
+# ==================# --- ANALYSIS PERSISTENCE ---
+class AnalysisData(BaseModel):
+    name: str
+    dashboardState: dict
+    reportData: list
+    judgeMetadata: dict
+    timestamp: str
 
 # ================== PATH FIXER ==================
 # Otomatik olarak çalışma dizinini proje kök dizinine (hukuk) ayarlar.
@@ -125,6 +135,71 @@ async def download_file(filename: str):
     if os.path.exists(file_path):
         return FileResponse(file_path, media_type='application/pdf', filename=filename)
     return JSONResponse(status_code=404, content={"message": "File not found"})
+
+# --- ANALYSIS PERSISTENCE ---
+class AnalysisData(BaseModel):
+    name: str
+    dashboardState: dict
+    reportData: list
+    judgeMetadata: dict
+    timestamp: str
+
+@app.post("/api/save_analysis")
+async def save_analysis(data: AnalysisData):
+    """Saves the current analysis state to a JSON file."""
+    try:
+        # Create DB dir if not exists
+        db_dir = os.path.join(project_root, "web", "analysis_db")
+        os.makedirs(db_dir, exist_ok=True)
+
+        # Generate filename: timestamp_slug.json
+        safe_name = "".join([c for c in data.name if c.isalnum() or c in (' ', '-', '_')]).strip().replace(' ', '_')
+        filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{safe_name}.json"
+        
+        file_path = os.path.join(db_dir, filename)
+        
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data.dict(), f, ensure_ascii=False, indent=4)
+            
+        return {"status": "success", "message": "Analiz başarıyla kaydedildi.", "filename": filename}
+    except Exception as e:
+        print(f"Save error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/history")
+async def get_history():
+    """Lists all saved analyses."""
+    try:
+        db_dir = os.path.join(project_root, "web", "analysis_db")
+        if not os.path.exists(db_dir):
+            return []
+            
+        files = []
+        for f in os.listdir(db_dir):
+            if f.endswith(".json"):
+                path = os.path.join(db_dir, f)
+                stats = os.stat(path)
+                
+                try:
+                    with open(path, "r", encoding="utf-8") as json_file:
+                        content = json.load(json_file)
+                        files.append({
+                            "filename": f,
+                            "name": content.get("name", "İsimsiz Analiz"),
+                            "timestamp": content.get("timestamp"),
+                            "doc_count": len(content.get("reportData", [])),
+                            "file_size": stats.st_size
+                        })
+                except Exception:
+                    continue
+        
+        # Sort by timestamp descending
+        files.sort(key=lambda x: x["filename"], reverse=True)
+        return files
+    except Exception as e:
+        print(f"History error: {e}")
+        return []
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8001)

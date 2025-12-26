@@ -209,7 +209,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-slate-400">tune</span>
-                            <h3 class="text-[#111418] text-lg font-bold leading-tight tracking-[-0.015em]">Analiz
+                            <h3 class="text-[#111418] text-lg font-bold leading-tight tracking-[-0.015em]">Araştırma
                                 Kriterleri</h3>
                         </div>
                         <div class="flex items-center gap-3">
@@ -674,6 +674,8 @@
 
             // --- REPORT VIEW NAVIGATION ---
             function openReportView() {
+                saveDashboardState(); // Save state before navigating
+
                 const selectedDocs = [];
                 selectedIndices.forEach(idx => {
                     if (searchResults[idx]) {
@@ -681,8 +683,62 @@
                     }
                 });
                 localStorage.setItem('reportData', JSON.stringify(selectedDocs));
-                window.open('/static/report.html', '_blank');
+                window.location.href = '/static/report.html';
             }
+
+            // --- STATE PERSISTENCE ---
+            function saveDashboardState() {
+                const state = {
+                    inputs: {
+                        story: document.getElementById('story').value,
+                        topic: document.getElementById('topic').value,
+                        negatives: document.getElementById('negatives').value
+                    },
+                    docs: searchResults,
+                    selected: Array.from(selectedIndices)
+                };
+                localStorage.setItem('dashboardState', JSON.stringify(state));
+            }
+
+            function restoreDashboardState() {
+                try {
+                    const saved = localStorage.getItem('dashboardState');
+                    if (!saved) return;
+
+                    const state = JSON.parse(saved);
+
+                    // Restore Inputs
+                    if (state.inputs) {
+                        document.getElementById('story').value = state.inputs.story || '';
+                        document.getElementById('topic').value = state.inputs.topic || '';
+                        document.getElementById('negatives').value = state.inputs.negatives || '';
+                    }
+
+                    // Restore Results
+                    if (state.docs && state.docs.length > 0) {
+                        searchResults = state.docs;
+
+                        // Restore Selection
+                        selectedIndices.clear();
+                        if (state.selected) {
+                            state.selected.forEach(i => selectedIndices.add(i));
+                        }
+
+                        // Update UI
+                        renderList();
+                        showStats();
+                        updateStatsUI();
+                    }
+                } catch (e) {
+                    console.error("Error restoring state:", e);
+                }
+            }
+
+            // Add restore call to init
+            window.addEventListener('load', () => {
+                // Check if we have saved state and restore it
+                restoreDashboardState();
+            });
 
             // --- PDF VIEWER ---
             // --- PDF VIEWER ---

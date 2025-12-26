@@ -136,7 +136,8 @@
                 padding: 0 !important;
             }
 
-            #view-history {
+            #view-history,
+            #view-judge {
                 display: none !important;
             }
 
@@ -192,7 +193,7 @@
     </style>
 </head>
 
-<body class="bg-background-light dark:bg-background-dark text-[#111418] font-display min-h-screen flex overflow-hidden">
+<body class="bg-background-light dark:bg-background-dark text-[#111418] font-display h-screen flex overflow-hidden">
 
     <!-- SIDEBAR -->
     <aside
@@ -213,13 +214,20 @@
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#111418] dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group cursor-pointer">
                 <span
                     class="material-symbols-outlined text-gray-500 dark:text-gray-400 group-hover:text-primary transition-colors">grid_view</span>
-                <span class="font-medium text-sm">Dashboard</span>
+                <span class="font-medium text-sm">Araştırma Ekranı</span>
             </a>
             <a id="nav-report" onclick="switchView('report'); return false;"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary dark:text-primary font-medium transition-colors cursor-pointer"
                 href="#">
                 <span class="material-symbols-outlined icon-fill">description</span>
                 <span class="text-sm">Rapor Görüntüleyici</span>
+            </a>
+            <a id="nav-judge" onclick="switchView('judge'); return false;"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#111418] dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group cursor-pointer"
+                href="#">
+                <span
+                    class="material-symbols-outlined text-gray-500 dark:text-gray-400 group-hover:text-primary transition-colors">gavel</span>
+                <span class="font-medium text-sm">Yargıç Değerlendirme</span>
             </a>
             <a id="nav-history" onclick="switchView('history'); return false;"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#111418] dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group cursor-pointer"
@@ -235,7 +243,13 @@
                 <span class="font-medium text-sm">Ayarlar</span>
             </a>
         </nav>
-        <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div class="p-4 border-t border-gray-200 dark:border-gray-800 space-y-2">
+            <button onclick="openSaveModal()"
+                class="flex items-center gap-3 w-full p-2.5 text-[#111418] dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all group">
+                <span
+                    class="material-symbols-outlined text-gray-500 dark:text-gray-400 group-hover:text-primary transition-colors">save</span>
+                <span class="font-medium text-sm">Analizi Kaydet</span>
+            </button>
             <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#111418] dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 href="#">
                 <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">help</span>
@@ -261,105 +275,17 @@
 
             <!-- VIEW: REPORT VIEWER -->
             <div id="view-report" class="flex flex-col h-full w-full">
-                <header
-                    class="h-16 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 shadow-sm z-10 shrink-0">
-                    <div class="flex items-center gap-4 min-w-0">
-                        <div
-                            class="h-10 w-10 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-center justify-center text-red-600 dark:text-red-400 shrink-0 border border-red-100 dark:border-red-900/30">
-                            <span class="material-symbols-outlined icon-fill">picture_as_pdf</span>
-                        </div>
-                        <div class="flex flex-col justify-center min-w-0">
-                            <h2 id="pdfTitleHeader"
-                                class="text-[#111418] dark:text-white font-bold text-sm leading-tight truncate max-w-[200px] lg:max-w-[400px]">
-                                Belge Seçiniz</h2>
-                            <p class="text-[#617589] dark:text-gray-400 text-xs mt-0.5 flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                Analiz Tamamlandı
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div
-                            class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
-                            <button onclick="zoom(-0.1)"
-                                class="p-1.5 text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white hover:bg-white dark:hover:bg-gray-700 rounded transition-all"
-                                title="Uzaklaştır">
-                                <span class="material-symbols-outlined !text-[20px]">remove</span>
-                            </button>
-                            <span id="zoomLevel"
-                                class="px-3 text-xs font-semibold text-[#111418] dark:text-gray-300 select-none min-w-[3.5rem] text-center font-mono">100%</span>
-                            <button onclick="zoom(0.1)"
-                                class="p-1.5 text-[#617589] dark:text-gray-400 hover:text-[#111418] dark:hover:text-white hover:bg-white dark:hover:bg-gray-700 rounded transition-all"
-                                title="Yakınlaştır">
-                                <span class="material-symbols-outlined !text-[20px]">add</span>
-                            </button>
-                        </div>
-                        <div class="h-8 w-px bg-gray-200 dark:bg-gray-800 mx-2"></div>
-                        <button onclick="window.print()"
-                            class="flex items-center justify-center size-9 text-[#617589] dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition-colors border border-transparent hover:border-primary/20"
-                            title="Yazdır">
-                            <span class="material-symbols-outlined !text-[20px]">print</span>
-                        </button>
-                        <button id="downloadBtn"
-                            class="flex items-center justify-center size-9 text-[#617589] dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition-colors border border-transparent hover:border-primary/20"
-                            title="İndir">
-                            <span class="material-symbols-outlined !text-[20px]">download</span>
-                        </button>
+                <!-- Content loaded dynamically from /static/modules/report_view.html -->
+            </div>
 
-                    </div>
-                </header>
-                <div
-                    class="flex-1 overflow-y-auto bg-gray-200/50 dark:bg-[#0f151c] p-8 flex justify-center relative pdf-scrollbar">
-
-                    <!-- DOCUMENT CONTAINER -->
-                    <div id="pdfContainer" class="relative w-full max-w-[850px] mb-20 flex flex-col gap-8 hidden">
-                        <!-- AI Context Box -->
-                        <div id="pdfReason"
-                            class="w-full p-6 bg-white border-l-4 border-primary rounded shadow-sm text-slate-700 text-sm leading-relaxed font-medium print:hidden">
-                            <!-- AI Reason injected here -->
-                        </div>
-
-                        <!-- PDF PAGE -->
-                        <div id="viewPage"
-                            class="paper-texture bg-white text-black w-full min-h-[1100px] shadow-page rounded-sm p-[72px] relative group/page transition-transform origin-top duration-200 ease-out">
-                            <div
-                                class="absolute top-8 right-8 text-[10px] text-gray-400 font-mono select-none tracking-wider">
-                                AI LAWYER ANALYSIS REF: #2024-XA</div>
-                            <div id="pdfBody"
-                                class="space-y-6 text-[11pt] leading-[1.8] text-justify font-serif text-gray-900">
-                                <!-- Content injected here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- EMPTY STATE -->
-                    <div id="emptyState" class="flex flex-col items-center justify-center h-full text-center max-w-md">
-                        <div class="size-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                            <span class="material-symbols-outlined text-4xl">description</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900">Belge Seçiniz</h3>
-                        <p class="text-sm text-gray-500 mt-2">Detaylı inceleme ve yapay zeka analizini görmek için
-                            soldaki
-                            listeden bir belge seçiniz.</p>
-                    </div>
-
-                </div>
+            <!-- VIEW: JUDGE EVALUATION (Placeholder) -->
+            <div id="view-judge" class="hidden h-full w-full flex flex-col">
+                <!-- Content loaded dynamically from /static/modules/judge_view.html -->
             </div>
 
             <!-- VIEW: ANALYSIS HISTORY (Placeholder) -->
             <div id="view-history" class="hidden h-full w-full flex flex-col">
-                <header
-                    class="h-16 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-800 flex items-center px-6 shadow-sm shrink-0">
-                    <h2 class="text-[#111418] dark:text-white font-bold text-lg">Analiz Geçmişi</h2>
-                </header>
-                <div class="flex-1 p-10 flex flex-col items-center justify-center text-center">
-                    <div class="bg-primary/5 p-6 rounded-full mb-4">
-                        <span class="material-symbols-outlined text-4xl text-primary">history</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Geçmiş Analizler</h3>
-                    <p class="text-gray-500 max-w-sm">Burada daha önce yaptığınız hukuki analizlerin ve raporlamaların
-                        bir listesini göreceksiniz. (Yakında)</p>
-                </div>
+                <!-- Content loaded dynamically from /static/modules/history_view.html -->
             </div>
         </main>
 
@@ -393,6 +319,37 @@
 
     </div>
 
+    <!-- SAVE ANALYSIS MODAL -->
+    <div id="saveModal"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity opacity-0">
+        <div
+            class="bg-white dark:bg-surface-dark rounded-xl shadow-2xl w-full max-w-md transform scale-95 transition-transform duration-200 p-6 border border-slate-200 dark:border-slate-700">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Analizi Kaydet</h3>
+            <p class="text-sm text-slate-500 mb-6">Mevcut analiz durumunu ve raporları daha sonra incelemek üzere
+                kaydedin.</p>
+
+            <div class="space-y-4">
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wide">Analiz
+                        İsmi</label>
+                    <input type="text" id="saveNameInput" placeholder="Örn: 2024 Yargıtay Emsal Karar Dosyası"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all placeholder:text-slate-400">
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 mt-8">
+                <button onclick="closeSaveModal()"
+                    class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">Vazgeç</button>
+                <button onclick="confirmSaveAnalysis()" id="btnConfirmSave"
+                    class="px-6 py-2 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg shadow-sm transition-transform active:scale-95 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">save</span>
+                    <span>Kaydet</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- LOGIC -->
     <script>
         // --- DATA ---
@@ -404,15 +361,20 @@
         // --- ELEMENTS ---
         const resultsList = document.getElementById('resultsList');
         const resCountBadge = document.getElementById('resCountBadge');
-        const selectAllCb = document.getElementById('selectAllCb'); // Need to ensure this ID exists in HTML
+        const selectAllCb = document.getElementById('selectAllCb');
 
-        const pdfContainer = document.getElementById('pdfContainer');
-        const emptyState = document.getElementById('emptyState');
-        const pdfTitleHeader = document.getElementById('pdfTitleHeader');
-        const pdfReason = document.getElementById('pdfReason');
-        const pdfBody = document.getElementById('pdfBody');
-        const viewPage = document.getElementById('viewPage');
-        const downloadBtn = document.getElementById('downloadBtn');
+        // Dynamic Elements (will be bound after module load)
+        let pdfContainer, emptyState, pdfTitleHeader, pdfReason, pdfBody, viewPage, downloadBtn;
+
+        function bindReportElements() {
+            pdfContainer = document.getElementById('pdfContainer');
+            emptyState = document.getElementById('emptyState');
+            pdfTitleHeader = document.getElementById('pdfTitleHeader');
+            pdfReason = document.getElementById('pdfReason');
+            pdfBody = document.getElementById('pdfBody');
+            viewPage = document.getElementById('viewPage');
+            downloadBtn = document.getElementById('downloadBtn');
+        }
 
         // --- VIEW MANAGEMENT ---
         const activeNavClasses = ['bg-primary/10', 'text-primary', 'dark:text-primary'];
@@ -420,17 +382,66 @@
 
         function switchView(viewName) {
             // Views
-            const views = ['report', 'history'];
+            const views = ['report', 'judge', 'history'];
             views.forEach(v => {
                 const el = document.getElementById(`view-${v}`);
                 if (el) {
-                    if (v === viewName) el.classList.remove('hidden');
-                    else el.classList.add('hidden');
+                    if (v === viewName) {
+                        el.classList.remove('hidden');
+
+                        // Dynamic Load Logic
+                        if (!el.hasAttribute('data-loaded')) {
+                            el.innerHTML = '<div class="flex h-full items-center justify-center"><span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span></div>';
+
+                            // Map view names to module files
+                            const moduleFile = `/static/modules/${v}_view.html`;
+
+                            fetch(moduleFile)
+                                .then(res => {
+                                    if (!res.ok) throw new Error("View load failed");
+                                    return res.text();
+                                })
+                                .then(html => {
+                                    el.innerHTML = html;
+                                    el.setAttribute('data-loaded', 'true');
+
+                                    // Special initialization
+                                    if (v === 'judge') {
+                                        renderJudgeFiles();
+                                        syncSelectedDocsToJudgeView();
+                                    }
+
+                                    if (v === 'history') fetchHistory();
+
+                                    // Special initialization for Report View
+                                    if (v === 'report') {
+                                        bindReportElements();
+                                        if (reportDocs.length > 0 && activeIdx !== -1) {
+                                            selectDoc(activeIdx);
+                                        } else if (reportDocs.length > 0) {
+                                            selectDoc(0);
+                                        }
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    el.innerHTML = `<div class="flex h-full items-center justify-center text-red-500">Error loading view</div>`;
+                                });
+                        } else {
+                            // Already loaded - Refresh specific logic
+                            if (v === 'judge') {
+                                renderJudgeFiles();
+                                syncSelectedDocsToJudgeView();
+                            }
+                        }
+                    } else {
+                        el.classList.add('hidden');
+                    }
                 }
             });
 
             // Nav Links
-            const navs = ['report', 'history'];
+            const navs = ['report', 'judge', 'history'];
             navs.forEach(n => {
                 const el = document.getElementById(`nav-${n}`);
                 if (el) {
@@ -644,13 +655,271 @@
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
                 link.download = (doc.source || 'belge').replace('.pdf', '') + '.html';
-                document.body.appendChild(link);
-                link.click();
                 document.body.removeChild(link);
             };
         }
 
-        // --- CONTROLS ---
+        // --- JUDGE VIEW LOGIC ---
+        let judgeFiles = [];
+
+        function handleJudgeFiles(input) {
+            if (input.files && input.files.length > 0) {
+                Array.from(input.files).forEach(file => {
+                    // Avoid duplicates by name
+                    if (!judgeFiles.some(f => f.name === file.name)) {
+                        judgeFiles.push(file);
+                    }
+                });
+                renderJudgeFiles();
+                input.value = ''; // Reset input
+            }
+        }
+
+        function removeJudgeFile(idx) {
+            judgeFiles.splice(idx, 1);
+            renderJudgeFiles();
+        }
+
+        function clearJudgeFiles() {
+            judgeFiles = [];
+            renderJudgeFiles();
+        }
+
+        function renderJudgeFiles() {
+            const container = document.getElementById('judgeFilesContainer');
+            const list = document.getElementById('judgeFileList');
+
+            if (!container || !list) {
+                // If view not currently active/loaded, just return. state is saved.
+                return;
+            }
+
+            if (judgeFiles.length === 0) {
+                container.classList.add('hidden');
+                list.innerHTML = '';
+                return;
+            }
+
+            container.classList.remove('hidden');
+            list.innerHTML = judgeFiles.map((file, idx) => `
+                <li class="flex items-center justify-between bg-white dark:bg-surface-dark p-2 border border-slate-200 dark:border-slate-700 rounded-md shadow-sm group">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-1.5 rounded">
+                            <span class="material-symbols-outlined text-[16px] icon-fill">picture_as_pdf</span>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                             <span class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate" title="${file.name}">${file.name}</span>
+                             <span class="text-[10px] text-slate-400">${(file.size / 1024).toFixed(1)} KB</span>
+                        </div>
+                    </div>
+                    <button onclick="removeJudgeFile(${idx})" class="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                </li>
+            `).join('');
+        }
+
+        // --- SYNC SELECTED DOCUMENTS --
+        function syncSelectedDocsToJudgeView() {
+            const list = document.getElementById('selectedDocsList');
+            if (!list) return; // View not loaded
+
+            if (selectedIndices.size === 0) {
+                list.innerHTML = '<li class="text-sm text-gray-400 italic px-2">Henüz sağ panelden belge seçilmedi.</li>';
+                return;
+            }
+
+            const sortedIndices = Array.from(selectedIndices).sort((a, b) => a - b);
+
+            list.innerHTML = sortedIndices.map(idx => {
+                const doc = reportDocs[idx];
+                if (!doc) return '';
+                return `
+                     <li class="flex items-center justify-between bg-white dark:bg-surface-dark p-2.5 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm border-l-4 border-l-primary/50">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <div class="bg-primary/10 text-primary p-1.5 rounded">
+                                <span class="material-symbols-outlined text-[16px] icon-fill">description</span>
+                            </div>
+                            <div class="flex flex-col min-w-0">
+                                 <span class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate" title="${doc.source}">${doc.source}</span>
+                                 <div class="flex items-center gap-2 mt-0.5">
+                                      <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">${doc.role || 'BELGE'}</span>
+                                      <span class="text-[9px] text-slate-400">Skor: %${doc.score?.toFixed(0)}</span>
+                                 </div>
+                            </div>
+                        </div>
+                        <button onclick="switchView('report'); selectDoc(${idx});" class="text-xs font-semibold text-primary hover:text-primary-dark hover:underline flex items-center gap-1">
+                            Görüntüle <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                        </button>
+                    </li>
+                  `;
+            }).join('');
+        }
+
+        // --- JUDGE EVALUATION ACTION ---
+        function startJudgeEvaluation() {
+            const btn = document.getElementById('btnJudgeEvaluate');
+            if (!btn) return;
+
+            const originalContent = btn.innerHTML;
+
+            // Loading State
+            btn.disabled = true;
+            btn.innerHTML = `
+                <span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                <span>YÜKLENİYOR...</span>
+            `;
+
+            // Mock Process (3 seconds)
+            setTimeout(() => {
+                btn.innerHTML = `
+                    <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                    <span>TAMAMLANDI</span>
+                `;
+
+                // Revert after 1s
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }, 1000);
+
+            }, 3000);
+        }
+
+        // --- SAVE ANALYSIS LOGIC ---
+        const saveModal = document.getElementById('saveModal');
+        const saveNameInput = document.getElementById('saveNameInput');
+
+        function openSaveModal() {
+            saveModal.classList.remove('hidden');
+            setTimeout(() => {
+                saveModal.classList.remove('opacity-0');
+                saveModal.firstElementChild.classList.remove('scale-95');
+                saveModal.firstElementChild.classList.add('scale-100');
+                saveNameInput.focus();
+            }, 10);
+        }
+
+        function closeSaveModal() {
+            saveModal.classList.add('opacity-0');
+            saveModal.firstElementChild.classList.remove('scale-100');
+            saveModal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => saveModal.classList.add('hidden'), 200);
+        }
+
+        function confirmSaveAnalysis() {
+            const name = saveNameInput.value.trim();
+            if (!name) {
+                alert("Lütfen bir analiz ismi giriniz.");
+                return;
+            }
+
+            const btn = document.getElementById('btnConfirmSave');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span> Kaydediliyor...`;
+
+            // Collect Data
+            const payload = {
+                name: name,
+                dashboardState: JSON.parse(localStorage.getItem('dashboardState') || '{}'),
+                reportData: reportDocs, // Ensure reportDocs is up to date
+                judgeMetadata: {
+                    role: document.getElementById('judgeRoleSelect')?.value || 'all',
+                    judgeFiles: judgeFiles.map(f => ({ name: f.name, size: f.size })),
+                    // Assuming no other metadata for now
+                },
+                timestamp: new Date().toISOString()
+            };
+
+            fetch('/api/save_analysis', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        btn.innerHTML = `<span class="material-symbols-outlined text-[20px]">check</span> Kaydedildi`;
+                        setTimeout(() => {
+                            closeSaveModal();
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                            saveNameInput.value = '';
+                            // Refresh history if open? -> Will refresh on next view switch
+                        }, 1000);
+                    } else {
+                        throw new Error(data.message || 'Save failed');
+                    }
+                })
+                .catch(err => {
+                    alert("Kayıt hatası: " + err.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+        }
+
+        // --- HISTORY LOGIC ---
+        function fetchHistory() {
+            const container = document.getElementById('historyListContainer');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400">
+                    <span class="material-symbols-outlined text-4xl mb-3 animate-spin text-primary/50">sync</span>
+                    <p class="text-sm">Geçmiş yükleniyor...</p>
+                </div>
+            `;
+
+            fetch('/api/history')
+                .then(res => res.json())
+                .then(files => {
+                    if (files.length === 0) {
+                        container.innerHTML = `
+                            <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400">
+                                <span class="material-symbols-outlined text-4xl mb-3">history_toggle_off</span>
+                                <p class="text-sm">Henüz kaydedilmiş bir analiz bulunmuyor.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = files.map(file => {
+                        const date = new Date(file.timestamp).toLocaleString('tr-TR');
+                        return `
+                            <div class="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex items-start justify-between shadow-sm hover:shadow-md transition-shadow group">
+                                <div class="flex items-start gap-3">
+                                    <div class="bg-primary/10 text-primary p-2.5 rounded-lg">
+                                        <span class="material-symbols-outlined text-[24px]">folder_open</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 dark:text-white text-base mb-1">${file.name}</h4>
+                                        <div class="flex items-center gap-3 text-xs text-slate-500">
+                                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span> ${date}</span>
+                                            <span class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-medium">${file.doc_count} Belge</span>
+                                            <span class="text-slate-400 text-[10px]">(${(file.file_size / 1024).toFixed(1)} KB)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <!-- Future: Add Restore / Delete buttons here -->
+                                    <button class="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Detayları Görüntüle (Yakında)">
+                                        <span class="material-symbols-outlined">visibility</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                })
+                .catch(err => {
+                    console.error('History API Error:', err);
+                    container.innerHTML = `
+                        <div class="text-center text-red-500 py-8">
+                            <p>Geçmiş yüklenirken bir hata oluştu.</p>
+                        </div>
+                    `;
+                });
+        }
         function zoom(delta) {
             currentZoom += delta;
             if (currentZoom < 0.5) currentZoom = 0.5;

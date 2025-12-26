@@ -1,0 +1,107 @@
+<header
+    class="h-16 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 shadow-sm shrink-0">
+    <div class="flex items-center gap-3">
+        <h2 class="text-[#111418] dark:text-white font-bold text-lg">Yargıç Değerlendirme</h2>
+    </div>
+</header>
+
+<div class="flex-1 overflow-y-auto p-8 bg-gray-50 dark:bg-[#0f151c]">
+    <div class="max-w-4xl mx-auto flex flex-col gap-6">
+
+        <!-- CONTROLS TOOLBAR -->
+        <div
+            class="flex items-center justify-between bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
+            <div class="flex items-center gap-3">
+                <!-- ROLE SELECTOR -->
+                <div class="relative">
+                    <select id="judgeRoleSelect"
+                        class="appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-[#111418] dark:text-gray-300 text-sm rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer hover:border-gray-300 transition-colors font-medium">
+                        <option value="all">Rol: Hepsi</option>
+                        <option value="judge">Rol: Yargıç</option>
+                        <option value="lawyer">Rol: Avukat</option>
+                        <option value="consultant">Rol: Danışman</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                        <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                    </div>
+                </div>
+
+                <!-- SMALL ADD FILE BUTTON -->
+                <input type="file" id="judgeFileInput" accept="application/pdf" multiple class="hidden"
+                    onchange="handleJudgeFiles(this)">
+                <button onclick="document.getElementById('judgeFileInput').click()"
+                    class="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium text-sm"
+                    title="Ekstra Dosya Ekle">
+                    <span class="material-symbols-outlined text-[20px]">add_circle</span>
+                    <span class="hidden sm:inline">Dosya Ekle</span>
+                </button>
+            </div>
+
+            <!-- EVALUATE BUTTON (PRIMARY ACTION) -->
+            <div>
+                <button id="btnJudgeEvaluate" onclick="startJudgeEvaluation()"
+                    class="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors shadow-sm font-bold text-sm disabled:opacity-70 disabled:cursor-not-allowed">
+                    <span class="material-symbols-outlined text-[20px]">gavel</span>
+                    <span>DEĞERLENDİR</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN EVALUATION AREA -->
+        <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
+            <div class="flex items-center gap-4 mb-6 border-b border-gray-100 dark:border-gray-800/50 pb-4">
+                <div class="bg-primary/10 p-2.5 rounded-lg text-primary">
+                    <span class="material-symbols-outlined text-2xl">gavel</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-900 dark:text-white text-lg">Değerlendirme Alanı</h3>
+                    <p class="text-xs text-gray-500">Analiz için seçilen ve yüklenen belgeler aşağıda listelenmiştir.
+                    </p>
+                </div>
+            </div>
+
+            <!-- SECTION: SELECTED DOCUMENTS (SYNCED) -->
+            <div id="selectedDocsContainer" class="mb-6">
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">library_books</span>
+                    Seçili Sistem Belgeleri
+                </h4>
+                <ul id="selectedDocsList" class="space-y-2">
+                    <!-- Injected via JS -->
+                    <li class="text-sm text-gray-400 italic px-2">Henüz sağ panelden belge seçilmedi.</li>
+                </ul>
+            </div>
+
+            <!-- SECTION: UPLOADED FILES -->
+            <div id="judgeFilesContainer" class="hidden transition-all">
+                <div class="flex items-center justify-between mb-3 border-t border-gray-100 dark:border-gray-800 pt-4">
+                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">upload_file</span>
+                        Eklenen Dosyalar
+                    </h4>
+                    <button onclick="clearJudgeFiles()"
+                        class="text-xs text-red-500 hover:text-red-700 font-medium hover:underline">Listeyi
+                        Temizle</button>
+                </div>
+                <ul id="judgeFileList" class="space-y-2">
+                    <!-- Files will be injected here -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- PLACEHOLDER FOR FUTURE CONTENT -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-60 pointer-events-none">
+            <div
+                class="h-48 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-transparent flex flex-col items-center justify-center text-center p-6">
+                <span class="material-symbols-outlined text-4xl text-gray-300 mb-2">analytics</span>
+                <span class="text-sm text-gray-400 font-medium">Analiz Sonuçları (Yakında)</span>
+            </div>
+            <div
+                class="h-48 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-transparent flex flex-col items-center justify-center text-center p-6">
+                <span class="material-symbols-outlined text-4xl text-gray-300 mb-2">edit_note</span>
+                <span class="text-sm text-gray-400 font-medium">Değerlendirme Notları (Yakında)</span>
+            </div>
+        </div>
+
+    </div>
+</div>

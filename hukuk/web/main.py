@@ -166,6 +166,25 @@ async def save_analysis(data: AnalysisData):
         print(f"Save error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.delete("/api/delete_analysis/{filename}")
+async def delete_analysis(filename: str):
+    """Deletes a specific analysis file."""
+    try:
+        db_dir = os.path.join(project_root, "web", "analysis_db")
+        file_path = os.path.join(db_dir, filename)
+        
+        if not os.path.exists(file_path):
+             print(f"Delete Failed: File not found at {file_path}")
+             raise HTTPException(status_code=404, detail="Analiz dosyası bulunamadı.")
+
+        print(f"Deleting analysis file: {file_path}")
+        os.remove(file_path)
+        return {"status": "success", "message": "Analiz başarıyla silindi."}
+    except Exception as e:
+        err_msg = f"Silme hatası: {str(e)}"
+        print(f"Delete error for {filename}: {err_msg}")
+        raise HTTPException(status_code=500, detail=err_msg)
+
 @app.get("/api/history")
 async def get_history():
     """Lists all saved analyses."""

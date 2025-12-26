@@ -1,0 +1,112 @@
+{
+    "name": "test5",
+    "dashboardState": {
+        "inputs": {
+            "story": "Test",
+            "topic": "bbbbb",
+            "negatives": "AAA"
+        },
+        "docs": [
+            {
+                "source": "Yargitay_3_HD_2023_145.pdf",
+                "page": 1,
+                "type": "EMSAL KARAR",
+                "role": "[EMSAL İLKE]",
+                "text": "<h1>Yargitay_3_HD_2023_145.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Test konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+                "score": 92.5,
+                "reason": "Bu belge, bbbbb konusundaki hukuki dayanağı nedeniyle seçilmiştir."
+            },
+            {
+                "source": "Yargitay_12_CD_2022_89.pdf",
+                "page": 2,
+                "type": "EMSAL KARAR",
+                "role": "[DOĞRUDAN DELİL]",
+                "text": "<h1>Yargitay_12_CD_2022_89.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Test konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+                "score": 88,
+                "reason": "Bu belge, bbbbb konusundaki emsal niteliği nedeniyle seçilmiştir."
+            },
+            {
+                "source": "TBK_Madde_444.pdf",
+                "page": 3,
+                "type": "MEVZUAT",
+                "role": "[EMSAL İLKE]",
+                "text": "<h1>TBK_Madde_444.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Test konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+                "score": 95,
+                "reason": "Bu belge, bbbbb konusundaki emsal niteliği nedeniyle seçilmiştir."
+            },
+            {
+                "source": "Bilirkişi_Raporu_Örnek.pdf",
+                "page": 4,
+                "type": "EMSAL KARAR",
+                "role": "[EMSAL İLKE]",
+                "text": "<h1>Bilirkişi_Raporu_Örnek.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Test konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+                "score": 75.4,
+                "reason": "Bu belge, bbbbb konusundaki emsal niteliği nedeniyle seçilmiştir."
+            },
+            {
+                "source": "Anayasa_Mahkemesi_Karari.pdf",
+                "page": 5,
+                "type": "EMSAL KARAR",
+                "role": "[DOĞRUDAN DELİL]",
+                "text": "<h1>Anayasa_Mahkemesi_Karari.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Test konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+                "score": 82.1,
+                "reason": "Bu belge, bbbbb konusundaki emsal niteliği nedeniyle seçilmiştir."
+            }
+        ],
+        "selected": [
+            0,
+            1,
+            2,
+            3
+        ]
+    },
+    "reportData": [
+        {
+            "source": "Yargitay_3_HD_2023_145.pdf",
+            "page": 1,
+            "type": "EMSAL KARAR",
+            "role": "[EMSAL İLKE]",
+            "text": "<h1>Yargitay_3_HD_2023_145.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Test konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+            "score": 92.5,
+            "reason": "Bu belge, bbbbb konusundaki hukuki dayanağı nedeniyle seçilmiştir."
+        },
+        {
+            "source": "Yargitay_12_CD_2022_89.pdf",
+            "page": 2,
+            "type": "EMSAL KARAR",
+            "role": "[DOĞRUDAN DELİL]",
+            "text": "<h1>Yargitay_12_CD_2022_89.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Test konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+            "score": 88,
+            "reason": "Bu belge, bbbbb konusundaki emsal niteliği nedeniyle seçilmiştir."
+        },
+        {
+            "source": "TBK_Madde_444.pdf",
+            "page": 3,
+            "type": "MEVZUAT",
+            "role": "[EMSAL İLKE]",
+            "text": "<h1>TBK_Madde_444.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Test konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+            "score": 95,
+            "reason": "Bu belge, bbbbb konusundaki emsal niteliği nedeniyle seçilmiştir."
+        },
+        {
+            "source": "Bilirkişi_Raporu_Örnek.pdf",
+            "page": 4,
+            "type": "EMSAL KARAR",
+            "role": "[EMSAL İLKE]",
+            "text": "<h1>Bilirkişi_Raporu_Örnek.pdf İçeriği</h1><p>Bu bir simülasyon içeriğidir. Test konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
+            "score": 75.4,
+            "reason": "Bu belge, bbbbb konusundaki emsal niteliği nedeniyle seçilmiştir."
+        }
+    ],
+    "judgeMetadata": {
+        "role": "consultant",
+        "status": "pending",
+        "judgeFiles": [
+            {
+                "name": "teqweqeq.pdf",
+                "size": 195
+            }
+        ]
+    },
+    "timestamp": "2025-12-26T12:24:55.799Z"
+}

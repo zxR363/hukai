@@ -388,6 +388,45 @@
             </div>
         </div>
 
+        <!-- DELETE ANALYSIS MODAL -->
+        <div id="deleteAnalysisModal" style="display: none;"
+            class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity opacity-0">
+            <div
+                class="bg-white dark:bg-surface-dark rounded-xl shadow-2xl w-full max-w-sm transform scale-95 transition-transform duration-200 p-6 border border-slate-200 dark:border-slate-700 text-center">
+
+                <!-- Icon -->
+                <div id="deleteAnalysisIcon" class="mb-4 flex justify-center">
+                    <div class="bg-red-50 text-red-500 p-3 rounded-full">
+                        <span class="material-symbols-outlined text-3xl">delete_forever</span>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <h3 id="deleteAnalysisTitle" class="text-xl font-bold text-slate-900 dark:text-white mb-2">Analizi Sil
+                </h3>
+                <p id="deleteAnalysisDesc" class="text-sm text-slate-500 mb-6">"<strong><span
+                            id="deleteAnalysisTargetName">...</span></strong>" analizi kalıcı olarak silinecek.<br>Bu
+                    işlem geri alınamaz. Onaylıyor musunuz?</p>
+
+                <!-- Buttons -->
+                <div id="deleteAnalysisActions" class="flex items-center justify-center gap-3">
+                    <button onclick="closeDeleteModal()"
+                        class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors w-full">Vazgeç</button>
+                    <button onclick="confirmDelete()" id="btnConfirmDelete"
+                        class="px-6 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 w-full">
+                        <span>Sil</span>
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="deleteAnalysisLoading" class="hidden flex flex-col items-center justify-center py-2">
+                    <span
+                        class="material-symbols-outlined animate-spin text-3xl text-red-500 mb-2">progress_activity</span>
+                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Siliniyor...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- LOGIC -->
         <script>
             // --- DATA ---
@@ -556,6 +595,91 @@
                     });
             }
 
+            // --- DELETE LOGIC ---
+            let pendingDeleteFilename = null;
+
+            function openDeleteModal(filename) {
+                const modal = document.getElementById('deleteAnalysisModal');
+                const targetName = document.getElementById('deleteAnalysisTargetName');
+                const desc = document.getElementById('deleteAnalysisDesc');
+                const actions = document.getElementById('deleteAnalysisActions');
+                const loading = document.getElementById('deleteAnalysisLoading');
+
+                if (!modal) return;
+
+                // Move to root
+                if (modal.parentNode !== document.body) {
+                    document.body.appendChild(modal);
+                }
+
+                pendingDeleteFilename = filename;
+                if (targetName) targetName.innerText = filename;
+
+                // Reset UI
+                if (desc) desc.classList.remove('hidden');
+                if (actions) actions.classList.remove('hidden');
+                if (loading) loading.classList.add('hidden');
+
+                modal.style.zIndex = "100001";
+                modal.classList.remove('hidden');
+                modal.classList.remove('opacity-0');
+                modal.style.display = 'flex';
+
+                if (modal.firstElementChild) {
+                    modal.firstElementChild.classList.remove('scale-95');
+                    modal.firstElementChild.classList.add('scale-100');
+                }
+            }
+
+            function closeDeleteModal() {
+                const modal = document.getElementById('deleteAnalysisModal');
+                if (!modal) return;
+
+                modal.classList.add('opacity-0');
+                if (modal.firstElementChild) {
+                    modal.firstElementChild.classList.remove('scale-100');
+                    modal.firstElementChild.classList.add('scale-95');
+                }
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.style.display = 'none';
+                }, 200);
+            }
+
+            function confirmDelete() {
+                if (!pendingDeleteFilename) return;
+
+                const desc = document.getElementById('deleteAnalysisDesc');
+                const actions = document.getElementById('deleteAnalysisActions');
+                const loading = document.getElementById('deleteAnalysisLoading');
+
+                if (desc) desc.classList.add('hidden');
+                if (actions) actions.classList.add('hidden');
+                if (loading) loading.classList.remove('hidden');
+
+                fetch(`/api/delete_analysis/${encodeURIComponent(pendingDeleteFilename)}`, { method: 'DELETE' })
+                    .then(async res => {
+                        if (!res.ok) {
+                            const detail = await res.text();
+                            throw new Error(`Sunucu Hatası (${res.status}): ${detail}`);
+                        }
+                        return res.json();
+                    })
+                    .then(() => {
+                        // Success - Refresh history
+                        closeDeleteModal();
+                        fetchHistory();
+                    })
+                    .catch(err => {
+                        alert("Hata: " + err.message);
+                        closeDeleteModal();
+                    });
+            }
+
+            window.openDeleteModal = openDeleteModal;
+            window.closeDeleteModal = closeDeleteModal;
+            window.confirmDelete = confirmDelete;
+
             // EXPOSE TO WINDOW (Critical for HTML onclick)
             window.openRestoreModal = openRestoreModal;
             window.closeRestoreModal = closeRestoreModal;
@@ -605,6 +729,9 @@
                                         if (v === 'judge') {
                                             renderJudgeFiles();
                                             syncSelectedDocsToJudgeView();
+                                            // Sync Role UI after initial load
+                                            const rs = document.getElementById('judgeRoleSelect');
+                                            if (rs) rs.value = judgeRole;
                                         }
 
                                         if (v === 'history') fetchHistory();
@@ -883,8 +1010,12 @@
             } catch (e) { console.error('Judge state error', e); }
 
             function updateJudgeRole(val) {
+                console.log("Updating Judge Role:", val);
                 judgeRole = val;
+                // Sync status just in case we add it later
             }
+            // EXPOSE for Judge View interactions
+            window.updateJudgeRole = updateJudgeRole;
 
             function handleJudgeFiles(input) {
                 if (input.files && input.files.length > 0) {
@@ -898,6 +1029,13 @@
                     input.value = ''; // Reset input
                 }
             }
+            window.handleJudgeFiles = handleJudgeFiles;
+
+            function clearJudgeFiles() {
+                judgeFiles = [];
+                renderJudgeFiles();
+            }
+            window.clearJudgeFiles = clearJudgeFiles;
 
             function removeJudgeFile(idx) {
                 judgeFiles.splice(idx, 1);
@@ -1044,15 +1182,15 @@
                 btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span> Kaydediliyor...`;
 
                 // Collect Data
+                console.log("Saving Analysis. Current Judge Role:", judgeRole);
                 const payload = {
                     name: name,
                     dashboardState: JSON.parse(localStorage.getItem('dashboardState') || '{}'),
-                    reportData: reportDocs, // Ensure reportDocs is up to date
+                    reportData: reportDocs,
                     judgeMetadata: {
                         role: judgeRole,
                         status: judgeStatus,
                         judgeFiles: judgeFiles.map(f => ({ name: f.name, size: f.size })),
-                        // Assuming no other metadata for now
                     },
                     timestamp: new Date().toISOString()
                 };
@@ -1071,7 +1209,8 @@
                                 btn.disabled = false;
                                 btn.innerHTML = originalText;
                                 saveNameInput.value = '';
-                                // Refresh history if open? -> Will refresh on next view switch
+                                // Refresh history list
+                                fetchHistory();
                             }, 1000);
                         } else {
                             throw new Error(data.message || 'Save failed');
@@ -1132,6 +1271,9 @@
                                 <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onclick="openRestoreModal('${file.filename}')" class="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Bu Analizi Geri Yükle">
                                         <span class="material-symbols-outlined text-[20px]">restore_page</span>
+                                    </button>
+                                    <button onclick="openDeleteModal('${file.filename}')" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Bu Analizi Sil">
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
                                     </button>
                                 </div>
                             </div>

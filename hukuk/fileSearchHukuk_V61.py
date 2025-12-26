@@ -4,7 +4,7 @@ import re
 import uuid
 import time
 import shutil
-import atexit  # <-- YENİ: Otomatik Temizlik İçin
+import atexit
 from multiprocessing import Pool, cpu_count, freeze_support
 from dataclasses import dataclass
 
@@ -48,7 +48,7 @@ class LegalConfig:
     LLM_MODEL = "qwen2.5"
     SEARCH_LIMIT_PER_SOURCE = 30
     SCORE_THRESHOLD = 0.40
-    LLM_RERANK_LIMIT = 3
+    LLM_RERANK_LIMIT = 15
 
 
 # ==================================================
@@ -57,8 +57,12 @@ class LegalConfig:
 def worker_embed_batch_global(args):
     """Multiprocessing için global kalmalı."""
     texts, model_name = args
-    embedder = OllamaEmbeddings(model=model_name)
-    return embedder.embed_documents(texts)
+    try:
+        embedder = OllamaEmbeddings(model=model_name)
+        return embedder.embed_documents(texts)
+    except Exception as e:
+        print(f"⚠️ Batch hatası (atlanıyor): {e}")
+        return []
 
 
 class LegalUtils:
@@ -100,37 +104,8 @@ class LegalSearchEngine:
     def __init__(self):
         self.config = LegalConfig()
         self.dense_embedder = OllamaEmbeddings(model=self.config.EMBEDDING_MODEL)
-        self.llm = ChatOllama(model=self.config.LLM_MODEL, temperature=0.1)
         self.client = None
-        # YENİ: Program kapanırken close metodunu mutlaka çalıştır
         atexit.register(self.close)
-
-    def validate_user_input(self, story, topic):
-        """
-        Kullanıcı girdisini kontrol eder. 
-        Tek kelime bile olsa anlamlıysa izin verir.
-        Sadece tamamen rastgele tuşlamaları (gibberish) engeller.
-        """
-        prompt = f"""
-GÖREV: Aşağıdaki metnin tamamen anlamsız rastgele tuşlama (gibberish) olup olmadığını tespit et.
-
-METİN: "{story} {topic}"
-
-ANALİZ KURALLARI:
-1. "araba", "miras", "kaza", "boşanma" gibi tek kelimelik girdiler [GEÇERLİ] sayılır.
-2. Sadece "asdasd", "lkgjdf", "123qwe" gibi rastgele klavye tuşlamaları [GEÇERSİZ] sayılır.
-3. Emin değilsen [GEÇERLİ] olarak kabul et.
-
-CEVAP (SADECE BİRİ):
-[GEÇERLİ] veya [GEÇERSİZ]
-"""
-        try:
-            res = self.llm.invoke(prompt).content.strip()
-            # Eğer açıkça 'GEÇERSİZ' derse False dön, aksi halde (veya hata olursa) kullanıcıyı engellememek için True dön.
-            if "GEÇERSİZ" in res: return False
-            return True
-        except:
-            return True
 
     def connect_db(self):
         print("   🔌 Veritabanı bağlantısı başlatılıyor...")
@@ -143,13 +118,11 @@ CEVAP (SADECE BİRİ):
             print(f"\n❌ VERİTABANI HATASI: {e}")
             return False
 
-    # YENİ: Güvenli Kapatma Metodu
     def close(self):
-        """Veritabanı bağlantısını güvenli şekilde kapatır."""
         if self.client:
             try:
                 self.client.close()
-                self.client = None  # Tekrar kapanmayı önle
+                self.client = None
                 print("\n🔒 Veritabanı bağlantısı güvenli şekilde kapatıldı.")
             except:
                 pass
@@ -160,8 +133,6 @@ CEVAP (SADECE BİRİ):
         for key, config in self.config.SOURCES.items():
             collection_name = config["collection"];
             folder_path = config["folder"]
-
-            # YENİ: Detaylı Log
             print(f"   👉 Koleksiyon kontrol ediliyor: {config['desc']}...")
 
             if not os.path.exists(folder_path):
@@ -174,12 +145,19 @@ CEVAP (SADECE BİRİ):
                 self.client.create_collection(collection_name,
                                               vectors_config=VectorParams(size=768, distance=Distance.COSINE))
 
-            # YENİ: Detaylı Log
             print(f"      🔍 Mevcut dosyalar taranıyor...")
             indexed_files = set()
             offset = None
+
+            # (V59 Scroll Fix)
             while True:
-                points, offset = self.client.scroll(collection_name, limit=100, with_payload=True, with_vectors=False,offset=offset)
+                points, offset = self.client.scroll(
+                    collection_name,
+                    limit=100,
+                    with_payload=True,
+                    with_vectors=False,
+                    offset=offset
+                )
                 for p in points:
                     if 'source' in p.payload: indexed_files.add(p.payload['source'])
                 if offset is None: break
@@ -214,7 +192,6 @@ CEVAP (SADECE BİRİ):
             if not all_texts: continue
             print(f"      🚀 Vektörleştiriliyor ({len(all_texts)} parça)...")
 
-            # Tam Güç Modu (V57 ile aynı - CPU Sınırlaması YOK)
             num_cores = cpu_count()
             batch_size = (len(all_texts) // num_cores) + 1
             batches = []
@@ -281,6 +258,33 @@ CEVAP (SADECE BİRİ):
 class LegalJudge:
     def __init__(self):
         self.llm = ChatOllama(model=LegalConfig.LLM_MODEL, temperature=0.1)
+
+    # --- V61 DÜZELTMESİ: ESNEK GİRDİ DENETÇİSİ ---
+    def validate_user_input(self, story, topic):
+        """
+        Kullanıcı girdisini kontrol eder.
+        Tek kelime bile olsa anlamlıysa izin verir.
+        Sadece tamamen rastgele tuşlamaları (gibberish) engeller.
+        """
+        prompt = f"""
+GÖREV: Aşağıdaki metnin tamamen anlamsız rastgele tuşlama (gibberish) olup olmadığını tespit et.
+
+METİN: "{story} {topic}"
+
+ANALİZ KURALLARI:
+1. "araba", "miras", "kaza", "boşanma" gibi tek kelimelik girdiler [GEÇERLİ] sayılır.
+2. Sadece "asdasd", "lkgjdf", "123qwe" gibi rastgele klavye tuşlamaları [GEÇERSİZ] sayılır.
+3. Emin değilsen [GEÇERLİ] olarak kabul et.
+
+CEVAP (SADECE BİRİ):
+[GEÇERLİ] veya [GEÇERSİZ]
+"""
+        try:
+            res = self.llm.invoke(prompt).content.strip()
+            if "GEÇERSİZ" in res: return False
+            return True
+        except:
+            return True  # Hata durumunda kullanıcıyı engelleme
 
     def generate_expanded_queries(self, story, topic):
         print("   ↳ 🧠 Sorgu Genişletiliyor...")
@@ -371,7 +375,7 @@ SADECE ŞUNLARDAN BİRİNİ SEÇ:
         return valid_docs
 
     def generate_final_opinion(self, story, topic, context_str):
-        print("\n🧑‍⚖️  AVUKAT YAZIYOR (V59: Role-Aware Mode)...")
+        print("\n🧑‍⚖️  AVUKAT YAZIYOR (V61: Flexible Input Mode)...")
 
         system_content = """SEN KIDEMLİ BİR HUKUKÇUSUN.
 
@@ -433,7 +437,7 @@ class PDFReportGenerator(FPDF):
 
 class LegalReporter:
     @staticmethod
-    def create_report(user_story, valid_docs, advice_text, filename="Hukuki_Rapor_V58.pdf"):
+    def create_report(user_story, valid_docs, advice_text, filename="Hukuki_Rapor_V61.pdf"):
         pdf = PDFReportGenerator();
         pdf.add_page();
         pdf.set_font("helvetica", size=11)
@@ -477,17 +481,16 @@ class LegalReporter:
 
 
 # ==================================================
-# 6️⃣ ANA UYGULAMA (MAIN APP - GÜVENLİ ÇIKIŞ MODU)
+# 6️⃣ ANA UYGULAMA (MAIN APP)
 # ==================================================
 class LegalApp:
     def __init__(self):
-        print("🚀 LEGAL SUITE V58 (Stable Mode: Safe Exit & Logging)...")
+        print("🚀 LEGAL SUITE V61 (Flexible Input Validator + Scroll Fix)...")
         self.search_engine = LegalSearchEngine()
         self.judge = LegalJudge()
         self.reporter = LegalReporter()
 
     def run(self):
-        # Başlangıç İndekslemesi
         if not self.search_engine.run_indexing():
             self.search_engine.close()
             sys.exit()
@@ -502,6 +505,13 @@ class LegalApp:
                 topic = input("🎯 Odak: ")
                 neg_input = input("🚫 Yasaklı: ")
                 negatives = [w.strip().lower() for w in neg_input.split(",")] if neg_input else []
+
+                # --- GİRİŞ KONTROLÜ (GÜNCELLENDİ) ---
+                print("   🛡️ Girdi kontrol ediliyor...")
+                if not self.judge.validate_user_input(story, topic):
+                    print(
+                        "   ❌ UYARI: Girdi tamamen anlamsız (gibberish) bulundu. Lütfen mantıklı bir kelime/olay giriniz.")
+                    continue
 
                 expanded = self.judge.generate_expanded_queries(story, topic)
                 full_query = f"{story} {topic} " + " ".join(expanded)
@@ -538,7 +548,6 @@ class LegalApp:
         except Exception as e:
             print(f"\n⚠️ Beklenmedik bir hata oluştu: {e}")
         finally:
-            # KRİTİK: NE OLURSA OLSUN BAĞLANTIYI KAPAT VE KİLİDİ AÇ
             self.search_engine.close()
 
 

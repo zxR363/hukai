@@ -122,6 +122,14 @@ async def run_search_task(req: SearchRequest):
             return
         await manager.broadcast("LOG|✅ Veritabanı bağlantısı başarılı.", target_id=req.clientId)
 
+        # 2. GİRDİ DENETÇİSİ (L115-L118)
+        await manager.broadcast("LOG|🔍 Kullanıcı girdisi kontrol ediliyor...", target_id=req.clientId)
+        is_valid = await asyncio.to_thread(engine.validate_user_input, req.story, req.topic)
+        if not is_valid:
+            await manager.broadcast("LOG|❌ HATA: Kullanıcı girdisi geçersiz.", target_id=req.clientId)
+            return
+        await manager.broadcast("LOG|✅ Kullanıcı girdisi geçerli.", target_id=req.clientId)
+
         # 3. SORGÜ GENİŞLETME (L478-L479)
         await manager.broadcast("LOG|🧠 Hukuki terimler genişletiliyor...", target_id=req.clientId)
         expanded = await asyncio.to_thread(judge.generate_expanded_queries, req.story, req.topic)
@@ -136,33 +144,34 @@ async def run_search_task(req: SearchRequest):
             await manager.broadcast("LOG|🔴 Arama sonucu: Uygun benzerlikte belge bulunamadı.", target_id=req.clientId)
             return
         
-        await manager.broadcast(f"LOG|✅ {len(candidates)} potansiyel aday belge tespit edildi.", target_id=req.clientId)
-
-        # Adayları UI listesine gönder
-        ui_candidates = []
-        for c in candidates:
-            ui_candidates.append({
-                "source": c.payload['source'],
-                "page": c.payload.get('page', 0),
-                "type": c.payload['type'],
-                "page_content": c.payload['page_content'],
-                "score": min(max(c.score, 0), 1) * 100
-            })
-        await manager.broadcast(f"SEARCH_RESULT|{json.dumps(ui_candidates)}")
-        """
         # 5. YARGILAMA / FİLTRELEME (L487-L488)
-        await manager.broadcast("LOG|⚖️ Akıllı Yargıç belgeleri analiz ediyor...")
+        await manager.broadcast("LOG|⚖️ Akıllı Yargıç belgeleri analiz ediyor...", target_id=req.clientId)
         neg_list = [w.strip().lower() for w in req.negatives.split(",")] if req.negatives else []
         valid_docs = await asyncio.to_thread(judge.evaluate_candidates, candidates, req.story, req.topic, neg_list)
         
         if not valid_docs:
-            await manager.broadcast("LOG|🔴 Yargıç analizi: Mevcut belgelerin hiçbiri kriterlere uygun bulunmadı.")
+            await manager.broadcast("LOG|🔴 Yargıç analizi: Mevcut belgelerin hiçbiri kriterlere uygun bulunmadı.", target_id=req.clientId)
             return
-        """
-        await manager.broadcast(f"LOG|✅ Arama tamamlandı. {len(ui_candidates)} aday belge bulundu. Lütfen analiz edilecekleri seçin.", target_id=req.clientId)
+
+        # Adayları UI listesine gönder
+        ui_candidates = []
+        for c in valid_docs:
+            ui_candidates.append({
+                "source": c['source'],
+                "page": c.get('page', 0),
+                "type": c['type'],
+                "page_content": c.get('text', ''), # valid_docs uses 'text' field
+                "score": c['score'], # Alreadly normalized in legal_engine
+                "role": c.get('role', '[EMSAL İLKE]'),
+                "reason": c.get('reason', '')
+            })
+        await manager.broadcast(f"SEARCH_RESULT|{json.dumps(ui_candidates)}", target_id=req.clientId)
+
+        await manager.broadcast(f"LOG|✅ {len(valid_docs)} adet kesin uyumlu belge seçildi. Analiz raporu yazılabilir.", target_id=req.clientId)
 
     except asyncio.CancelledError:
-        print(f"DEBUG: Task for {req.clientId} definitively cancelled.")
+        print("DEBUG: Task was cancelled by user (refresh/disconnect).")
+
     except Exception as e:
         await manager.broadcast(f"ERROR|Pipeline Hatası: {str(e)}", target_id=req.clientId)
         print(f"Pipeline Error: {e}")

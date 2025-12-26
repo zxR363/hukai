@@ -348,217 +348,407 @@
                 </button>
             </div>
         </div>
-    </div>
+        <!-- RESTORE ANALYSIS MODAL -->
+        <!-- RESTORE ANALYSIS MODAL -->
+        <div id="restoreAnalysisModal" style="display: none;"
+            class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity opacity-0">
+            <div
+                class="bg-white dark:bg-surface-dark rounded-xl shadow-2xl w-full max-w-sm transform scale-95 transition-transform duration-200 p-6 border border-slate-200 dark:border-slate-700 text-center">
 
-    <!-- LOGIC -->
-    <script>
-        // --- DATA ---
-        let reportDocs = [];
-        let selectedIndices = new Set();
-        let activeIdx = -1;
-        let currentZoom = 1.0;
+                <!-- Icon -->
+                <div id="restoreAnalysisIcon" class="mb-4 flex justify-center">
+                    <div class="bg-primary/10 text-primary p-3 rounded-full">
+                        <span class="material-symbols-outlined text-3xl">restore_page</span>
+                    </div>
+                </div>
 
-        // --- ELEMENTS ---
-        const resultsList = document.getElementById('resultsList');
-        const resCountBadge = document.getElementById('resCountBadge');
-        const selectAllCb = document.getElementById('selectAllCb');
+                <!-- Content -->
+                <h3 id="restoreAnalysisTitle" class="text-xl font-bold text-slate-900 dark:text-white mb-2">Analiz Yükle
+                </h3>
+                <p id="restoreAnalysisDesc" class="text-sm text-slate-500 mb-6">"<strong><span
+                            id="restoreAnalysisTargetName">...</span></strong>" analizi geri yüklenecek.<br>Mevcut ekran
+                    verileriniz kaybolacak. Onaylıyor musunuz?</p>
 
-        // Dynamic Elements (will be bound after module load)
-        let pdfContainer, emptyState, pdfTitleHeader, pdfReason, pdfBody, viewPage, downloadBtn;
+                <!-- Buttons -->
+                <div id="restoreAnalysisActions" class="flex items-center justify-center gap-3">
+                    <button onclick="closeRestoreModal()"
+                        class="px-4 py-2 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors w-full">Vazgeç</button>
+                    <button onclick="confirmRestore()" id="btnConfirmRestore"
+                        class="px-6 py-2 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg shadow-sm transition-transform active:scale-95 flex items-center justify-center gap-2 w-full">
+                        <span>Yükle</span>
+                    </button>
+                </div>
 
-        function bindReportElements() {
-            pdfContainer = document.getElementById('pdfContainer');
-            emptyState = document.getElementById('emptyState');
-            pdfTitleHeader = document.getElementById('pdfTitleHeader');
-            pdfReason = document.getElementById('pdfReason');
-            pdfBody = document.getElementById('pdfBody');
-            viewPage = document.getElementById('viewPage');
-            downloadBtn = document.getElementById('downloadBtn');
-        }
+                <!-- Loading State Hidden by Default -->
+                <div id="restoreAnalysisLoading" class="hidden flex flex-col items-center justify-center py-2">
+                    <span class="material-symbols-outlined animate-spin text-3xl text-primary mb-2">sync</span>
+                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Veriler Yükleniyor...</p>
+                    <p class="text-xs text-slate-400 mt-1">Lütfen bekleyiniz</p>
+                </div>
+            </div>
+        </div>
 
-        // --- VIEW MANAGEMENT ---
-        const activeNavClasses = ['bg-primary/10', 'text-primary', 'dark:text-primary'];
-        const inactiveNavClasses = ['text-[#111418]', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-800'];
+        <!-- LOGIC -->
+        <script>
+            // --- DATA ---
+            let reportDocs = [];
+            let selectedIndices = new Set();
+            let activeIdx = -1;
+            let currentZoom = 1.0;
 
-        function switchView(viewName) {
-            // Views
-            const views = ['report', 'judge', 'history'];
-            views.forEach(v => {
-                const el = document.getElementById(`view-${v}`);
-                if (el) {
-                    if (v === viewName) {
-                        el.classList.remove('hidden');
+            // Restore State
+            let pendingRestoreFilename = null;
+            const restoreModal = document.getElementById('restoreModal');
+            const restoreTargetName = document.getElementById('restoreTargetName');
+            const restoreIconContainer = document.getElementById('restoreIconContainer');
+            const restoreTitle = document.getElementById('restoreTitle');
+            const restoreDesc = document.getElementById('restoreDesc');
+            const restoreActions = document.getElementById('restoreActions');
+            const restoreLoading = document.getElementById('restoreLoading');
 
-                        // Dynamic Load Logic
-                        if (!el.hasAttribute('data-loaded')) {
-                            el.innerHTML = '<div class="flex h-full items-center justify-center"><span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span></div>';
+            // --- ELEMENTS ---
+            const resultsList = document.getElementById('resultsList');
+            const resCountBadge = document.getElementById('resCountBadge');
+            const selectAllCb = document.getElementById('selectAllCb');
 
-                            // Map view names to module files
-                            const moduleFile = `/static/modules/${v}_view.html`;
+            // Dynamic Elements (will be bound after module load)
+            let pdfContainer, emptyState, pdfTitleHeader, pdfReason, pdfBody, viewPage, downloadBtn;
 
-                            fetch(moduleFile)
-                                .then(res => {
-                                    if (!res.ok) throw new Error("View load failed");
-                                    return res.text();
-                                })
-                                .then(html => {
-                                    el.innerHTML = html;
-                                    el.setAttribute('data-loaded', 'true');
+            // --- RESTORE LOGIC UI ---
+            // --- RESTORE LOGIC UI ---
+            // --- RESTORE LOGIC UI ---
+            // --- RESTORE LOGIC UI ---
+            function openRestoreModal(filename) {
+                // Ensure unique ID lookup
+                const modal = document.getElementById('restoreAnalysisModal');
+                const targetName = document.getElementById('restoreAnalysisTargetName');
 
-                                    // Special initialization
-                                    if (v === 'judge') {
-                                        renderJudgeFiles();
-                                        syncSelectedDocsToJudgeView();
-                                    }
+                // Fetch elements fresh
+                const icon = document.getElementById('restoreAnalysisIcon');
+                const title = document.getElementById('restoreAnalysisTitle');
+                const desc = document.getElementById('restoreAnalysisDesc');
+                const actions = document.getElementById('restoreAnalysisActions');
+                const loading = document.getElementById('restoreAnalysisLoading');
 
-                                    if (v === 'history') fetchHistory();
+                if (!modal) {
+                    console.error("Modal restoreAnalysisModal not found!");
+                    alert("Error: Modal UI Element missing.");
+                    return;
+                }
 
-                                    // Special initialization for Report View
-                                    if (v === 'report') {
-                                        bindReportElements();
-                                        if (reportDocs.length > 0 && activeIdx !== -1) {
-                                            selectDoc(activeIdx);
-                                        } else if (reportDocs.length > 0) {
-                                            selectDoc(0);
+                // CRITICAL: Move to body root to escape any overflow/z-index traps
+                if (modal.parentNode !== document.body) {
+                    document.body.appendChild(modal);
+                }
+
+                pendingRestoreFilename = filename;
+                if (targetName) targetName.innerText = filename;
+
+                // Force Button Binding (Safe)
+                const btn = document.getElementById('btnConfirmRestore');
+                if (btn) {
+                    btn.onclick = confirmRestore;
+                }
+
+                // Reset UI State
+                if (icon) icon.innerHTML = '<div class="bg-primary/10 text-primary p-3 rounded-full"><span class="material-symbols-outlined text-3xl">restore_page</span></div>';
+                if (title) title.innerText = "Analizi Yükle";
+                if (desc) desc.classList.remove('hidden');
+                if (actions) actions.classList.remove('hidden');
+                if (loading) loading.classList.add('hidden');
+
+                // FORCE VISIBILITY - No Animations for now, just show it
+                modal.style.zIndex = "100000";
+                modal.classList.remove('hidden');
+                modal.classList.remove('opacity-0');
+                modal.style.display = 'flex';
+
+                // Reset scale immediately
+                if (modal.firstElementChild) {
+                    modal.firstElementChild.classList.remove('scale-95');
+                    modal.firstElementChild.classList.add('scale-100');
+                }
+            }
+
+            function closeRestoreModal() {
+                const modal = document.getElementById('restoreAnalysisModal');
+                if (!modal) return;
+
+                modal.classList.add('opacity-0');
+                if (modal.firstElementChild) {
+                    modal.firstElementChild.classList.remove('scale-100');
+                    modal.firstElementChild.classList.add('scale-95');
+                }
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.style.display = 'none'; // FORCE NONE
+                }, 200);
+            }
+
+            function confirmRestore() {
+                if (!pendingRestoreFilename) return;
+
+                // UI -> Loading
+                const restoreDesc = document.getElementById('restoreAnalysisDesc');
+                const restoreActions = document.getElementById('restoreAnalysisActions');
+                const restoreLoading = document.getElementById('restoreAnalysisLoading');
+
+                if (restoreDesc) restoreDesc.classList.add('hidden');
+                if (restoreActions) restoreActions.classList.add('hidden');
+                if (restoreLoading) restoreLoading.classList.remove('hidden');
+
+                const filename = pendingRestoreFilename;
+                console.log("Restoring:", filename);
+
+                fetch(`/api/load_analysis/${filename}?t=${Date.now()}`)
+                    .then(async res => {
+                        if (!res.ok) {
+                            const err = await res.text();
+                            throw new Error(`Server Error (${res.status}): ${err}`);
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        // Validation
+                        if (!data.reportData && !data.dashboardState) {
+                            throw new Error("Gelen veri boş veya hatalı formatta.");
+                        }
+
+                        // 1. Restore Dashboard State (LocalStorage)
+                        if (data.dashboardState) {
+                            localStorage.setItem('dashboardState', JSON.stringify(data.dashboardState));
+                        }
+
+                        // 2. Restore Report Data (LocalStorage)
+                        if (data.reportData) {
+                            localStorage.setItem('reportData', JSON.stringify(data.reportData));
+                        }
+
+                        // 3. Restore Judge Metadata
+                        if (data.judgeMetadata) {
+                            localStorage.setItem('judgeState', JSON.stringify(data.judgeMetadata));
+                        }
+
+                        // UI -> Success
+                        if (restoreLoading) {
+                            restoreLoading.innerHTML = `
+                                <span class="material-symbols-outlined text-4xl text-green-500 mb-2">check_circle</span>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">Analiz Yüklendi</p>
+                                <p class="text-xs text-slate-400">Yönlendiriliyorsunuz...</p>
+                            `;
+                        }
+
+                        // Wait and Reload
+                        setTimeout(() => window.location.reload(), 1000);
+                    })
+                    .catch(err => {
+                        console.error("Restore error:", err);
+                        // UI -> Error
+                        if (restoreLoading) {
+                            restoreLoading.innerHTML = `
+                                <span class="material-symbols-outlined text-4xl text-red-500 mb-2">error</span>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">Hata Oluştu</p>
+                                <p class="text-xs text-red-400 max-w-[200px] break-words mx-auto">${err.message}</p>
+                                <button onclick="closeRestoreModal()" class="mt-3 text-xs text-slate-500 underline">Kapat</button>
+                            `;
+                        }
+                        alert("Restore Failed: " + err.message);
+                    });
+            }
+
+            // EXPOSE TO WINDOW (Critical for HTML onclick)
+            window.openRestoreModal = openRestoreModal;
+            window.closeRestoreModal = closeRestoreModal;
+            window.confirmRestore = confirmRestore;
+            console.log("Restore Logic Initialized Global");
+
+            function bindReportElements() {
+                pdfContainer = document.getElementById('pdfContainer');
+                emptyState = document.getElementById('emptyState');
+                pdfTitleHeader = document.getElementById('pdfTitleHeader');
+                pdfReason = document.getElementById('pdfReason');
+                pdfBody = document.getElementById('pdfBody');
+                viewPage = document.getElementById('viewPage');
+                downloadBtn = document.getElementById('downloadBtn');
+            }
+
+            // --- VIEW MANAGEMENT ---
+            const activeNavClasses = ['bg-primary/10', 'text-primary', 'dark:text-primary'];
+            const inactiveNavClasses = ['text-[#111418]', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-800'];
+
+            function switchView(viewName) {
+                // Views
+                const views = ['report', 'judge', 'history'];
+                views.forEach(v => {
+                    const el = document.getElementById(`view-${v}`);
+                    if (el) {
+                        if (v === viewName) {
+                            el.classList.remove('hidden');
+
+                            // Dynamic Load Logic
+                            if (!el.hasAttribute('data-loaded')) {
+                                el.innerHTML = '<div class="flex h-full items-center justify-center"><span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span></div>';
+
+                                // Map view names to module files
+                                const moduleFile = `/static/modules/${v}_view.html`;
+
+                                fetch(moduleFile)
+                                    .then(res => {
+                                        if (!res.ok) throw new Error("View load failed");
+                                        return res.text();
+                                    })
+                                    .then(html => {
+                                        el.innerHTML = html;
+                                        el.setAttribute('data-loaded', 'true');
+
+                                        // Special initialization
+                                        if (v === 'judge') {
+                                            renderJudgeFiles();
+                                            syncSelectedDocsToJudgeView();
                                         }
-                                    }
-                                })
-                                .catch(err => {
-                                    console.error(err);
-                                    el.innerHTML = `<div class="flex h-full items-center justify-center text-red-500">Error loading view</div>`;
-                                });
-                        } else {
-                            // Already loaded - Refresh specific logic
-                            if (v === 'judge') {
-                                renderJudgeFiles();
-                                syncSelectedDocsToJudgeView();
-                                // Sync Role UI
-                                const rs = document.getElementById('judgeRoleSelect');
-                                if (rs) rs.value = judgeRole;
-                            }
 
-                            if (v === 'report') {
-                                bindReportElements();
-                                if (reportDocs.length > 0) {
-                                    // Reset active view to first doc to ensure content shows
-                                    selectDoc(0);
+                                        if (v === 'history') fetchHistory();
+
+                                        // Special initialization for Report View
+                                        if (v === 'report') {
+                                            bindReportElements();
+                                            if (reportDocs.length > 0 && activeIdx !== -1) {
+                                                selectDoc(activeIdx);
+                                            } else if (reportDocs.length > 0) {
+                                                selectDoc(0);
+                                            }
+                                        }
+                                    })
+                                    .catch(err => {
+                                        console.error(err);
+                                        el.innerHTML = `<div class="flex h-full items-center justify-center text-red-500">Error loading view</div>`;
+                                    });
+                            } else {
+                                // Already loaded - Refresh specific logic
+                                if (v === 'judge') {
+                                    renderJudgeFiles();
+                                    syncSelectedDocsToJudgeView();
+                                    // Sync Role UI
+                                    const rs = document.getElementById('judgeRoleSelect');
+                                    if (rs) rs.value = judgeRole;
+                                }
+
+                                if (v === 'report') {
+                                    bindReportElements();
+                                    if (reportDocs.length > 0) {
+                                        // Reset active view to first doc to ensure content shows
+                                        selectDoc(0);
+                                    }
                                 }
                             }
-                        }
-                    } else {
-                        el.classList.add('hidden');
-                    }
-                }
-            });
-
-            // Nav Links
-            const navs = ['report', 'judge', 'history'];
-            navs.forEach(n => {
-                const el = document.getElementById(`nav-${n}`);
-                if (el) {
-                    const icon = el.querySelector('.material-symbols-outlined');
-                    if (n === viewName) {
-                        el.classList.add(...activeNavClasses);
-                        el.classList.remove(...inactiveNavClasses);
-                        if (icon) {
-                            icon.classList.remove('text-gray-500', 'dark:text-gray-400');
-                            icon.classList.add('icon-fill');
-                        }
-                    } else {
-                        el.classList.remove(...activeNavClasses);
-                        el.classList.add(...inactiveNavClasses);
-                        if (icon) {
-                            icon.classList.remove('icon-fill');
-                            icon.classList.add('text-gray-500', 'dark:text-gray-400');
+                        } else {
+                            el.classList.add('hidden');
                         }
                     }
+                });
+
+                // Nav Links
+                const navs = ['report', 'judge', 'history'];
+                navs.forEach(n => {
+                    const el = document.getElementById(`nav-${n}`);
+                    if (el) {
+                        const icon = el.querySelector('.material-symbols-outlined');
+                        if (n === viewName) {
+                            el.classList.add(...activeNavClasses);
+                            el.classList.remove(...inactiveNavClasses);
+                            if (icon) {
+                                icon.classList.remove('text-gray-500', 'dark:text-gray-400');
+                                icon.classList.add('icon-fill');
+                            }
+                        } else {
+                            el.classList.remove(...activeNavClasses);
+                            el.classList.add(...inactiveNavClasses);
+                            if (icon) {
+                                icon.classList.remove('icon-fill');
+                                icon.classList.add('text-gray-500', 'dark:text-gray-400');
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- INIT ---
+            window.addEventListener('load', () => {
+                try {
+                    const data = localStorage.getItem('reportData');
+                    if (data) {
+                        reportDocs = JSON.parse(data);
+                        // Initially select all for the report view context if desired, or none.
+                        reportDocs.forEach((_, i) => selectedIndices.add(i));
+                    }
+                } catch (e) {
+                    console.error("Error loading report data:", e);
+                    reportDocs = [];
                 }
+
+                renderList();
+
+                // Initialize View
+                switchView('report');
             });
-        }
 
-        // --- INIT ---
-        window.addEventListener('load', () => {
-            try {
-                const data = localStorage.getItem('reportData');
-                if (data) {
-                    reportDocs = JSON.parse(data);
-                    // Initially select all for the report view context if desired, or none.
-                    reportDocs.forEach((_, i) => selectedIndices.add(i));
-                }
-            } catch (e) {
-                console.error("Error loading report data:", e);
-                reportDocs = [];
-            }
+            // --- RENDER LIST ---
+            function renderList() {
+                resCountBadge.innerText = reportDocs.length;
+                resultsList.innerHTML = '';
 
-            renderList();
-
-            // Initialize View
-            switchView('report');
-
-            // Auto Select First for viewing
-            if (reportDocs.length > 0) {
-                activeIdx = 0;
-                selectDoc(0);
-            }
-        });
-
-        // --- RENDER LIST ---
-        function renderList() {
-            resCountBadge.innerText = reportDocs.length;
-            resultsList.innerHTML = '';
-
-            if (reportDocs.length === 0) {
-                resultsList.innerHTML = `
+                if (reportDocs.length === 0) {
+                    resultsList.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-full text-center text-slate-400">
                         <span class="material-symbols-outlined text-4xl mb-2">find_in_page</span>
                         <p class="text-sm">Seçili belge bulunamadı.</p>
                     </div>`;
-                return;
-            }
+                    return;
+                }
 
-            // Sync Select All Checkbox
-            if (reportDocs.length > 0 && selectedIndices.size === reportDocs.length) {
-                selectAllCb.checked = true;
-                selectAllCb.indeterminate = false;
-            } else if (selectedIndices.size > 0) {
-                selectAllCb.checked = false;
-                selectAllCb.indeterminate = true;
-            } else {
-                selectAllCb.checked = false;
-                selectAllCb.indeterminate = false;
-            }
+                // Sync Select All Checkbox
+                if (reportDocs.length > 0 && selectedIndices.size === reportDocs.length) {
+                    selectAllCb.checked = true;
+                    selectAllCb.indeterminate = false;
+                } else if (selectedIndices.size > 0) {
+                    selectAllCb.checked = false;
+                    selectAllCb.indeterminate = true;
+                } else {
+                    selectAllCb.checked = false;
+                    selectAllCb.indeterminate = false;
+                }
 
-            reportDocs.forEach((doc, idx) => {
-                const isSel = selectedIndices.has(idx);
-                const isActive = (idx === activeIdx);
+                reportDocs.forEach((doc, idx) => {
+                    const isSel = selectedIndices.has(idx);
+                    const isActive = (idx === activeIdx);
 
-                // Score styling (Exact logic from index.html)
-                let barColor = "bg-green-500";
-                let txtColor = "text-green-600";
-                if (doc.score < 60) { barColor = "bg-red-500"; txtColor = "text-red-600"; }
-                else if (doc.score < 80) { barColor = "bg-yellow-500"; txtColor = "text-yellow-600"; }
+                    // Score styling (Exact logic from index.html)
+                    let barColor = "bg-green-500";
+                    let txtColor = "text-green-600";
+                    if (doc.score < 60) { barColor = "bg-red-500"; txtColor = "text-red-600"; }
+                    else if (doc.score < 80) { barColor = "bg-yellow-500"; txtColor = "text-yellow-600"; }
 
-                const el = document.createElement('div');
-                // Combined styling: index.html Selection + Active Highlight
-                // If active, we give it a border/ring. If selected, it has bg-primary/5.
-                // Priority: Active gets border color. Selected gets background.
-                let bgClass = isSel ? 'bg-primary/5' : 'bg-white';
-                let borderClass = isActive ? 'border-primary shadow-sm ring-1 ring-primary/20' : (isSel ? 'border-primary/50' : 'border-slate-200');
+                    const el = document.createElement('div');
+                    // Combined styling: index.html Selection + Active Highlight
+                    // If active, we give it a border/ring. If selected, it has bg-primary/5.
+                    // Priority: Active gets border color. Selected gets background.
+                    let bgClass = isSel ? 'bg-primary/5' : 'bg-white';
+                    let borderClass = isActive ? 'border-primary shadow-sm ring-1 ring-primary/20' : (isSel ? 'border-primary/50' : 'border-slate-200');
 
-                el.className = `p-4 rounded-xl border transition-all cursor-pointer group mb-3 ${bgClass} ${borderClass} hover:shadow-md`;
+                    el.className = `p-4 rounded-xl border transition-all cursor-pointer group mb-3 ${bgClass} ${borderClass} hover:shadow-md`;
 
-                // Logic: Click on box -> toggle select. Click on card -> set Active (view).
-                el.onclick = (e) => {
-                    // If clicked checkbox directly, let it propagate (handled by onchange)
-                    // If clicked button, stop propagation (handled by button onclick)
-                    if (e.target.tagName === 'INPUT') return;
-                    if (e.target.closest('button')) return;
+                    // Logic: Click on box -> toggle select. Click on card -> set Active (view).
+                    el.onclick = (e) => {
+                        // If clicked checkbox directly, let it propagate (handled by onchange)
+                        // If clicked button, stop propagation (handled by button onclick)
+                        if (e.target.tagName === 'INPUT') return;
+                        if (e.target.closest('button')) return;
 
-                    // Clicking card view defaults to viewing it (Active)
-                    selectDoc(idx);
-                };
+                        // Clicking card view defaults to viewing it (Active)
+                        selectDoc(idx);
+                    };
 
-                el.innerHTML = `
+                    el.innerHTML = `
                 <div class="flex items-start gap-3">
                     <div class="pt-1">
                         <input type="checkbox" onchange="toggleSelection(${idx})" ${isSel ? 'checked' : ''} class="form-checkbox text-primary rounded border-gray-300 focus:ring-primary/20 size-4"/>
@@ -594,64 +784,64 @@
                     </div>
                 </div>
                 `;
-                resultsList.appendChild(el);
-            });
-        }
+                    resultsList.appendChild(el);
+                });
+            }
 
-        // --- SELECTION LOGIC ---
-        function toggleSelection(idx) {
-            if (selectedIndices.has(idx)) selectedIndices.delete(idx);
-            else selectedIndices.add(idx);
-            renderList();
-        }
+            // --- SELECTION LOGIC ---
+            function toggleSelection(idx) {
+                if (selectedIndices.has(idx)) selectedIndices.delete(idx);
+                else selectedIndices.add(idx);
+                renderList();
+            }
 
-        function toggleSelectAll() {
-            if (selectAllCb.checked) reportDocs.forEach((_, i) => selectedIndices.add(i));
-            else selectedIndices.clear();
-            renderList();
-        }
+            function toggleSelectAll() {
+                if (selectAllCb.checked) reportDocs.forEach((_, i) => selectedIndices.add(i));
+                else selectedIndices.clear();
+                renderList();
+            }
 
-        // --- VIEW DOC ---
-        function selectDoc(idx) {
-            activeIdx = idx;
-            renderList(); // Update highlight
+            // --- VIEW DOC ---
+            function selectDoc(idx) {
+                activeIdx = idx;
+                renderList(); // Update highlight
 
-            const doc = reportDocs[idx];
-            if (!doc) return;
+                const doc = reportDocs[idx];
+                if (!doc) return;
 
-            // Show Content
-            emptyState.classList.add('hidden');
-            pdfContainer.classList.remove('hidden');
+                // Show Content
+                emptyState.classList.add('hidden');
+                pdfContainer.classList.remove('hidden');
 
-            pdfTitleHeader.innerText = doc.source || doc.metadata?.baslik || 'Doküman';
+                pdfTitleHeader.innerText = doc.source || doc.metadata?.baslik || 'Doküman';
 
-            // Update Reason Box
-            pdfReason.innerHTML = `
+                // Update Reason Box
+                pdfReason.innerHTML = `
                  <div class="flex items-center gap-2 mb-2 font-bold text-primary">
                     <span class="material-symbols-outlined">smart_toy</span>
                     YAPAY ZEKA GEREKÇESİ
                  </div>
                  <p>${doc.reason || 'Analiz detayı bulunamadı.'}</p>
             `;
-            // Ensure the container itself has print:hidden if dynamic or static
-            pdfReason.classList.add('print:hidden');
+                // Ensure the container itself has print:hidden if dynamic or static
+                pdfReason.classList.add('print:hidden');
 
-            // Update Body
-            let content = "İçerik yüklenemedi.";
-            if (doc.text) {
-                if (doc.text.trim().startsWith("<")) {
-                    content = doc.text;
-                } else {
-                    content = doc.text.replace(/</g, "&lt;").replace(/\n/g, '<br>');
+                // Update Body
+                let content = "İçerik yüklenemedi.";
+                if (doc.text) {
+                    if (doc.text.trim().startsWith("<")) {
+                        content = doc.text;
+                    } else {
+                        content = doc.text.replace(/</g, "&lt;").replace(/\n/g, '<br>');
+                    }
                 }
-            }
 
-            const titleHtml = `<h1 class="text-2xl font-bold mb-6 text-center text-black font-serif">${doc.source || 'Belge İçeriği'}</h1>`;
-            pdfBody.innerHTML = titleHtml + content;
+                const titleHtml = `<h1 class="text-2xl font-bold mb-6 text-center text-black font-serif">${doc.source || 'Belge İçeriği'}</h1>`;
+                pdfBody.innerHTML = titleHtml + content;
 
-            // Setup Download
-            downloadBtn.onclick = () => {
-                const htmlContent = `
+                // Setup Download
+                downloadBtn.onclick = () => {
+                    const htmlContent = `
                     <html>
                     <head><title>${doc.source}</title></head>
                     <body style="font-family: serif; line-height: 1.6; max-width: 800px; margin: 2rem auto;">
@@ -662,80 +852,80 @@
                     </body>
                     </html>
                 `;
-                const blob = new Blob([htmlContent], { type: "text/html" });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = (doc.source || 'belge').replace('.pdf', '') + '.html';
-                document.body.removeChild(link);
-            };
-        }
+                    const blob = new Blob([htmlContent], { type: "text/html" });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = (doc.source || 'belge').replace('.pdf', '') + '.html';
+                    document.body.removeChild(link);
+                };
+            }
 
-        // --- JUDGE VIEW LOGIC ---
-        let judgeFiles = [];
-        let judgeRole = 'all';
-        let judgeStatus = 'pending';
+            // --- JUDGE VIEW LOGIC ---
+            let judgeFiles = [];
+            let judgeRole = 'all';
+            let judgeStatus = 'pending';
 
-        // Load Judge State if exists
-        try {
-            const jState = JSON.parse(localStorage.getItem('judgeState') || 'null');
-            if (jState) {
-                judgeRole = jState.role || 'all';
-                judgeStatus = jState.status || 'pending';
-                // Restore files as metadata objects
-                if (jState.judgeFiles && jState.judgeFiles.length > 0) {
-                    judgeFiles = jState.judgeFiles.map(f => ({
-                        name: f.name,
-                        size: f.size,
-                        isRestored: true
-                    }));
+            // Load Judge State if exists
+            try {
+                const jState = JSON.parse(localStorage.getItem('judgeState') || 'null');
+                if (jState) {
+                    judgeRole = jState.role || 'all';
+                    judgeStatus = jState.status || 'pending';
+                    // Restore files as metadata objects
+                    if (jState.judgeFiles && jState.judgeFiles.length > 0) {
+                        judgeFiles = jState.judgeFiles.map(f => ({
+                            name: f.name,
+                            size: f.size,
+                            isRestored: true
+                        }));
+                    }
+                }
+            } catch (e) { console.error('Judge state error', e); }
+
+            function updateJudgeRole(val) {
+                judgeRole = val;
+            }
+
+            function handleJudgeFiles(input) {
+                if (input.files && input.files.length > 0) {
+                    Array.from(input.files).forEach(file => {
+                        // Avoid duplicates by name
+                        if (!judgeFiles.some(f => f.name === file.name)) {
+                            judgeFiles.push(file);
+                        }
+                    });
+                    renderJudgeFiles();
+                    input.value = ''; // Reset input
                 }
             }
-        } catch (e) { console.error('Judge state error', e); }
 
-        function updateJudgeRole(val) {
-            judgeRole = val;
-        }
-
-        function handleJudgeFiles(input) {
-            if (input.files && input.files.length > 0) {
-                Array.from(input.files).forEach(file => {
-                    // Avoid duplicates by name
-                    if (!judgeFiles.some(f => f.name === file.name)) {
-                        judgeFiles.push(file);
-                    }
-                });
+            function removeJudgeFile(idx) {
+                judgeFiles.splice(idx, 1);
                 renderJudgeFiles();
-                input.value = ''; // Reset input
-            }
-        }
-
-        function removeJudgeFile(idx) {
-            judgeFiles.splice(idx, 1);
-            renderJudgeFiles();
-        }
-
-        function clearJudgeFiles() {
-            judgeFiles = [];
-            renderJudgeFiles();
-        }
-
-        function renderJudgeFiles() {
-            const container = document.getElementById('judgeFilesContainer');
-            const list = document.getElementById('judgeFileList');
-
-            if (!container || !list) {
-                // If view not currently active/loaded, just return. state is saved.
-                return;
             }
 
-            if (judgeFiles.length === 0) {
-                container.classList.add('hidden');
-                list.innerHTML = '';
-                return;
+            function clearJudgeFiles() {
+                judgeFiles = [];
+                renderJudgeFiles();
             }
 
-            container.classList.remove('hidden');
-            list.innerHTML = judgeFiles.map((file, idx) => `
+            function renderJudgeFiles() {
+                const container = document.getElementById('judgeFilesContainer');
+                const list = document.getElementById('judgeFileList');
+
+                if (!container || !list) {
+                    // If view not currently active/loaded, just return. state is saved.
+                    return;
+                }
+
+                if (judgeFiles.length === 0) {
+                    container.classList.add('hidden');
+                    list.innerHTML = '';
+                    return;
+                }
+
+                container.classList.remove('hidden');
+                list.innerHTML = judgeFiles.map((file, idx) => `
                 <li class="flex items-center justify-between bg-white dark:bg-surface-dark p-2 border border-slate-200 dark:border-slate-700 rounded-md shadow-sm group">
                     <div class="flex items-center gap-3 overflow-hidden">
                         <div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-1.5 rounded">
@@ -751,24 +941,24 @@
                     </button>
                 </li>
             `).join('');
-        }
-
-        // --- SYNC SELECTED DOCUMENTS --
-        function syncSelectedDocsToJudgeView() {
-            const list = document.getElementById('selectedDocsList');
-            if (!list) return; // View not loaded
-
-            if (selectedIndices.size === 0) {
-                list.innerHTML = '<li class="text-sm text-gray-400 italic px-2">Henüz sağ panelden belge seçilmedi.</li>';
-                return;
             }
 
-            const sortedIndices = Array.from(selectedIndices).sort((a, b) => a - b);
+            // --- SYNC SELECTED DOCUMENTS --
+            function syncSelectedDocsToJudgeView() {
+                const list = document.getElementById('selectedDocsList');
+                if (!list) return; // View not loaded
 
-            list.innerHTML = sortedIndices.map(idx => {
-                const doc = reportDocs[idx];
-                if (!doc) return '';
-                return `
+                if (selectedIndices.size === 0) {
+                    list.innerHTML = '<li class="text-sm text-gray-400 italic px-2">Henüz sağ panelden belge seçilmedi.</li>';
+                    return;
+                }
+
+                const sortedIndices = Array.from(selectedIndices).sort((a, b) => a - b);
+
+                list.innerHTML = sortedIndices.map(idx => {
+                    const doc = reportDocs[idx];
+                    if (!doc) return '';
+                    return `
                      <li class="flex items-center justify-between bg-white dark:bg-surface-dark p-2.5 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm border-l-4 border-l-primary/50">
                         <div class="flex items-center gap-3 overflow-hidden">
                             <div class="bg-primary/10 text-primary p-1.5 rounded">
@@ -787,212 +977,144 @@
                         </button>
                     </li>
                   `;
-            }).join('');
-        }
+                }).join('');
+            }
 
-        // --- JUDGE EVALUATION ACTION ---
-        function startJudgeEvaluation() {
-            const btn = document.getElementById('btnJudgeEvaluate');
-            if (!btn) return;
+            // --- JUDGE EVALUATION ACTION ---
+            function startJudgeEvaluation() {
+                const btn = document.getElementById('btnJudgeEvaluate');
+                if (!btn) return;
 
-            const originalContent = btn.innerHTML;
+                const originalContent = btn.innerHTML;
 
-            // Loading State
-            btn.disabled = true;
-            btn.innerHTML = `
+                // Loading State
+                btn.disabled = true;
+                btn.innerHTML = `
                 <span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
                 <span>YÜKLENİYOR...</span>
             `;
 
-            // Mock Process (3 seconds)
-            setTimeout(() => {
-                btn.innerHTML = `
+                // Mock Process (3 seconds)
+                setTimeout(() => {
+                    btn.innerHTML = `
                     <span class="material-symbols-outlined text-[20px]">check_circle</span>
                     <span>TAMAMLANDI</span>
                 `;
 
-                // Revert after 1s
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = originalContent;
-                }, 1000);
+                    // Revert after 1s
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }, 1000);
 
-            }, 3000);
-        }
-
-        // --- SAVE ANALYSIS LOGIC ---
-        const saveModal = document.getElementById('saveModal');
-        const saveNameInput = document.getElementById('saveNameInput');
-
-        function openSaveModal() {
-            saveModal.classList.remove('hidden');
-            setTimeout(() => {
-                saveModal.classList.remove('opacity-0');
-                saveModal.firstElementChild.classList.remove('scale-95');
-                saveModal.firstElementChild.classList.add('scale-100');
-                saveNameInput.focus();
-            }, 10);
-        }
-
-        function closeSaveModal() {
-            saveModal.classList.add('opacity-0');
-            saveModal.firstElementChild.classList.remove('scale-100');
-            saveModal.firstElementChild.classList.add('scale-95');
-            setTimeout(() => saveModal.classList.add('hidden'), 200);
-        }
-
-        function confirmSaveAnalysis() {
-            const name = saveNameInput.value.trim();
-            if (!name) {
-                alert("Lütfen bir analiz ismi giriniz.");
-                return;
+                }, 3000);
             }
 
-            const btn = document.getElementById('btnConfirmSave');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span> Kaydediliyor...`;
+            // --- SAVE ANALYSIS LOGIC ---
+            const saveModal = document.getElementById('saveModal');
+            const saveNameInput = document.getElementById('saveNameInput');
 
-            // Collect Data
-            const payload = {
-                name: name,
-                dashboardState: JSON.parse(localStorage.getItem('dashboardState') || '{}'),
-                reportData: reportDocs, // Ensure reportDocs is up to date
-                judgeMetadata: {
-                    role: judgeRole,
-                    status: judgeStatus,
-                    judgeFiles: judgeFiles.map(f => ({ name: f.name, size: f.size })),
-                    // Assuming no other metadata for now
-                },
-                timestamp: new Date().toISOString()
-            };
+            function openSaveModal() {
+                saveModal.classList.remove('hidden');
+                setTimeout(() => {
+                    saveModal.classList.remove('opacity-0');
+                    saveModal.firstElementChild.classList.remove('scale-95');
+                    saveModal.firstElementChild.classList.add('scale-100');
+                    saveNameInput.focus();
+                }, 10);
+            }
 
-            fetch('/api/save_analysis', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        btn.innerHTML = `<span class="material-symbols-outlined text-[20px]">check</span> Kaydedildi`;
-                        setTimeout(() => {
-                            closeSaveModal();
-                            btn.disabled = false;
-                            btn.innerHTML = originalText;
-                            saveNameInput.value = '';
-                            // Refresh history if open? -> Will refresh on next view switch
-                        }, 1000);
-                    } else {
-                        throw new Error(data.message || 'Save failed');
-                    }
+            function closeSaveModal() {
+                saveModal.classList.add('opacity-0');
+                saveModal.firstElementChild.classList.remove('scale-100');
+                saveModal.firstElementChild.classList.add('scale-95');
+                setTimeout(() => saveModal.classList.add('hidden'), 200);
+            }
+
+            function confirmSaveAnalysis() {
+                const name = saveNameInput.value.trim();
+                if (!name) {
+                    alert("Lütfen bir analiz ismi giriniz.");
+                    return;
+                }
+
+                const btn = document.getElementById('btnConfirmSave');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span> Kaydediliyor...`;
+
+                // Collect Data
+                const payload = {
+                    name: name,
+                    dashboardState: JSON.parse(localStorage.getItem('dashboardState') || '{}'),
+                    reportData: reportDocs, // Ensure reportDocs is up to date
+                    judgeMetadata: {
+                        role: judgeRole,
+                        status: judgeStatus,
+                        judgeFiles: judgeFiles.map(f => ({ name: f.name, size: f.size })),
+                        // Assuming no other metadata for now
+                    },
+                    timestamp: new Date().toISOString()
+                };
+
+                fetch('/api/save_analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 })
-                .catch(err => {
-                    alert("Kayıt hatası: " + err.message);
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                });
-        }
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            btn.innerHTML = `<span class="material-symbols-outlined text-[20px]">check</span> Kaydedildi`;
+                            setTimeout(() => {
+                                closeSaveModal();
+                                btn.disabled = false;
+                                btn.innerHTML = originalText;
+                                saveNameInput.value = '';
+                                // Refresh history if open? -> Will refresh on next view switch
+                            }, 1000);
+                        } else {
+                            throw new Error(data.message || 'Save failed');
+                        }
+                    })
+                    .catch(err => {
+                        alert("Kayıt hatası: " + err.message);
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    });
+            }
 
-        // --- RESTORE LOGIC ---
-        function restoreAnalysis(filename) {
-            if (!confirm('Mevcut ekranınızdaki veriler bu kayıt ile değiştirilecek. Onaylıyor musunuz?')) return;
+            // --- RESTORE LOGIC ---
+            // Old restoreAnalysis removed - replaced by restoreModal logic
 
-            // Show loading overlay
-            const container = document.getElementById('view-history');
-            const oldContent = container.innerHTML;
-            container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-full text-center text-slate-400">
-                            <span class="material-symbols-outlined text-4xl mb-3 animate-spin text-primary/50">sync</span>
-                            <p class="text-sm">Analiz geri yükleniyor...</p>
-                        </div>
-                     `;
+            // --- HISTORY LOGIC ---
+            function fetchHistory() {
+                const container = document.getElementById('historyListContainer');
+                if (!container) return;
 
-            // Alert the user exactly what is happening for debug
-            // alert(`Requesting: ${filename}`);
-
-            fetch(`/api/load_analysis/${filename}?t=${Date.now()}`)
-                .then(async res => {
-                    if (!res.ok) {
-                        const err = await res.text(); // Get raw text if not json
-                        throw new Error(`Server Error (${res.status}): ${err}`);
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    // Validation
-                    if (!data.reportData && !data.dashboardState) {
-                        throw new Error("Gelen veri boş veya hatalı formatta.");
-                    }
-
-
-                    // 2. Restore Report Data
-                    if (data.reportData) {
-                        reportDocs = data.reportData;
-                        localStorage.setItem('reportData', JSON.stringify(reportDocs));
-                        // Select all by default after restore
-                        selectedIndices.clear();
-                        reportDocs.forEach((_, i) => selectedIndices.add(i));
-                        renderList();
-                    }
-
-                    // 3. Restore Judge Metadata
-                    if (data.judgeMetadata) {
-                        judgeRole = data.judgeMetadata.role || 'all';
-                        judgeStatus = data.judgeMetadata.status || 'pending';
-                        // No need to complex map, we need to save it back to localStorage or handled by reload?
-                        // Actually, report.html logic is:
-                        // 1. Load reportData from localstorage
-                        // 2. Judge logic is ephemeral... wait.
-                        // Judge state isn't saved to localStorage in report.html currently! It's just JS vars.
-                        // We need to SAVE Judge State to localStorage if we want it to persist across reload.
-
-                        localStorage.setItem('judgeState', JSON.stringify(data.judgeMetadata));
-                    }
-
-                    // Debug Alert
-                    alert("Restore Data: " + (data.reportData?.length || 0) + " docs");
-
-                    // 4. Force Reload to apply all states cleanly
-                    // Small delay to ensure localStorage write is flushed
-                    setTimeout(() => window.location.reload(), 100);
-
-                })
-                .catch(err => {
-                    console.error("Restore error:", err);
-                    alert("Yükleme başarısız: " + err.message);
-                    container.innerHTML = oldContent; // Revert view
-                });
-        }
-
-        // --- HISTORY LOGIC ---
-        function fetchHistory() {
-            const container = document.getElementById('historyListContainer');
-            if (!container) return;
-
-            container.innerHTML = `
+                container.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400">
                     <span class="material-symbols-outlined text-4xl mb-3 animate-spin text-primary/50">sync</span>
                     <p class="text-sm">Geçmiş yükleniyor...</p>
                 </div>
             `;
 
-            fetch(`/api/history?t=${Date.now()}`)
-                .then(res => res.json())
-                .then(files => {
-                    if (files.length === 0) {
-                        container.innerHTML = `
+                fetch(`/api/history?t=${Date.now()}`)
+                    .then(res => res.json())
+                    .then(files => {
+                        if (files.length === 0) {
+                            container.innerHTML = `
                             <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400">
                                 <span class="material-symbols-outlined text-4xl mb-3">history_toggle_off</span>
                                 <p class="text-sm">Henüz kaydedilmiş bir analiz bulunmuyor.</p>
                             </div>
                         `;
-                        return;
-                    }
+                            return;
+                        }
 
-                    container.innerHTML = files.map(file => {
-                        const date = new Date(file.timestamp).toLocaleString('tr-TR');
-                        return `
+                        container.innerHTML = files.map(file => {
+                            const date = new Date(file.timestamp).toLocaleString('tr-TR');
+                            return `
                             <div class="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex items-start justify-between shadow-sm hover:shadow-md transition-shadow group">
                                 <div class="flex items-start gap-3">
                                     <div class="bg-primary/10 text-primary p-2.5 rounded-lg">
@@ -1008,41 +1130,42 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="restoreAnalysis('${file.filename}')" class="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Bu Analizi Geri Yükle">
+                                    <button onclick="openRestoreModal('${file.filename}')" class="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Bu Analizi Geri Yükle">
                                         <span class="material-symbols-outlined text-[20px]">restore_page</span>
                                     </button>
                                 </div>
                             </div>
                         `;
-                    }).join('');
-                })
-                .catch(err => {
-                    console.error('History API Error:', err);
-                    container.innerHTML = `
+                        }).join('');
+                    })
+                    .catch(err => {
+                        console.error('History API Error:', err);
+                        container.innerHTML = `
                         <div class="text-center text-red-500 py-8">
                             <p>Geçmiş yüklenirken bir hata oluştu.</p>
                         </div>
                     `;
-                });
-        }
-        function zoom(delta) {
-            currentZoom += delta;
-            if (currentZoom < 0.5) currentZoom = 0.5;
-            if (currentZoom > 2.0) currentZoom = 2.0;
+                    });
+            }
+            function zoom(delta) {
+                currentZoom += delta;
+                if (currentZoom < 0.5) currentZoom = 0.5;
+                if (currentZoom > 2.0) currentZoom = 2.0;
 
-            viewPage.style.transform = `scale(${currentZoom})`;
-            if (currentZoom > 1) {
-                viewPage.style.marginTop = `${(currentZoom - 1) * 100}px`;
-                viewPage.style.marginBottom = `${(currentZoom - 1) * 100}px`;
-            } else {
-                viewPage.style.marginTop = '0';
-                viewPage.style.marginBottom = '0';
+                viewPage.style.transform = `scale(${currentZoom})`;
+                if (currentZoom > 1) {
+                    viewPage.style.marginTop = `${(currentZoom - 1) * 100}px`;
+                    viewPage.style.marginBottom = `${(currentZoom - 1) * 100}px`;
+                } else {
+                    viewPage.style.marginTop = '0';
+                    viewPage.style.marginBottom = '0';
+                }
+
+                document.getElementById('zoomLevel').innerText = `${Math.round(currentZoom * 100)}%`;
             }
 
-            document.getElementById('zoomLevel').innerText = `${Math.round(currentZoom * 100)}%`;
-        }
-
-    </script>
+        </script>
+        <!-- RESTORE ANALYSIS MODAL REMOVED (Moved Up) -->
 </body>
 
 </html>

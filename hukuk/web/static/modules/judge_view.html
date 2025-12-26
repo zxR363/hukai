@@ -14,7 +14,7 @@
             <div class="flex items-center gap-3">
                 <!-- ROLE SELECTOR -->
                 <div class="relative">
-                    <select id="judgeRoleSelect"
+                    <select id="judgeRoleSelect" onchange="updateJudgeRole(this.value)"
                         class="appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-[#111418] dark:text-gray-300 text-sm rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer hover:border-gray-300 transition-colors font-medium">
                         <option value="all">Rol: Hepsi</option>
                         <option value="judge">Rol: Yargıç</option>

@@ -201,5 +201,23 @@ async def get_history():
         return []
 
 
+@app.get("/api/load_analysis/{filename}")
+async def load_analysis(filename: str):
+    """Loads a specific analysis file."""
+    try:
+        db_dir = os.path.join(project_root, "web", "analysis_db")
+        file_path = os.path.join(db_dir, filename)
+        
+        if not os.path.exists(file_path):
+             raise HTTPException(status_code=404, detail="Analiz dosyası bulunamadı.")
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            
+        return data
+    except Exception as e:
+        print(f"Load error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8001)

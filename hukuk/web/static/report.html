@@ -432,6 +432,17 @@
                             if (v === 'judge') {
                                 renderJudgeFiles();
                                 syncSelectedDocsToJudgeView();
+                                // Sync Role UI
+                                const rs = document.getElementById('judgeRoleSelect');
+                                if (rs) rs.value = judgeRole;
+                            }
+
+                            if (v === 'report') {
+                                bindReportElements();
+                                if (reportDocs.length > 0) {
+                                    // Reset active view to first doc to ensure content shows
+                                    selectDoc(0);
+                                }
                             }
                         }
                     } else {
@@ -661,6 +672,29 @@
 
         // --- JUDGE VIEW LOGIC ---
         let judgeFiles = [];
+        let judgeRole = 'all';
+        let judgeStatus = 'pending';
+
+        // Load Judge State if exists
+        try {
+            const jState = JSON.parse(localStorage.getItem('judgeState') || 'null');
+            if (jState) {
+                judgeRole = jState.role || 'all';
+                judgeStatus = jState.status || 'pending';
+                // Restore files as metadata objects
+                if (jState.judgeFiles && jState.judgeFiles.length > 0) {
+                    judgeFiles = jState.judgeFiles.map(f => ({
+                        name: f.name,
+                        size: f.size,
+                        isRestored: true
+                    }));
+                }
+            }
+        } catch (e) { console.error('Judge state error', e); }
+
+        function updateJudgeRole(val) {
+            judgeRole = val;
+        }
 
         function handleJudgeFiles(input) {
             if (input.files && input.files.length > 0) {
@@ -825,7 +859,8 @@
                 dashboardState: JSON.parse(localStorage.getItem('dashboardState') || '{}'),
                 reportData: reportDocs, // Ensure reportDocs is up to date
                 judgeMetadata: {
-                    role: document.getElementById('judgeRoleSelect')?.value || 'all',
+                    role: judgeRole,
+                    status: judgeStatus,
                     judgeFiles: judgeFiles.map(f => ({ name: f.name, size: f.size })),
                     // Assuming no other metadata for now
                 },
@@ -859,6 +894,77 @@
                 });
         }
 
+        // --- RESTORE LOGIC ---
+        function restoreAnalysis(filename) {
+            if (!confirm('Mevcut ekranınızdaki veriler bu kayıt ile değiştirilecek. Onaylıyor musunuz?')) return;
+
+            // Show loading overlay
+            const container = document.getElementById('view-history');
+            const oldContent = container.innerHTML;
+            container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full text-center text-slate-400">
+                            <span class="material-symbols-outlined text-4xl mb-3 animate-spin text-primary/50">sync</span>
+                            <p class="text-sm">Analiz geri yükleniyor...</p>
+                        </div>
+                     `;
+
+            // Alert the user exactly what is happening for debug
+            // alert(`Requesting: ${filename}`);
+
+            fetch(`/api/load_analysis/${filename}?t=${Date.now()}`)
+                .then(async res => {
+                    if (!res.ok) {
+                        const err = await res.text(); // Get raw text if not json
+                        throw new Error(`Server Error (${res.status}): ${err}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    // Validation
+                    if (!data.reportData && !data.dashboardState) {
+                        throw new Error("Gelen veri boş veya hatalı formatta.");
+                    }
+
+
+                    // 2. Restore Report Data
+                    if (data.reportData) {
+                        reportDocs = data.reportData;
+                        localStorage.setItem('reportData', JSON.stringify(reportDocs));
+                        // Select all by default after restore
+                        selectedIndices.clear();
+                        reportDocs.forEach((_, i) => selectedIndices.add(i));
+                        renderList();
+                    }
+
+                    // 3. Restore Judge Metadata
+                    if (data.judgeMetadata) {
+                        judgeRole = data.judgeMetadata.role || 'all';
+                        judgeStatus = data.judgeMetadata.status || 'pending';
+                        // No need to complex map, we need to save it back to localStorage or handled by reload?
+                        // Actually, report.html logic is:
+                        // 1. Load reportData from localstorage
+                        // 2. Judge logic is ephemeral... wait.
+                        // Judge state isn't saved to localStorage in report.html currently! It's just JS vars.
+                        // We need to SAVE Judge State to localStorage if we want it to persist across reload.
+
+                        localStorage.setItem('judgeState', JSON.stringify(data.judgeMetadata));
+                    }
+
+                    // Debug Alert
+                    alert("Restore Data: " + (data.reportData?.length || 0) + " docs");
+
+                    // 4. Force Reload to apply all states cleanly
+                    // Small delay to ensure localStorage write is flushed
+                    setTimeout(() => window.location.reload(), 100);
+
+                })
+                .catch(err => {
+                    console.error("Restore error:", err);
+                    alert("Yükleme başarısız: " + err.message);
+                    container.innerHTML = oldContent; // Revert view
+                });
+        }
+
         // --- HISTORY LOGIC ---
         function fetchHistory() {
             const container = document.getElementById('historyListContainer');
@@ -871,7 +977,7 @@
                 </div>
             `;
 
-            fetch('/api/history')
+            fetch(`/api/history?t=${Date.now()}`)
                 .then(res => res.json())
                 .then(files => {
                     if (files.length === 0) {
@@ -902,9 +1008,8 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <!-- Future: Add Restore / Delete buttons here -->
-                                    <button class="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Detayları Görüntüle (Yakında)">
-                                        <span class="material-symbols-outlined">visibility</span>
+                                    <button onclick="restoreAnalysis('${file.filename}')" class="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Bu Analizi Geri Yükle">
+                                        <span class="material-symbols-outlined text-[20px]">restore_page</span>
                                     </button>
                                 </div>
                             </div>

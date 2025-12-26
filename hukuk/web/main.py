@@ -35,10 +35,9 @@ os.chdir(project_root)
 
 import uuid
 try:
-    from web.legal_engine import LegalSearchEngine, create_pdf_report_file
+    from web.legal_engine import LegalSearchEngine, LegalJudge, LegalReporter
 except ImportError:
-    from legal_engine import LegalSearchEngine, create_pdf_report_file
-# from web.mock_legal_engine import LegalSearchEngine, create_pdf_report_file
+    from legal_engine import LegalSearchEngine, LegalJudge, LegalReporter
 
 app = FastAPI(title="Legal Suite V55 Web")
 
@@ -56,80 +55,165 @@ app.mount("/static", StaticFiles(directory="web/static"), name="static")
 # ================== WEBSOCKET MANAGER ==================
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.active_connections: dict = {} # clientId -> WebSocket
+        self.active_tasks: dict = {} # clientId -> asyncio.Task
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket: WebSocket, client_id: str):
         await websocket.accept()
-        self.active_connections.append(websocket)
+        self.active_connections[client_id] = websocket
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+    def disconnect(self, client_id: str):
+        if client_id in self.active_connections:
+            del self.active_connections[client_id]
+        
+        # Kill the task if it's still running for this client
+        if client_id in self.active_tasks:
+            task = self.active_tasks[client_id]
+            if not task.done():
+                task.cancel()
+                print(f"DEBUG: Task for client {client_id} cancelled.")
+            del self.active_tasks[client_id]
 
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
+    async def broadcast(self, message: str, target_id: str = None):
+        if target_id and target_id in self.active_connections:
+            try: await self.active_connections[target_id].send_text(message)
+            except: pass
+        else:
+            for conn in list(self.active_connections.values()):
+                try: await conn.send_text(message)
+                except: pass
 
 manager = ConnectionManager()
+engine_lock = asyncio.Lock()
 
 # ================== MODELS ==================
 class SearchRequest(BaseModel):
     story: str
     topic: str
     negatives: str = ""
+    clientId: Optional[str] = None
 
 class EvaluateRequest(BaseModel):
     story: str
     topic: str
     negatives: str = ""
     candidates: List[dict]
+    clientId: Optional[str] = None
 
 # ================== LOGIC ==================
+# ================== LOGIC ==================
 async def run_search_task(req: SearchRequest):
-    """Sadece belgeleri arar ve aday listesini döner."""
-    async def log_callback(msg: str):
-        await manager.broadcast(f"LOG|{msg}")
-
+    """
+    TAM PİPELİNE - AŞAMA 1 & 2 (Arama + Yargılama)
+    Mantık: legal_engine.py L471-L502
+    """
     try:
-        engine = LegalSearchEngine(log_callback=log_callback)
-        docs = await engine.search_docs(req.story, req.topic)
+        await manager.broadcast("LOG|🚀 Analiz başlatılıyor...", target_id=req.clientId)
         
-        # Arama bittiğinde adayları UI'a gönder
-        import json
-        await manager.broadcast(f"SEARCH_RESULT|{json.dumps(docs)}")
+        # 1. Motor Hazırlığı
+        engine = LegalSearchEngine()
+        judge = LegalJudge()
+        
+        # 2. Veritabanı Bağlantısı (L108-L113)
+        await manager.broadcast("LOG|🔌 Veritabanı bağlantısı kontrol ediliyor...", target_id=req.clientId)
+        is_connected = await asyncio.to_thread(engine.connect_db)
+        if not is_connected:
+            await manager.broadcast("LOG|❌ HATA: Veritabanına bağlanılamadı. Kilit dosyası veya path sorunu olabilir.", target_id=req.clientId)
+            return
+        await manager.broadcast("LOG|✅ Veritabanı bağlantısı başarılı.", target_id=req.clientId)
 
+        # 3. SORGÜ GENİŞLETME (L478-L479)
+        await manager.broadcast("LOG|🧠 Hukuki terimler genişletiliyor...", target_id=req.clientId)
+        expanded = await asyncio.to_thread(judge.generate_expanded_queries, req.story, req.topic)
+        full_query = f"{req.story} {req.topic} " + " ".join(expanded)
+        await manager.broadcast(f"LOG|✓ Sorgu hazırlandı: {len(full_query)} karakter.", target_id=req.clientId)
+        
+        # 4. ARAMA (L483)
+        await manager.broadcast("LOG|🔍 Veritabanında eşleşen belgeler taranıyor...", target_id=req.clientId)
+        candidates = await asyncio.to_thread(engine.retrieve_raw_candidates, full_query)
+        
+        if not candidates:
+            await manager.broadcast("LOG|🔴 Arama sonucu: Uygun benzerlikte belge bulunamadı.", target_id=req.clientId)
+            return
+        
+        await manager.broadcast(f"LOG|✅ {len(candidates)} potansiyel aday belge tespit edildi.", target_id=req.clientId)
+
+        # Adayları UI listesine gönder
+        ui_candidates = []
+        for c in candidates:
+            ui_candidates.append({
+                "source": c.payload['source'],
+                "page": c.payload.get('page', 0),
+                "type": c.payload['type'],
+                "page_content": c.payload['page_content'],
+                "score": min(max(c.score, 0), 1) * 100
+            })
+        await manager.broadcast(f"SEARCH_RESULT|{json.dumps(ui_candidates)}")
+        """
+        # 5. YARGILAMA / FİLTRELEME (L487-L488)
+        await manager.broadcast("LOG|⚖️ Akıllı Yargıç belgeleri analiz ediyor...")
+        neg_list = [w.strip().lower() for w in req.negatives.split(",")] if req.negatives else []
+        valid_docs = await asyncio.to_thread(judge.evaluate_candidates, candidates, req.story, req.topic, neg_list)
+        
+        if not valid_docs:
+            await manager.broadcast("LOG|🔴 Yargıç analizi: Mevcut belgelerin hiçbiri kriterlere uygun bulunmadı.")
+            return
+        """
+        await manager.broadcast(f"LOG|✅ Arama tamamlandı. {len(ui_candidates)} aday belge bulundu. Lütfen analiz edilecekleri seçin.", target_id=req.clientId)
+
+    except asyncio.CancelledError:
+        print(f"DEBUG: Task for {req.clientId} definitively cancelled.")
     except Exception as e:
-        await manager.broadcast(f"ERROR|{str(e)}")
+        await manager.broadcast(f"ERROR|Pipeline Hatası: {str(e)}", target_id=req.clientId)
+        print(f"Pipeline Error: {e}")
+    finally:
+        try: await asyncio.to_thread(engine.close)
+        except: pass
+        await manager.broadcast("STATUS|READY")
 
 async def run_evaluation_task(search_id: str, req: EvaluateRequest):
-    """Seçili belgeleri değerlendirir ve analiz yazar."""
-    async def log_callback(msg: str):
-        await manager.broadcast(f"LOG|{msg}")
-
+    """
+    TAM PİPELİNE - AŞAMA 3 (Yazma + Raporlama)
+    Mantık: legal_engine.py L503-L506
+    """
     try:
-        engine = LegalSearchEngine(log_callback=log_callback)
-        neg_list = [w.strip().lower() for w in req.negatives.split(",")] if req.negatives else []
+        await manager.broadcast("LOG|📝 Hukuki görüş yazımı başlatılıyor...", target_id=req.clientId)
+        judge = LegalJudge()
+        reporter = LegalReporter()
         
-        advice, docs = await engine.evaluate_documents(req.story, req.topic, neg_list, req.candidates)
+        valid_docs = req.candidates
         
-        if advice and docs:
-            # Generator PDF
-            pdf_filename = f"Hukuki_Rapor_{search_id}.pdf"
-            output_path = os.path.join("results", pdf_filename)
-            
-            if create_pdf_report_file(req.story, docs, advice, output_path):
-                 await manager.broadcast(f"PDF|{pdf_filename}")
-            
-            import json
-            result_payload = {
-                "advice": advice,
-                "docs": docs
-            }
-            await manager.broadcast(f"RESULT|{json.dumps(result_payload)}")
-        else:
-             await manager.broadcast(f"LOG|🔴 Değerlendirme tamamlanamadı (Uygun belge kalmadı).")
+        # Context oluştur (L491-L493)
+        context_str = ""
+        for i, d in enumerate(valid_docs):
+            context_str += f""">>> BELGE #{i + 1}\nTÜR: [{d['type']}]\nROL: {d.get('role', '[EMSAL İLKE]')}\nDOSYA ADI: {d['source']}\nSKOR: %{d['score']:.1f}\nİÇERİK:\n{d.get('page_content') or d.get('text', '')}\n=========================================\n"""
 
+        # 5. YAZMA (L505)
+        await manager.broadcast("LOG|🧑‍⚖️ Avukat analizini hazırlıyor (bu işlem 1-2 dakika sürebilir)...", target_id=req.clientId)
+        full_advice = await asyncio.to_thread(judge.generate_final_opinion, req.story, req.topic, context_str)
+
+        # 6. RAPORLAMA (L506)
+        await manager.broadcast("LOG|📄 PDF rapor dosyası oluşturuluyor...", target_id=req.clientId)
+        pdf_filename = f"Hukuki_Rapor_{search_id}.pdf"
+        output_path = os.path.join("results", pdf_filename)
+        os.makedirs("results", exist_ok=True)
+        
+        await asyncio.to_thread(reporter.create_report, req.story, valid_docs, full_advice, output_path)
+        await manager.broadcast(f"PDF|{pdf_filename}", target_id=req.clientId)
+
+        # Sonuçları UI'a gönder
+        result_payload = {
+            "advice": full_advice,
+            "docs": valid_docs
+        }
+        await manager.broadcast(f"RESULT|{json.dumps(result_payload)}", target_id=req.clientId)
+        await manager.broadcast("LOG|🏁 Analiz ve raporlama başarıyla tamamlandı. Raporu indirebilirsiniz.", target_id=req.clientId)
+
+    except asyncio.CancelledError:
+         print("DEBUG: Evaluation task cancelled.")
     except Exception as e:
-        await manager.broadcast(f"ERROR|{str(e)}")
+        await manager.broadcast(f"ERROR|Değerlendirme Hatası: {str(e)}", target_id=req.clientId)
+        print(f"Evaluation Error: {e}")
 
 # ================== ENDPOINTS ==================
 @app.get("/")
@@ -137,24 +221,43 @@ async def get():
     return FileResponse('web/static/index.html')
 
 @app.websocket("/ws/logs")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
+async def websocket_endpoint(websocket: WebSocket, clientId: str = None):
+    if not clientId:
+        clientId = "anonymous"
+    await manager.connect(websocket, clientId)
+    
+    # Broadcast initial system status to this client
+    if engine_lock.locked():
+        await websocket.send_text("STATUS|BUSY")
+    else:
+        await websocket.send_text("STATUS|READY")
+        
     try:
         while True:
-            data = await websocket.receive_text()
-            # simple ping-pong or command handling if needed
+            await websocket.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        manager.disconnect(clientId)
 
 @app.post("/api/search")
-async def start_search(req: SearchRequest, background_tasks: BackgroundTasks):
-    background_tasks.add_task(run_search_task, req)
+async def start_search(req: SearchRequest):
+    # Wrap in a locked task
+    async def locked_search():
+        async with engine_lock:
+            await manager.broadcast("STATUS|BUSY")
+            await run_search_task(req)
+            
+    task = asyncio.create_task(locked_search())
+    if req.clientId:
+        manager.active_tasks[req.clientId] = task
     return {"status": "started"}
 
 @app.post("/api/evaluate")
-async def start_evaluate(req: EvaluateRequest, background_tasks: BackgroundTasks):
+async def start_evaluate(req: EvaluateRequest):
     search_id = str(uuid.uuid4())[:8]
-    background_tasks.add_task(run_evaluation_task, search_id, req)
+    # No engine lock needed for evaluation (Pure LLM/PDF)
+    task = asyncio.create_task(run_evaluation_task(search_id, req))
+    if req.clientId:
+        manager.active_tasks[req.clientId] = task
     return {"status": "started", "search_id": search_id}
 
 @app.get("/api/download/{filename}")

@@ -1,0 +1,164 @@
+{
+    "name": "GercekTest",
+    "dashboardState": {
+        "inputs": {
+            "story": "Test",
+            "topic": "bbbbb",
+            "negatives": "AAA"
+        },
+        "docs": [
+            {
+                "source": "buyuk1.pdf",
+                "page": 1,
+                "type": "EMSAL KARAR",
+                "page_content": "\"İçtihat Metni\" Taraflar arasında görülen dava sonucunda verilen hükmün, Yargıtayca incelenmesi davacı ... tarafından istenilmekle, temyiz isteğinin süresinde olduğu anlaşıldı. Dosya incelendi, gereği görüşüldü: Dava, mirasçılık belgesinin iptali ile yenisinin verilmesi istemine ilişkindir. Miras bırakanın torunu davacı ... tarafından annesi ...'nın mirastan çıkarıldığı için mirasçılık belgesinin iptali ile mirastan çıkarmayı gösterecek şekilde yeniden mirasçılık belgesi verilmesi istenmiş, mahkemece davanın kabulüne karar verilmiş ise de verilen hüküm yasal düzenlemelere uygun düşmemiştir. Mirastan çıkarmada miras bırakan; mirasçı, miras bırakana veya miras bırakanın yakınlarından birine karşı ağır bir suç işlemişse, miras bırakana veya miras bırakanın ailesi üyelerine karşı aile hukukundan doğan yükümlülüklerini önemli ölçüde yerine getirmemişse ölüme bağlı bir tasarrufla saklı paylı mirasçısını mirasçılıktan çıkarabilir. Mirasçılıktan çıkarılan",
+                "score": 80.03214319757393
+            },
+            {
+                "source": "İş Hukuku.pdf",
+                "page": 493,
+                "type": "MEVZUAT",
+                "page_content": "TOPLU İŞ SÖZLEŞMESİNİN KURULUSU b) Toplu görüşme sonucunda yapılması gereken işlemler Toplu görüşme sonunda bir anlaşmaya varılamazsa taraflar arasında uyuşmazlık tutanağı tutulur. Böylece uyuşmazlık yönte­ mi işlemeye başlar. Taraflar toplu görüşmenin sonunda bir anlaşmaya varırlarsa, TSK 13 gereğince dört nüsha olarak düzenlenecek olan toplu iş sözleşmesinden birer nüsha taraflara verilir; iki nüshası da toplu görüşme için çağrıyı yapmış olan tarafça imza gününden başla­ yarak altı iş günü içinde görüşmenin yapılacağı yerin bağlı bu­ lunduğu Bölge Çalışma Müdürlüğüne, işkolunda ise Çalışma Ba­ kanlığına gönderilir. Toplu iş sözleşmesinin 4 nüsha halinde hazırlanıp imzalan­ mamış olması veya Bölge Çalışma Müdürlüğüne veya Çalışma Ba­ kanlığına 2 nüshasının gönderilmemiş olması, o sözleşmenin hü­ kümsüz sayılmasını gerektirmez. Burada kanunî bir formalitenin yerine getirilmesi söz konusudur. Yoksa toplu iş sözleşmesi bir",
+                "score": 78.90215586750939
+            },
+            {
+                "source": "TürkMedeniKanunu.pdf",
+                "page": 49,
+                "type": "MEVZUAT",
+                "page_content": "kalma ve kullanma süresini belirleyerek tapu kütüğüne şerhi için tapu memurluğuna bildirir. Hâkim aksine karar vermedikçe hak, belirlenen sürenin bitiminde kendiliğinden sona erer. Ancak, bu süre sona ermeden yararlanan tarafın durumunda değişiklik olması hâlinde, diğer taraf hâkimden, kararın gözden geçirilmesini isteyebilir. Eşler konutta kira ile oturuyorlarsa hâkim, gerektiğinde konutta kiracı sıfatı taşımayan eşin kalmasına karar verebilir. Bu durumda, kiralayanın sözleşmeden doğan haklarını güvenceye almak için gerekli düzenleme yapılmasına iptal veya boşanma kararıyla birlikte re'sen karar verilir. 2. Ölüm hâlinde Madde 255- Eşlerden birinin ölümü hâlinde, paylaşma konusu olan mallar arasında ev eşyası veya eşlerin birlikte yaşadıkları konut varsa; sağ kalan eş, bunlar üzerinde kendisine miras ve paylaşmadan doğan hakkına mahsup edilmek ve yetmezse bir bedel eklenmek suretiyle mülkiyet hakkı tanınmasını isteyebilir.",
+                "score": 78.56533541037962
+            },
+            {
+                "source": "İş Hukuku.pdf",
+                "page": 249,
+                "type": "MEVZUAT",
+                "page_content": "bb) Fesih bildiriminde bulunan kimsenin yetkisi Fesih bildiriminde bulunan kimsenin yetkili ve ehil olması ge­ rekir. Kural olarak hizmet akdinin taraflarından birisi fesih bildi­ riminde bulunabilir, tşçi ve işverenden başka bunların yetkili (ka­ nunî) temsilcileri (işveren için iflâs idaresi) veya akdî temsilcileri (işveren vekili) de geçerli olarak fesih bildiriminde bulunabilirler. İşveren vekili niteliğini îş K. 1/3 anlamında haiz olmayan kimse- (218) Çenberci, s. 293; Oğuzman, grev ve lokavt, s. 101. 223",
+                "score": 78.24036788114452
+            },
+            {
+                "source": "buyuk3.pdf",
+                "page": 1,
+                "type": "EMSAL KARAR",
+                "page_content": "7. Hukuk Dairesi 2010/3272 E. , 2010/5050 K. • \"İçtihat Metni\" Hasımsız olarak görülen dava sonucunda verilen hükmün, Yargıtay'ca incelenmesi davacı tarafından istenilmekle, temyiz isteğinin süresinde olduğu anlaşıldı. Dosya incelendi, gereği görüşüldü: Dava, mirasçılık belgesi verilmesi istemine ilişkindir. Mahkemece davanın kabulüne karar verilmiş ise de, oluşturulan hüküm davanın niteliğine ve yasal düzenlemelere uygun düşmemiştir. Mirastan çıkarma ve yoksunluk sebeplerinin gerçekleşmesi yada mirasın reddi veya mirastan feragat edilmiş olması ilgili kişinin mirasçılık belgesinde mirasçı olarak gösterilmesine ve kendisine mirastan pay verilmesine engel bir neden değildir. Ne var ki bu olguların hukuki sonuçlarının terekenin bölüştürülmesi sırasında gözetileceğinin hüküm yerinde gösterilmesi gerekir. Somut olaya gelince, dosya içeriğinde toplanan delillerden miras bırakan ... ’ın 19.10.2009",
+                "score": 78.22285953199267
+            },
+            {
+                "source": "İş Hukuku.pdf",
+                "page": 403,
+                "type": "MEVZUAT",
+                "page_content": "TOPLU İŞ SÖZLEŞMESİNİN GELİŞİMİ zuûtı işçi yararına en düşük çalışma şartlarını tesıbit ederek bun­ ların altına inilmesini yasaklamakta (sosyal kamu düzeni), bunla­ rın üstüne çıkılmasını ise toplu görüşmeler sonucunda akdedilecek olan toplu sözleşmelere bırakmaktadır. Toplu sözleşmeden doğan barış borcunun o sözleşmenin de­ ğiştirilmek istenmesi sebebiyle sözde kaldığı, sözleşmenin değişen ekonomik şartlara devamlı olarak uydurulmak istendiği, belirli sü­ reli sözleşmelerin bitiminde yeni talepler dolayısı ile uyuşmazlık çıkmasının mukadder olduğu ileri sürülmüştür. Bu iddiaya göre elde edilmek istenilen sosyal barış gerçekte bir hayal olarak kala­ caktır. Bu eleştiri de kanımızca toplu sözleşme sisteminin kendisi­ ne değil, kötü ve iyiniyetten yoksun taleplere karşı yapıldığından geçerli değildir. Sistemin kendisi başka şey, kötü uygulanması ise daha başka şeydir. Bunların biribirine karıştırılmaması gerekir. Toplu iş sözleşmelerinde bazan yer verilen kazanılan hakların",
+                "score": 78.19210031704203
+            },
+            {
+                "source": "İş Hukuku.pdf",
+                "page": 428,
+                "type": "MEVZUAT",
+                "page_content": "T. ESENER Ancak hemen belirtmek gerekir ki uygulamada tarafların toplu iş sözleşmesinde hizmet akitlerinin toplu sözleşmeye aykırı hüküm­ ler kapsayabileceğini kararlaştırdıkları hallere çok ender rastlana­ bilir. Örnek olarak toplu iş sözleşmesinin yapılmasından sonra işe alınacak işçilere sözleşme hükümleri yerine yapılacak hizmet uygulamasının kararlaştırılması gösterilebilir. Bundan başka, toplu sözleşmenin yapılmasından önce işyerinde çalışan ve çeşitli nedenlerle diğer işçilere nazaran yüksek ücretle işe alın­ mış \"işçiler bulunabilir. Toplu sözleşme ile alınabilecek ücret her halde istisnaî durumda olan bu kalifiye elemanların aldıkları üc­ retin altında olacaktır. îş değerlendirmesi sis'temini uygulayan işyerlerinde bu gibi durumlara sık sık rastlanmaktadır. Nihayet işveren kendisi için çok gerekli vasıflar taşıyan bir kalifiye usta başı bulduğu takdirde onun çalışma şartlarını ayrıca akdedeceği",
+                "score": 77.94182127389304
+            },
+            {
+                "source": "İş Hukuku.pdf",
+                "page": 530,
+                "type": "MEVZUAT",
+                "page_content": "üç yılın aşılabileceği hususunda bir j rinoi fıkra, belirli süreli sözleşmelerin belirten 2. fıkra hükmü ile birlikte suresinin el lık süreyi azami süre olarak bitiminde bir ay -önile yenileneceğinden söz e'tyo^umlanarak toplu iş sözleşsüre ile yenilenmiş sayıgöre (190), Kanunda top- ;ejlleyen bir hüküm bulunmaaralarmda anlaşarak TSK aşmamak kaydiyle sözleşme sözü geçen yenilemeler ile örünüş yaratılmışsa da biazami süresini 3 yıl olarak alınınca yenilemelerin 3 (189) Yarg. 9HD. 9.7.1968, E. 8675 K. 8903 - Selçukî, s. 850-851. (190) Mimaroğlu, s. 129. Esener, Toplu iş sözleşmeleri, 1964, s. 101; Ekono­ mi İHU, TSGLK 2 (No. 2). 508",
+                "score": 77.80369907468648
+            },
+            {
+                "source": "TürkMedeniKanunu.pdf",
+                "page": 113,
+                "type": "MEVZUAT",
+                "page_content": "Tüzel kişiliği bulunmayan bir topluluğa belli bir amaç için yapılan kazandırmaları, o topluluk içindeki kişiler, mirasbırakan tarafından belirlenen bu amacı gerçekleştirme kaydıyla birlikte edinmiş olurlar; amacın bu yolla gerçekleştirilmesine olanak yoksa, yapılan kazandırma vakıf kurma sayılır.",
+                "score": 77.78932906182119
+            },
+            {
+                "source": "Miras Hukuku.pdf",
+                "page": 72,
+                "type": "MEVZUAT",
+                "page_content": "Kazaen veya 3. Kişi Fiili İle Yok Olma l Kaza sonucunda veya üçüncü kişinin kusuruyla yok olan ve içeriğinin aynen ve tamamen belirlenmesine olanak bulunmayan vasiyetname hükümsüz kalır. Tazminat isteme hakkı saklıdır. l İçerik belirlenebilirse vasiyet hüküm ifade eder. l Buradaki tazminat, ancak ÖBT içeriğinin tespit edilmesi için yapılan masraflardır, yoksa yoksun kalınan menfaat değildir. ÖBT içeriği tespit edildiyse geçerli, aksi halde geçersizdir. Bu bilgilerden dolayı sorumluluk kabul edilmez! 72",
+                "score": 77.71303150550376
+            },
+            {
+                "source": "TürkMedeniKanunu.pdf",
+                "page": 153,
+                "type": "MEVZUAT",
+                "page_content": "tarihinden başlayarak beş yıl içinde ortaya çıkmazsa; bulan kimse, yükümlülüklerini yerine getirmiş olmak koşuluyla o şeyin mülkiyetini kazanır. Bulunan şey malikine geri verilirse, bulan kimse yaptığı giderlerin ödenmesini ve uygun bir ödül verilmesini isteyebilir.",
+                "score": 77.60889088350766
+            },
+            {
+                "source": "TürkMedeniKanunu.pdf",
+                "page": 200,
+                "type": "MEVZUAT",
+                "page_content": "reddedilir. Bununla birlikte, hukukî sebebe ilişkin belgeler tamam olmasına rağmen, tasarruf yetkisini belirten belgenin tamamlanması gereken hâllerde, malikin rızası veya hâkimin kararıyla geçici tescil şerhi verilebilir. III. Tescilin biçimi 43 2/7/2018 tarihli ve 700 sayılı KHK’nin 139 uncu maddesiyle, bu fıkralarda yer alan “tüzükle” ibaresi “Cumhurbaşkanınca çıkarılan yönetmelikle” şeklinde değiştirilmiştir.",
+                "score": 77.57446369364224
+            },
+            {
+                "source": "İş Hukuku.pdf",
+                "page": 525,
+                "type": "MEVZUAT",
+                "page_content": "KÎŞİSEL YÖNDEN UYGULAMA ALANI beraber o işyerinde bulunan sendikalı işçilerin sayısı o işyerinin dahil bulunduğu işkolundaki işçilerin çoğunluğunu teşkil ediyorsa, bu işyeri toplu sözleşmesinin bütün işkoluna teşmili mümkün ola­ caktır. İşkolundaki çoğunluğun teşmil ânında sağlanmış olması ge­ rekli ve yeterlidir. Bir sendikanın üyeleri başlangıçta işkolundaki işçilerin çoğunluğunu teşkil etmemiş olmasına rağmen sonradan, toplu iş sözleşmesi yürürlüğe girdikten sonra, bu çoğunluk sağlan­ mış olabilir. Böyle bir halde de teşmile cevaz vermek doğru olur. Bakanlar kurulu teşmile karar vermeden önce teşmil edilecek toplu iş sözleşmesinin kapsadığı işçilerin aynı işkolunda çalışan işçilerin çoğunluğunu teşkil edip etmediğini araştıracaktır. Dayanışma aida­ tı ödeyerek sözleşmeden yararlanan işçiler de çoğunluk bakımın­ dan dikkate alınmalıdır. dd. Bakanlar kurulunun karar vermesi Teşmile karar vermek yetkisi Bakanlar Kuruluna aittir. Ba­",
+                "score": 77.55904559766745
+            },
+            {
+                "source": "TürkMedeniKanunu.pdf",
+                "page": 16,
+                "type": "MEVZUAT",
+                "page_content": "tüzüğünde belirtilen sayıda üyeden oluşur. Yönetim kurulu üye sayısı, boşalmalar sebebiyle üye tamsayısının yarısının altına düşerse; genel kurul, kalan yönetim kurulu üyeleri veya denetim kurulu tarafından bir ay içinde",
+                "score": 77.4634478209901
+            },
+            {
+                "source": "İş Hukuku.pdf",
+                "page": 556,
+                "type": "MEVZUAT",
+                "page_content": "belirli şartların gerçekleşmesi halinde ileri bir tarihte sözleşmede değişiklik yapmak amacı ile toplu görüşmeye başlıyacaklarmm, taahhüt etmelerine karşılık, sözleşnıe)nin değiştirilmesinde taraf­ lar aralarında yaptıkları bir anlaşma fcle sözleşmeyi o anda değiş­ tirmiş olmaktadırlar. Taraflar revizyonun şekil ve tarihini de kararlaştırmalıdırlar. Revizyonun yapılacağı tarih tesbit edilirken meselâ her yılın Mart ayının başı gibi belirli bir tarih veya asgarî ücretin değiştirilmesi­ ne, devalüasyona karar verilmesi gibi belirli olmayan tarihlerde de üoret zamlarının ilk giriş ücretinin veya bazı sosyal yardımların gözden geçirilerek ortaya çıkacak şartlara göre yeniden düzenlene­ ceği kabul edilmiş olabilir. Bundan başka ekonomik nedenlerle iş­ letmenin bir yıl sonraki malî gücünün Şüpheli görüldüğü durumlar­ da ikinci yıl ücret zammının saklı tutularak birinci yılın sonunda işletmenin bilançosu da gözönünde tutularak tayin edileceği karşılaştırılabilinir.",
+                "score": 77.24548581821642
+            }
+        ],
+        "selected": [
+            0,
+            1,
+            5,
+            8
+        ]
+    },
+    "reportData": [
+        {
+            "source": "buyuk1.pdf",
+            "page": 1,
+            "type": "EMSAL KARAR",
+            "page_content": "\"İçtihat Metni\" Taraflar arasında görülen dava sonucunda verilen hükmün, Yargıtayca incelenmesi davacı ... tarafından istenilmekle, temyiz isteğinin süresinde olduğu anlaşıldı. Dosya incelendi, gereği görüşüldü: Dava, mirasçılık belgesinin iptali ile yenisinin verilmesi istemine ilişkindir. Miras bırakanın torunu davacı ... tarafından annesi ...'nın mirastan çıkarıldığı için mirasçılık belgesinin iptali ile mirastan çıkarmayı gösterecek şekilde yeniden mirasçılık belgesi verilmesi istenmiş, mahkemece davanın kabulüne karar verilmiş ise de verilen hüküm yasal düzenlemelere uygun düşmemiştir. Mirastan çıkarmada miras bırakan; mirasçı, miras bırakana veya miras bırakanın yakınlarından birine karşı ağır bir suç işlemişse, miras bırakana veya miras bırakanın ailesi üyelerine karşı aile hukukundan doğan yükümlülüklerini önemli ölçüde yerine getirmemişse ölüme bağlı bir tasarrufla saklı paylı mirasçısını mirasçılıktan çıkarabilir. Mirasçılıktan çıkarılan",
+            "score": 80.03214319757393
+        },
+        {
+            "source": "İş Hukuku.pdf",
+            "page": 493,
+            "type": "MEVZUAT",
+            "page_content": "TOPLU İŞ SÖZLEŞMESİNİN KURULUSU b) Toplu görüşme sonucunda yapılması gereken işlemler Toplu görüşme sonunda bir anlaşmaya varılamazsa taraflar arasında uyuşmazlık tutanağı tutulur. Böylece uyuşmazlık yönte­ mi işlemeye başlar. Taraflar toplu görüşmenin sonunda bir anlaşmaya varırlarsa, TSK 13 gereğince dört nüsha olarak düzenlenecek olan toplu iş sözleşmesinden birer nüsha taraflara verilir; iki nüshası da toplu görüşme için çağrıyı yapmış olan tarafça imza gününden başla­ yarak altı iş günü içinde görüşmenin yapılacağı yerin bağlı bu­ lunduğu Bölge Çalışma Müdürlüğüne, işkolunda ise Çalışma Ba­ kanlığına gönderilir. Toplu iş sözleşmesinin 4 nüsha halinde hazırlanıp imzalan­ mamış olması veya Bölge Çalışma Müdürlüğüne veya Çalışma Ba­ kanlığına 2 nüshasının gönderilmemiş olması, o sözleşmenin hü­ kümsüz sayılmasını gerektirmez. Burada kanunî bir formalitenin yerine getirilmesi söz konusudur. Yoksa toplu iş sözleşmesi bir",
+            "score": 78.90215586750939
+        },
+        {
+            "source": "İş Hukuku.pdf",
+            "page": 403,
+            "type": "MEVZUAT",
+            "page_content": "TOPLU İŞ SÖZLEŞMESİNİN GELİŞİMİ zuûtı işçi yararına en düşük çalışma şartlarını tesıbit ederek bun­ ların altına inilmesini yasaklamakta (sosyal kamu düzeni), bunla­ rın üstüne çıkılmasını ise toplu görüşmeler sonucunda akdedilecek olan toplu sözleşmelere bırakmaktadır. Toplu sözleşmeden doğan barış borcunun o sözleşmenin de­ ğiştirilmek istenmesi sebebiyle sözde kaldığı, sözleşmenin değişen ekonomik şartlara devamlı olarak uydurulmak istendiği, belirli sü­ reli sözleşmelerin bitiminde yeni talepler dolayısı ile uyuşmazlık çıkmasının mukadder olduğu ileri sürülmüştür. Bu iddiaya göre elde edilmek istenilen sosyal barış gerçekte bir hayal olarak kala­ caktır. Bu eleştiri de kanımızca toplu sözleşme sisteminin kendisi­ ne değil, kötü ve iyiniyetten yoksun taleplere karşı yapıldığından geçerli değildir. Sistemin kendisi başka şey, kötü uygulanması ise daha başka şeydir. Bunların biribirine karıştırılmaması gerekir. Toplu iş sözleşmelerinde bazan yer verilen kazanılan hakların",
+            "score": 78.19210031704203
+        },
+        {
+            "source": "TürkMedeniKanunu.pdf",
+            "page": 113,
+            "type": "MEVZUAT",
+            "page_content": "Tüzel kişiliği bulunmayan bir topluluğa belli bir amaç için yapılan kazandırmaları, o topluluk içindeki kişiler, mirasbırakan tarafından belirlenen bu amacı gerçekleştirme kaydıyla birlikte edinmiş olurlar; amacın bu yolla gerçekleştirilmesine olanak yoksa, yapılan kazandırma vakıf kurma sayılır.",
+            "score": 77.78932906182119
+        }
+    ],
+    "judgeMetadata": {
+        "role": "consultant",
+        "status": "pending",
+        "judgeFiles": [
+            {
+                "name": "teqweqeq.pdf",
+                "size": 195
+            }
+        ]
+    },
+    "timestamp": "2025-12-26T16:36:41.406Z"
+}

@@ -397,6 +397,27 @@
 
             <!-- 2. STATS DASHBOARD (Visible after search) -->
             <div id="statsView" class="hidden flex-1 overflow-y-auto p-8 w-full max-w-5xl mx-auto">
+
+                <!-- NEW: LOG CONSOLE -->
+                <div id="logConsole"
+                    class="hidden mb-6 bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-800 transition-all duration-[1500ms] ease-in-out opacity-100 max-h-[500px]">
+                    <div class="px-4 py-2 bg-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="size-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <span class="text-[11px] font-bold text-slate-300 uppercase tracking-widest">SİSTEM İŞLEM
+                                GÜNLÜĞÜ</span>
+                        </div>
+                        <button onclick="document.getElementById('logContainer').innerHTML=''"
+                            class="text-slate-400 hover:text-white transition-colors" title="Temizle">
+                            <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+                        </button>
+                    </div>
+                    <div id="logContainer"
+                        class="p-4 h-40 overflow-y-auto font-mono text-[11px] text-primary space-y-1 custom-scrollbar bg-slate-950/50">
+                        <div class="text-slate-500 italic">Sistem yanıtı bekleniyor...</div>
+                    </div>
+                </div>
+
                 <div class="mb-8">
                     <h2 class="text-2xl font-bold text-[#111418]">Analiz Özeti</h2>
                     <p class="text-slate-500 text-sm">Bulunan belgelerin dağılımı ve analiz durumu.</p>
@@ -585,8 +606,24 @@
         const submitBtn = document.getElementById('submitBtn');
 
         // --- WEBSOCKET ---
+        const clientId = Math.random().toString(36).substring(7);
+        const ws = new WebSocket(`ws://${window.location.host}/ws/logs?clientId=${clientId}`);
+
         ws.onmessage = (e) => {
             const msg = e.data;
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (msg === "STATUS|BUSY") {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px] mr-2">sync</span> SİSTEM HAZIRLANIYOR...';
+                return;
+            }
+            if (msg === "STATUS|READY") {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] mr-2">search</span> Belgeleri Tespit Et';
+                return;
+            }
+
             if (msg.startsWith("PDF|")) {
                 const f = msg.substring(4);
                 headerDownloadBtn.href = `/api/download/${f}`;
@@ -602,6 +639,13 @@
                     setLoading(false);
                     renderList();
                     showStats();
+
+                    // İşlem bittiğinde günlüğü animasyonla gizle
+                    setTimeout(() => {
+                        const lc = document.getElementById('logConsole');
+                        lc.classList.add('opacity-0', 'max-h-0', 'mb-0', 'pointer-events-none');
+                        setTimeout(() => lc.classList.add('hidden'), 1500);
+                    }, 1500);
                 } catch (err) { console.error(err); setLoading(false); }
             } else if (msg.startsWith("RESULT|")) {
                 try {
@@ -613,6 +657,13 @@
                     setLoading(false);
                     renderList();
                     showStats();
+
+                    // İşlem bittiğinde günlüğü animasyonla gizle
+                    setTimeout(() => {
+                        const lc = document.getElementById('logConsole');
+                        lc.classList.add('opacity-0', 'max-h-0', 'mb-0', 'pointer-events-none');
+                        setTimeout(() => lc.classList.add('hidden'), 1500);
+                    }, 1500);
                 } catch (err) { console.error(err); setLoading(false); }
             } else if (msg.startsWith("LOG|")) {
                 const logMsg = msg.substring(4);
@@ -637,11 +688,26 @@
 
             if (!story || !topic) return alert("Hukuki olay ve odak noktası gereklidir.");
             setLoading(true);
+
+            // UI Geçişi: Dashboard ve Logları Göster
+            defaultPlaceholder.classList.add('hidden');
+            statsView.classList.remove('hidden');
+            const lc = document.getElementById('logConsole');
+            lc.classList.remove('hidden', 'opacity-0', 'max-h-0', 'mb-0', 'pointer-events-none');
+            lc.classList.add('opacity-100', 'max-h-[500px]', 'mb-6');
+            document.getElementById('logContainer').innerHTML = '<div class="text-blue-400">⚡ Sunucu ile bağlantı kuruluyor...</div>';
+
             searchResults = [];
             setFilter('all'); // Reset filter on new search
             renderList();
 
-            try { await fetch('/api/search', { method: 'POST', body: JSON.stringify({ story, topic, negatives }), headers: { 'Content-Type': 'application/json' } }); }
+            try {
+                await fetch('/api/search', {
+                    method: 'POST',
+                    body: JSON.stringify({ story, topic, negatives, clientId }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
             catch (err) { console.error(err); setLoading(false); }
         });
 
@@ -799,6 +865,10 @@
                 }
             });
             localStorage.setItem('reportData', JSON.stringify(selectedDocs));
+
+            // UX BUG FIX: Reset Judge State (Role & Files) for new analysis
+            localStorage.removeItem('judgeState');
+
             window.location.href = '/static/report.html';
         }
 
@@ -852,8 +922,15 @@
 
         // Add restore call to init
         window.addEventListener('load', () => {
-            // Check if we have saved state and restore it
-            restoreDashboardState();
+            // BUG FIX: Sayfa yenilendiğinde (Reload) verileri temizle, 
+            // ama navigasyonla (Geri/Link) gelindiğinde koru.
+            const navEntries = performance.getEntriesByType('navigation');
+            if (navEntries.length > 0 && navEntries[0].type === 'reload') {
+                localStorage.removeItem('dashboardState');
+                console.log("Sayfa yenilendiği için veriler temizlendi.");
+            } else {
+                restoreDashboardState();
+            }
         });
 
         // --- PDF VIEWER ---

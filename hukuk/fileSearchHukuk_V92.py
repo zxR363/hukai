@@ -114,7 +114,7 @@ class LegalUtils:
 
 
 # ==================================================
-# 3️⃣ HAFIZA YÖNETİCİSİ (V79: EVOLUTION ANALYTICS)
+# 3️⃣ HAFIZA YÖNETİCİSİ (V92: PRESCRIPTIVE STRATEGY ENGINE)
 # ==================================================
 class LegalMemoryManager:
     def __init__(self, client, embedder, llm):
@@ -124,6 +124,7 @@ class LegalMemoryManager:
         self._init_memory_collections()
         self.last_consolidation_ts = self._load_state()
         self.domain_cache = {}
+        self.last_recalled_query = None
 
     def _init_memory_collections(self):
         for name, col_name in LegalConfig.MEMORY_COLLECTIONS.items():
@@ -205,6 +206,355 @@ SADECE TEK KELİME CEVAP VER.
         decay_factor = math.pow(LegalConfig.DECAY_RATE_PER_MONTH, elapsed_months)
         return confidence * decay_factor
 
+    def _calculate_case_success_probability(self, principle_confidence, trend_direction, conflict, domain_match):
+        score = principle_confidence * 100
+
+        if trend_direction == "up":
+            score += 10
+        elif trend_direction == "down":
+            score -= 10
+
+        if conflict: score -= 15
+        if not domain_match: score -= 10
+
+        score = max(0, min(100, round(score, 1)))
+
+        key_factors = []
+        risk_factors = []
+
+        if principle_confidence >= 0.7:
+            key_factors.append(f"İlgili hukuki ilke yerleşik (%{int(principle_confidence * 100)} güven)")
+        elif principle_confidence >= 0.4:
+            key_factors.append("İlgili hukuki ilke kısmen yerleşik")
+        else:
+            risk_factors.append("İlgili hukuki ilke zayıf yerleşmiş")
+
+        if trend_direction == "up":
+            key_factors.append("Son yıllarda içtihat eğilimi güçlenmiştir")
+        elif trend_direction == "down":
+            risk_factors.append("Son yıllarda içtihat eğilimi zayıflamıştır")
+        else:
+            key_factors.append("İçtihat eğilimi istikrarlıdır")
+
+        if conflict:
+            risk_factors.append("Kararlarda çelişkiler bulunmaktadır")
+        else:
+            key_factors.append("Kararlarda belirgin bir çelişki görülmemektedir")
+
+        if domain_match:
+            key_factors.append("Uyuşmazlık doğru hukuk alanı kapsamında değerlendirilmiştir")
+        else:
+            risk_factors.append("Uyuşmazlık ile hukuk alanı arasında uyumsuzluk riski vardır")
+
+        if score >= 70:
+            summary = "Başarı ihtimali yüksek olmakla birlikte dikkatli değerlendirme önerilir."
+            conf_level = "Yüksek"
+        elif score >= 40:
+            summary = "Başarı ihtimali orta seviyededir, ek delil ve strateji gerektirir."
+            conf_level = "Orta"
+        else:
+            summary = "Başarı ihtimali düşüktür, dava açılması yüksek risklidir."
+            conf_level = "Düşük"
+
+        return {
+            "success_probability": score,
+            "confidence_level": conf_level,
+            "summary": summary,
+            "key_factors": key_factors,
+            "risk_factors": risk_factors
+        }
+
+    def _derive_persona_signals(self, analysis_data, item_data):
+        judge_score = analysis_data['success_probability']
+        judge = {
+            "stance": "strong" if judge_score > 70 or judge_score < 30 else "weak",
+            "direction": "acceptance" if judge_score >= 50 else "rejection",
+            "risk_focus": ["evidence"] if judge_score < 50 else [],
+            "confidence_level": "high" if judge_score > 80 else "medium"
+        }
+
+        prosecutor_dir = "acceptance"
+        if item_data['conflict'] or item_data['trend_dir'] == 'down':
+            prosecutor_dir = "rejection"
+
+        prosecutor = {
+            "stance": "strong",
+            "direction": prosecutor_dir,
+            "risk_focus": ["conflict", "public_order"] if item_data['conflict'] else [],
+            "confidence_level": "high"
+        }
+
+        expert = {
+            "stance": "neutral",
+            "direction": "cautious",
+            "risk_focus": ["technical_data"],
+            "confidence_level": "medium"
+        }
+
+        return {"judge": judge, "prosecutor": prosecutor, "expert": expert}
+
+    def _analyze_persona_conflict(self, personas):
+        prosecutor = personas["prosecutor"]
+        judge = personas["judge"]
+
+        score = 0
+        reasons = []
+
+        if prosecutor["direction"] != judge["direction"]:
+            score += 40
+            reasons.append("Yargısal yönler zıt (Savcı vs Hakim)")
+
+        if prosecutor["stance"] == "strong" and judge["stance"] == "weak":
+            score += 30
+            reasons.append("Savcı güçlü, hakim ihtiyatlı/zayıf değerlendirmiştir")
+
+        if prosecutor["confidence_level"] != judge["confidence_level"]:
+            score += 10
+            reasons.append("Güven seviyeleri arasında fark var")
+
+        return {
+            "conflict_score": min(score, 100),
+            "conflict_level": "Yüksek" if score >= 70 else "Orta" if score >= 40 else "Düşük",
+            "summary": reasons
+        }
+
+    def _simulate_net_decision(self, personas):
+        DIRECTION_MAP = {"acceptance": 1, "cautious": 0, "rejection": -1}
+        STANCE_MAP = {"strong": 1.0, "neutral": 0.6, "weak": 0.3}
+        CONFIDENCE_MAP = {"high": 1.0, "medium": 0.7, "low": 0.4}
+        PERSONA_WEIGHTS = {"judge": 0.60, "prosecutor": 0.25, "expert": 0.15}
+
+        total_score = 0
+        breakdown = {}
+
+        for name, data in personas.items():
+            d = DIRECTION_MAP.get(data.get("direction", "cautious"), 0)
+            s = STANCE_MAP.get(data.get("stance", "neutral"), 0.6)
+            c = CONFIDENCE_MAP.get(data.get("confidence_level", "medium"), 0.7)
+            w = PERSONA_WEIGHTS.get(name, 0)
+
+            score = d * s * c * w
+            breakdown[name] = round(score, 3)
+            total_score += score
+
+        decision = "Belirsiz / Riskli"
+        if total_score >= 0.25:
+            decision = "KABUL EĞİLİMLİ"
+        elif total_score <= -0.25:
+            decision = "RED EĞİLİMLİ"
+
+        return {
+            "final_score": round(total_score, 3),
+            "decision": decision,
+            "breakdown": breakdown
+        }
+
+    # --- TEXT GENERATORS ---
+    def _generate_judicial_reasoning(self, explanation_payload):
+        prompt = f"""
+SEN TÜRK HAKİMİSİN.
+GÖREVİN: Verilen verileri yargısal gerekçe diliyle yeniden yaz.
+KURALLAR: Tarafsız, ölçülü, "Kanaat", "Takdir" kullan. Kısa paragraf.
+VERİLER:{json.dumps(explanation_payload, ensure_ascii=False)}
+ÇIKTI: Sadece metin.
+"""
+        try:
+            return self.llm.invoke(prompt).content.strip()
+        except:
+            return ""
+
+    def _generate_prosecutor_reasoning(self, explanation_payload):
+        prompt = f"""
+SEN TÜRK CUMHURİYETİ SAVCISISIN.
+GÖREVİN: Verileri savcılık diliyle yaz.
+KURALLAR: Şüphe, kamu düzeni, "kuvvetli şüphe". Kısa paragraf.
+VERİLER:{json.dumps(explanation_payload, ensure_ascii=False)}
+ÇIKTI: Sadece metin.
+"""
+        try:
+            return self.llm.invoke(prompt).content.strip()
+        except:
+            return ""
+
+    def _generate_expert_witness_reasoning(self, explanation_payload):
+        prompt = f"""
+SEN TARAFSIZ BİLİRKİŞİSİN.
+GÖREVİN: Verileri teknik dille yaz.
+KURALLAR: Yorum yok, tespit var. "Tespit edilmiştir". Kısa paragraf.
+VERİLER:{json.dumps(explanation_payload, ensure_ascii=False)}
+ÇIKTI: Sadece metin.
+"""
+        try:
+            return self.llm.invoke(prompt).content.strip()
+        except:
+            return ""
+
+    def _generate_rejection_reasoning(self, explanation_payload):
+        prompt = f"""
+SEN TÜRK HAKİMİSİN (Şeytanın Avukatı).
+GÖREVİN: Davayı REDDEDECEK olsaydın gerekçen ne olurdu?
+KURALLAR: Davacı aleyhine, risk vurgulu. Kısa paragraf.
+VERİLER:{json.dumps(explanation_payload, ensure_ascii=False)}
+ÇIKTI: Sadece metin.
+"""
+        try:
+            return self.llm.invoke(prompt).content.strip()
+        except:
+            return ""
+
+    def _generate_final_verdict_reasoning(self, net_decision, topic, trend, principles):
+        prompt = f"""
+Sen bir Türk hakimi gibi yazan, gerekçeli karar dili konusunda uzman bir yapay zekâsın.
+Yanıtların: Resmî, Ölçülü, Tereddüt barındıran, “Mahkemenin takdir yetkisi” vurgusu içeren.
+
+Aşağıda bir dava dosyasına ilişkin çoklu persona değerlendirmeleri ve matematiksel karar simülasyonu sonucu yer almaktadır.
+
+GÖREVİN:
+Bu sonucu, bir hakimin gerekçeli karar yazım diliyle açıkla.
+
+⚠️ Kurallar:
+- “Bu nedenle” / “dosya kapsamı” / “mahkemenin kanaati” gibi ifadeler kullan
+- Alternatif görüşlerin neden baskın görülmediğini açıkla
+- İçtihat atfı yapma (genel ilke dili kullan)
+
+---
+🔢 NET KARAR SİMÜLASYONU:
+Final Skor: {net_decision['final_score']}
+Karar Eğilimi: {net_decision['decision']}
+
+👤 PERSONA KATKILARI:
+{json.dumps(net_decision['breakdown'], ensure_ascii=False)}
+
+📌 UYUŞMAZLIK KONUSU:
+{topic}
+
+📊 İÇTİHAT TRENDİ:
+{trend}
+
+⚖️ İLKE HAVUZU ÖZETİ:
+{principles}
+
+🎯 ÇIKTI:
+Hakimin neden bu yönde kanaat oluşturduğunu, gerekçeli karar üslubuyla 1-2 paragraf halinde açıkla.
+"""
+        try:
+            return self.llm.invoke(prompt).content.strip()
+        except:
+            return ""
+
+    def _generate_executive_summary(self, net_decision, judge_sum, prosecutor_sum, expert_sum, trend_sum):
+        prompt = f"""
+Sen hukuk büroları ve kurumsal müvekkiller için “dava risk özeti” yazan bir yapay zekâsın.
+
+Yanıtın:
+- Tek paragraf olacak
+- Akademik değil, yönetici dili olacak
+- Kesinlik iddiası taşımayacak
+- Riskin nedenlerini netçe ifade edecek
+- Gereksiz detay vermeyecek
+
+GÖREVİN:
+“Bu dosya neden risklidir?” sorusuna, tek paragraf halinde, yönetici özeti yaz.
+
+⚠️ Kurallar:
+- Sayısal skorları gerekçeye bağla
+- Hakimin tereddüdünü vurgula
+- Çelişkili görüşleri belirt
+- Sonuçta temkinli bir dil kullan
+
+---
+🔢 NET KARAR:
+{net_decision['final_score']} – {net_decision['decision']}
+
+⚖️ HAKİM GÖRÜŞÜ:
+{judge_sum}
+
+🧑‍⚖️ SAVCI GÖRÜŞÜ:
+{prosecutor_sum}
+
+🔍 BİLİRKİŞİ:
+{expert_sum}
+
+📊 İÇTİHAT TRENDİ:
+{trend_sum}
+
+🎯 ÇIKTI:
+Tek paragraf “Dosya Risk Özeti”.
+"""
+        try:
+            return self.llm.invoke(prompt).content.strip()
+        except:
+            return "Yönetici özeti oluşturulamadı."
+
+    # --- V92 YENİ: DOSYA GÜÇLENDİRME ÖNERİLERİ (PRESCRIPTIVE ENGINE) ---
+    def _generate_strengthening_recommendations(self, judge_uncertainties, counter_rejection, trend_conflicts,
+                                                low_confidence_principles):
+        """
+        V92: Riskleri azaltacak somut aksiyon planı üretir.
+        """
+        prompt = f"""
+Sen deneyimli bir dava avukatı gibi düşünen, dosya stratejisi geliştiren bir yapay zekâsın.
+
+Görevin:
+- Hakimin tereddüt ettiği noktaları tespit etmek
+- Dosyanın hangi yönlerden zayıf olduğunu açıkça belirtmek
+- Bu zayıflıkları azaltmaya yönelik somut öneriler sunmak (Reçete Yazmak)
+
+Kesin sonuç vaat etme. “Hakimin kanaatini etkileyebilecek” ihtiyatlı bir dil kullan.
+
+Aşağıda bir dava dosyasına ilişkin analiz sonuçları yer almaktadır.
+
+GÖREVİN:
+“Bu dosya nasıl güçlendirilebilir?” sorusuna, uygulanabilir ve somut öneriler üret.
+
+⚠️ Kurallar:
+- Önerileri JSON formatında ver (Aşağıdaki şemaya uy)
+- Her öneri bir zayıf noktaya karşılık gelsin
+- Delil, argüman veya usul yönünden olsun
+- Hukuki sınırları aşma
+- Spekülatif değil, makul öneriler sun
+
+---
+⚖️ HAKİM TEREDDÜT NOKTALARI:
+{judge_uncertainties}
+
+❌ OLASI RED GEREKÇESİ:
+{counter_rejection}
+
+📊 TREND UYUMSUZLUKLARI:
+{trend_conflicts}
+
+📉 ZAYIF İLKELER:
+{low_confidence_principles}
+
+🎯 ÇIKTI FORMATI (JSON):
+{{
+  "summary": "Genel özet cümlesi",
+  "recommendations": [
+    {{
+      "focus": "delil | belge | argüman | usul",
+      "risk_addressed": "Hangi riski hedefliyor?",
+      "suggestion": "Somut öneri cümlesi"
+    }}
+  ],
+  "impact_estimate": "Bu adımların beklenen etkisi"
+}}
+"""
+        try:
+            res = self.llm.invoke(prompt).content.strip()
+            # JSON temizliği (Markdown taglerini kaldır)
+            if "```json" in res:
+                res = res.split("```json")[1].split("```")[0].strip()
+            elif "```" in res:
+                res = res.split("```")[1].split("```")[0].strip()
+            return json.loads(res)
+        except:
+            return {
+                "summary": "Öneriler oluşturulurken teknik bir sorun oluştu.",
+                "recommendations": [],
+                "impact_estimate": "Bilinmiyor"
+            }
+
     def recall_principles(self, query_text):
         try:
             query_domain = self._detect_domain_from_query(query_text)
@@ -221,19 +571,30 @@ SADECE TEK KELİME CEVAP VER.
                 raw_conf = h.payload.get("confidence", 0.5)
                 ts = h.payload.get("timestamp", time.time())
                 domain = h.payload.get("domain", "Genel")
-
+                evolution_note = h.payload.get("evolution_note", "")
                 final_conf = self._apply_time_decay(raw_conf, ts)
 
+                is_domain_match = False
                 if query_domain.lower() in domain.lower() or domain.lower() in query_domain.lower():
                     final_conf *= 1.2
+                    is_domain_match = True
 
                 if final_conf >= LegalConfig.MIN_CONFIDENCE_THRESHOLD:
+                    trend_dir = "stable"
+                    if "GÜÇLENEN" in evolution_note:
+                        trend_dir = "up"
+                    elif "ZAYIFLAYAN" in evolution_note:
+                        trend_dir = "down"
+
                     item = {
                         "text": h.payload['principle'],
                         "conf": final_conf,
                         "domain": domain,
                         "conflict": h.payload.get("conflict_flag", False),
-                        "score": h.score
+                        "score": h.score,
+                        "trend_dir": trend_dir,
+                        "domain_match": is_domain_match,
+                        "evolution_note": evolution_note
                     }
                     processed_hits.append(item)
 
@@ -242,10 +603,67 @@ SADECE TEK KELİME CEVAP VER.
             if not sorted_hits: return ""
 
             memory_text = f"\n💡 YERLEŞİK İÇTİHAT HAFIZASI ({query_domain} Alanı):\n"
-            for item in sorted_hits:
-                warning = "⚠️ [YARGISAL ÇELİŞKİ]" if item["conflict"] else ""
-                memory_text += f"- {warning} [{item['domain']}] {item['text']} (Güven: %{item['conf'] * 100:.0f})\n"
 
+            for item in sorted_hits:
+                # 1. Analizler
+                analysis = self._calculate_case_success_probability(
+                    item["conf"], item["trend_dir"], item["conflict"], item["domain_match"]
+                )
+                persona_signals = self._derive_persona_signals(analysis, item)
+                net_decision = self._simulate_net_decision(persona_signals)
+
+                # 2. Metin Üretimi
+                judicial_text = self._generate_judicial_reasoning(analysis)
+                prosecutor_text = self._generate_prosecutor_reasoning(analysis)
+                expert_text = self._generate_expert_witness_reasoning(analysis)
+                rejection_text = self._generate_rejection_reasoning(analysis)
+                verdict_text = self._generate_final_verdict_reasoning(
+                    net_decision, query_text, item['evolution_note'], item['text']
+                )
+                exec_summary = self._generate_executive_summary(
+                    net_decision, judicial_text, prosecutor_text, expert_text, item['evolution_note']
+                )
+
+                # 3. V92: GÜÇLENDİRME ÖNERİLERİ
+                strengthening_plan = self._generate_strengthening_recommendations(
+                    judge_uncertainties=judicial_text,  # Hakimin gerekçesindeki tereddütleri kullan
+                    counter_rejection=rejection_text,  # Red gerekçesindeki riskleri kullan
+                    trend_conflicts=item['evolution_note'],
+                    low_confidence_principles=f"Güven: {item['conf']:.2f}"
+                )
+
+                if self.last_recalled_query != query_text:
+                    print("\n" + "=" * 70)
+                    print(f"📊 [MAHKEME SALONU SİMÜLASYONU] (V92: Strategy Consultant)")
+                    print(f"   🎯 KONU: {query_text} ({query_domain})")
+                    print("-" * 70)
+                    print(f"📝 YÖNETİCİ ÖZETİ: \"{exec_summary[:150]}...\"")
+                    print("-" * 70)
+                    print(f"⚖️  NİHAİ EĞİLİM: {net_decision['decision']} ({net_decision['final_score']})")
+                    print("-" * 70)
+
+                    # V92 YENİ LOG: STRATEJİK TAVSİYELER
+                    print("💡 DOSYA GÜÇLENDİRME ÖNERİLERİ:")
+                    for rec in strengthening_plan.get('recommendations', []):
+                        icon = "📄" if rec['focus'] == 'belge' else "🗣️" if rec['focus'] == 'delil' else "🧠"
+                        print(f"   {icon} [{rec['focus'].upper()}] {rec['suggestion']}")
+
+                    print(f"   🚀 ETKİ: {strengthening_plan.get('impact_estimate', '')}")
+                    print("=" * 70 + "\n")
+
+                warning = "⚠️ [YARGISAL ÇELİŞKİ]" if item["conflict"] else ""
+                memory_text += f"- {warning} [{item['domain']}] {item['text']}\n"
+                memory_text += f"  📝 YÖNETİCİ ÖZETİ: {exec_summary}\n"
+                memory_text += f"  🏆 NİHAİ EĞİLİM: {net_decision['decision']} ({net_decision['final_score']})\n"
+                memory_text += f"  ✍️ GEREKÇELİ KARAR: {verdict_text}\n"
+                memory_text += f"  🛑 RED RİSKİ: {rejection_text}\n"
+
+                # Rapor Çıktısına Ekleniyor
+                memory_text += "\n  💡 GÜÇLENDİRME ÖNERİLERİ:\n"
+                for rec in strengthening_plan.get('recommendations', []):
+                    memory_text += f"  • [{rec['focus']}] {rec['suggestion']}\n"
+
+            self.last_recalled_query = query_text
             return memory_text
         except:
             return ""
@@ -341,15 +759,9 @@ SADECE TEK KELİME CEVAP VER.
             similarity_score = 1.0
         return round((count_score * 0.6) + (similarity_score * 0.4), 2)
 
-    # --- V79: İÇTİHAT EVRİMİ ANALİZİ ---
     def _analyze_trend_momentum(self, trend_dict):
-        """
-        Geçmiş ve gelecek oranlarını kıyaslayarak evrim raporu üretir.
-        """
         buckets = sorted(trend_dict.keys())
         if not buckets: return "Veri Yok"
-
-        # En eski ve en yeni dönemi bul
         oldest = buckets[0]
         newest = buckets[-1]
 
@@ -362,21 +774,18 @@ SADECE TEK KELİME CEVAP VER.
         old_rate = get_rate(oldest)
         new_rate = get_rate(newest)
         delta = new_rate - old_rate
-
-        # Mesajı Oluştur
         if newest == "2022-2024" and (trend_dict[newest]["KABUL"] + trend_dict[newest]["RED"] == 0):
-            return "🕸️ ESKİ İÇTİHAT: Güncel (2022+) bir teyit bulunamadı. Riskli olabilir."
-
+            return "🕸️ ESKİ İÇTİHAT: Güncel (2022+) bir teyit bulunamadı."
         if delta > 0.2:
-            return f"📈 GÜÇLENEN İÇTİHAT: {oldest} döneminde %{old_rate * 100:.0f} iken, şimdi %{new_rate * 100:.0f} kabul görüyor."
+            return f"📈 GÜÇLENEN İÇTİHAT: {oldest} %{old_rate * 100:.0f} -> %{new_rate * 100:.0f}."
         elif delta < -0.2:
-            return f"📉 ZAYIFLAYAN EĞİLİM: {oldest} döneminde güçlüydü (%{old_rate * 100:.0f}), şimdi zayıflıyor (%{new_rate * 100:.0f})."
+            return f"📉 ZAYIFLAYAN EĞİLİM: {oldest} %{old_rate * 100:.0f} -> %{new_rate * 100:.0f}."
         elif new_rate > 0.8:
-            return "💎 YERLEŞİK VE GÜNCEL: İstikrarlı şekilde kabul görüyor."
+            return "💎 YERLEŞİK VE GÜNCEL."
         elif new_rate < 0.3:
-            return "❌ TERK EDİLMİŞ GÖRÜŞ: İstikrarlı şekilde reddediliyor."
+            return "❌ TERK EDİLMİŞ GÖRÜŞ."
         else:
-            return "⚖️ DALGALI SEYİR: Belirgin bir değişim trendi yok."
+            return "⚖️ DALGALI SEYİR."
 
     def _save_principle_v79(self, text, confidence, source_ids, domain, cluster_data):
         try:
@@ -394,7 +803,6 @@ SADECE TEK KELİME CEVAP VER.
             trend = Counter()
             polarity_stats = {"LEHINE": 0, "ALEYHINE": 0, "BELIRSIZ": 0}
 
-            # Polarity & Conflict Check
             if polarity in polarity_stats: polarity_stats[polarity] += 1
             for h in hits:
                 p = h.payload.get("polarity", "BELIRSIZ")
@@ -406,7 +814,6 @@ SADECE TEK KELİME CEVAP VER.
             lehine_pct = (polarity_stats["LEHINE"] / total_hits * 100) if total_hits > 0 else 0
             aleyhine_pct = (polarity_stats["ALEYHINE"] / total_hits * 100) if total_hits > 0 else 0
 
-            # Trend Data Preparation
             yearly_stats = {}
             for c in cluster_data:
                 ts = c.get("timestamp", time.time())
@@ -425,18 +832,16 @@ SADECE TEK KELİME CEVAP VER.
                 if bucket not in trend_dict: trend_dict[bucket] = {"KABUL": 0, "RED": 0}
                 trend_dict[bucket][dec] = count
 
-            # V79: MOMENTUM ANALİZİ
             evolution_msg = self._analyze_trend_momentum(trend_dict)
 
-            # --- ANALİTİK LOG (V79) ---
             print("\n" + "=" * 60)
-            print(f"📊 [ANALİZ LOGU] İÇTİHAT EVRİM RAPORU (V79)")
+            print(f"📊 [ANALİZ LOGU] İÇTİHAT EVRİM RAPORU (V92)")
             print("-" * 60)
             print(f"🔹 İLKE: '{text[:80]}...'")
             print(f"🔹 ALAN: {domain}")
             print(f"🔹 YÖN: {polarity}")
             print(f"🔹 ÇELİŞKİ: {'⚠️ VAR' if conflict else '✅ YOK'}")
-            print(f"🧠 İÇTİHAT EVRİMİ: {evolution_msg}")  # V79 EKLENTİSİ
+            print(f"🧠 İÇTİHAT EVRİMİ: {evolution_msg}")
             print("-" * 30)
             print(f"🔹 KAYNAK DOSYA VE YILLIK KIRILIM:")
             for yr in sorted(yearly_stats.keys()):
@@ -459,8 +864,8 @@ SADECE TEK KELİME CEVAP VER.
                 "conflict_flag": conflict,
                 "source_count": len(source_ids),
                 "source_ids": source_ids,
-                "evolution_note": evolution_msg,  # Gelecekte kullanılmak üzere kaydet
-                "generated_by": "consolidation_v79",
+                "evolution_note": evolution_msg,
+                "generated_by": "consolidation_v92",
                 "timestamp": time.time(),
                 "created_at": datetime.now().isoformat()
             }
@@ -473,8 +878,8 @@ SADECE TEK KELİME CEVAP VER.
         except Exception as e:
             print(f"⚠️ İlke kaydetme hatası: {e}")
 
-    def consolidate_principles_v79(self):  # Adını güncelledim
-        print("\n🔥 İÇTİHAT MİMARI: Artımlı Konsolidasyon (V79: Evolution Analytics)...")
+    def consolidate_principles_v79(self):
+        print("\n🔥 İÇTİHAT MİMARI: Artımlı Konsolidasyon (V92: Strategy Consultant)...")
         try:
             time_filter = Filter(
                 must=[
@@ -789,7 +1194,7 @@ SADECE ŞUNLARDAN BİRİNİ SEÇ:
             return "[EMSAL İLKE]"
 
     def evaluate_candidates(self, candidates, story, topic, negatives):
-        print("\n⚖️  Akıllı Yargıç Değerlendiriyor (V79: Evolution Analytics):")
+        print("\n⚖️  Akıllı Yargıç Değerlendiriyor (V92: Strategy Consultant):")
         valid_docs = []
 
         for hit in candidates:
@@ -843,7 +1248,7 @@ SADECE ŞUNLARDAN BİRİNİ SEÇ:
         return valid_docs
 
     def generate_final_opinion(self, story, topic, context_str):
-        print("\n🧑‍⚖️  AVUKAT YAZIYOR (V79: Full Analysis)...")
+        print("\n🧑‍⚖️  AVUKAT YAZIYOR (V92: Full Analysis)...")
 
         system_content = """SEN KIDEMLİ BİR HUKUKÇUSUN.
 GÖREVİN: Sana verilen "DELİLLER" listesindeki Yargıç notlarını derleyerek nihai raporu yazmak.
@@ -898,7 +1303,7 @@ class PDFReportGenerator(FPDF):
 
 class LegalReporter:
     @staticmethod
-    def create_report(user_story, valid_docs, advice_text, filename="Hukuki_Rapor_V79.pdf"):
+    def create_report(user_story, valid_docs, advice_text, filename="Hukuki_Rapor_V92.pdf"):
         pdf = PDFReportGenerator();
         pdf.add_page();
         pdf.set_font("helvetica", size=11)
@@ -945,7 +1350,7 @@ class LegalReporter:
 # ==================================================
 class LegalApp:
     def __init__(self):
-        print("🚀 LEGAL SUITE V79 (Time-Series Evolution Analytics)...")
+        print("🚀 LEGAL SUITE V92 (The Strategy Consultant: Prescriptive Recommendations)...")
         self.search_engine = LegalSearchEngine()
 
         if self.search_engine.connect_db():

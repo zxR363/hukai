@@ -1,0 +1,273 @@
+C:\Users\democh\PycharmProjects\game\hukuk\Scripts\python.exe C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V98.py 
+🚀 LEGAL SUITE V98 (Production Ready: Hardened Logic)...
+   🔌 Veritabanı bağlantısı başlatılıyor...
+🔓 KİLİT DOSYASI TEMİZLENDİ.
+   ✅ Veritabanı bağlantısı BAŞARILI.
+   👉 Koleksiyon kontrol ediliyor: MEVZUAT...
+      🔍 Mevcut dosyalar taranıyor...
+      ✅ MEVZUAT güncel (3 dosya).
+   👉 Koleksiyon kontrol ediliyor: EMSAL KARAR...
+      🔍 Mevcut dosyalar taranıyor...
+      ✅ EMSAL KARAR güncel (17 dosya).
+✅ İndeksleme Tamamlandı.
+
+🔥 İÇTİHAT MİMARI: Artımlı Konsolidasyon (V98: Production)...
+   ℹ️ Yeterli yeni veri yok.
+
+✅ SİSTEM HAZIR. (Çıkış: 'q')
+------------------------------------------------------------
+📝 Olay: Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et.
+🎯 Odak: miras hukuku
+🚫 Yasaklı: sendika
+   🛡️ Girdi kontrol ediliyor...
+   ↳ 🧠 Sorgu Genişletiliyor...
+   ✓ Sorgu: 621 karakter
+
+🔍 Belgeler Taranıyor (Dual Search - Aşama 1: Geniş Havuz)...
+   ✅ 10 potansiyel belge bulundu. Yargıca gönderiliyor...
+
+⚖️  Akıllı Yargıç Değerlendiriyor (V98: Jurisdiction Guard & Reality Check):
+
+======================================================================
+📊 [OPERASYONEL STRATEJİ VE İŞ PAKETİ] (V98: Jurisdiction Ready)
+   🎯 KONU: Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. | ⚖️ DURUM: RED EĞİLİMLİ
+----------------------------------------------------------------------
+📝 YÖNETİCİ ÖZETİ: "Bu dosya -0.376 net karar skoruna sahip olup, hakimin tereddütü ortaya çıkarması nedeniyle riskli bir durum oluşturuyor...."
+----------------------------------------------------------------------
+🚀 SOMUT İŞ PAKETLERİ (WORK ORDERS):
+   📂 [ID: 93f63e7e] "...
+      🔧 Aksiyon: "... güçlü kanıt sunulması sağlanmalıdır, böylece hakimin tereddüdü konusunda daha kesin bir karar vermesi için yeterli bir iddia ortaya koymak üzere."
+      🔎 Kaynak: SGK İl Müdürlüğü / İşyeri (Müzekkere) (Adet: 3)
+      💰 Orta | ⏳ Orta | 📈 +9 Puan
+      ⚠️ Risk: Bu husus giderilmezse '1. **Kanıt Yetersizliği Riski**: Metinde...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ..............................
+   📂 [ID: 9cccc8a6] "...
+      🔧 Aksiyon: "... daha kapsamlı ve detaylı bir dava reddeme raporu hazırlanıp sunulmalıdır, bu raporun içinde belirtilen gerekçelerin doğruluğunu destekleyecek somut kanıtlar ve bilgiler yer almaları sağlamalıdır."
+      🔎 Kaynak: Dosya Kapsamı (İnceleme) (Adet: 4)
+      💰 Orta | ⏳ Orta | 📈 +8 Puan
+      ⚠️ Risk: Bu husus giderilmezse '2. **Dava Reddeme Gerekçeleri Zayıf**: M...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ..............................
+   📂 [ID: bfbab15b] "...
+      🔧 Aksiyon: "... güçlü kanıtları göstermek üzere, müttefiklerimize ve savcılara başvurularak, şüpheli ile ilgili daha fazla bilgi edinme ve doğrulama işlemlerinin gerçekleştirilmesi sağlanmalıdır."
+      🔎 Kaynak: SGK İl Müdürlüğü / İşyeri (Müzekkere) (Adet: 4)
+      💰 Orta | ⏳ Orta | 📈 +5 Puan
+      ⚠️ Risk: Bu husus giderilmezse '3. **Adaletin Temeli Olmayan Kanıtlar**:...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ..............................
+----------------------------------------------------------------------
+🔮 SİMÜLASYON: %32.0 --> %47.0 (Potansiyel Başarı)
+======================================================================
+
+
+======================================================================
+📊 [OPERASYONEL STRATEJİ VE İŞ PAKETİ] (V98: Jurisdiction Ready)
+   🎯 KONU: Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. | ⚖️ DURUM: Belirsiz / Riskli
+----------------------------------------------------------------------
+📝 YÖNETİCİ ÖZETİ: "Bu dosya risklidir çünkü hakimin 47.0 skoru belirtildiği değerlendirmeye göre düşük bir puanı temsil eder ve bu, değerle..."
+----------------------------------------------------------------------
+🚀 SOMUT İŞ PAKETLERİ (WORK ORDERS):
+   📂 [ID: 5684c984] Değerlendirme standartı veya kriterleri açık ve somut olarak belirlenmelidir, bö...
+      🔧 Aksiyon: Değerlendirme standartı veya kriterleri açık ve somut olarak belirlenmelidir, böylece hakim tereddüdüne yol açan belirtimsizlik ortadan kaldırılmalıdır.
+      🔎 Kaynak: SGK İl Müdürlüğü / İşyeri (Müzekkere) (Adet: 1)
+      💰 Düşük | ⏳ Kısa | 📈 +4 Puan
+      ⚠️ Risk: Bu husus giderilmezse '1. **Değerlendirme Standartının Belirtil...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ..............................
+   📂 [ID: 1952468f] "...
+      🔧 Aksiyon: "... gerekli hukuki temelin yetersiz olduğu kanıtlanmadan önce davayı reddi kararı vermek için yeterli değildir, bu nedenle hakimin tereddütüne karşı bir emsal içtihat sunulmalıdır."
+      🔎 Kaynak: Dosya Kapsamı (İnceleme) (Adet: 1)
+      💰 Düşük | ⏳ Kısa | 📈 +7 Puan
+      ⚠️ Risk: Bu husus giderilmezse '2. **Gerekli Hukuki Temelin Yetersiz Olm...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ..............................
+   📂 [ID: 1dfc514e] "...
+      🔧 Aksiyon: "... dava açma yetkililiğindeki eksikliklerin belirtimi, hakim tarafından reddi kararı verirken güçlü bir gerekçe olmak üzere sunulmalıdır."
+      🔎 Kaynak: Dosya Kapsamı (İnceleme) (Adet: 1)
+      💰 Düşük | ⏳ Kısa | 📈 +3 Puan
+      ⚠️ Risk: Bu husus giderilmezse '3. **Dava Açma Yetkililiğindeki Eksiklik...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ..............................
+----------------------------------------------------------------------
+🔮 SİMÜLASYON: %47.0 --> %56.0 (Potansiyel Başarı)
+======================================================================
+
+
+======================================================================
+📊 [OPERASYONEL STRATEJİ VE İŞ PAKETİ] (V98: Jurisdiction Ready)
+   🎯 KONU: Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et. | ⚖️ DURUM: KABUL EĞİLİMLİ
+----------------------------------------------------------------------
+📝 YÖNETİCİ ÖZETİ: "Bu dosya risklidir, çünkü net karar 0.376 ile kabul eğiliminde ancak hakimin 70.0 skorunun tam olarak hangi yargılama ve..."
+----------------------------------------------------------------------
+🚀 SOMUT İŞ PAKETLERİ (WORK ORDERS):
+   📂 [ID: 91a7712c] "...
+      🔧 Aksiyon: "... Hakim tereddüdüne ilişkin kanıt malzeme ve argümanlar, netlik sağlayacak şekilde somut ve spesifik olmalıdır. Bu bağlamda, tarafın sunması gereken belgeler ve açıklamalar, hakimin karar verme sürecinde daha iyi bir anlaşılmanın sağlanmasına yardımcı olacaktır."
+      🔎 Kaynak: Dosya Kapsamı (İnceleme) (Adet: 4)
+      💰 Orta | ⏳ Orta | 📈 +6 Puan
+      ⚠️ Risk: Bu husus giderilmezse '1. **Yargısal Netlik Olmayan Değerlendir...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ..............................
+   📂 [ID: 94c2e365] Yargıdışı uzmanlar ve belge kaynaklarından gelen somut örnekler ve analizler sun...
+      🔧 Aksiyon: Yargıdışı uzmanlar ve belge kaynaklarından gelen somut örnekler ve analizler sunulmalıdır, böylece 70.0 skorun kesin bir yargılama veya hukuki duruma atfesi oluşturulabilir.
+      🔎 Kaynak: Dosya Kapsamı (İnceleme) (Adet: 4)
+      💰 Orta | ⏳ Orta | 📈 +10 Puan
+      ⚠️ Risk: Bu husus giderilmezse 'Verilen 70.0 skorunun tam olarak hangi y...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ..............................
+   📂 [ID: 6aba450b] "...
+      🔧 Aksiyon: "... İtilaf kanunlarından yola çıkılarak, aksiyon görüşünün zayıflığını destekleyecek somut örnekler ve veriler sunulmalıdır."
+      🔎 Kaynak: Dosya Kapsamı (İnceleme) (Adet: 3)
+      💰 Orta | ⏳ Orta | 📈 +5 Puan
+      ⚠️ Risk: Bu husus giderilmezse '2. **Aksiyon Görüşünün Zayıflığı:...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ..............................
+----------------------------------------------------------------------
+🔮 SİMÜLASYON: %70.0 --> %85.0 (Potansiyel Başarı)
+======================================================================
+
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %88.8 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %88.3 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk1.pdf           | Güven: %87.9 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [EMSAL KARAR] buyuk2.pdf           | Güven: %87.6 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk5.pdf           | Güven: %86.6 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk5.pdf           | Güven: %86.2 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %86.1 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %85.9 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %85.9 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %85.8 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+
+==============================
+### Kaynaklar ve Sebebi
+==============================
+• [EMSAL KARAR] buyuk7.pdf (Sf. 6) | Skor: %88.8
+  Rol:   [EMSAL İLKE]
+  Sebep: [ÇOK BENZER]
+
+Gerekçe: Belge, Yargıtay içtihatının belirttiği hukuki ilkeler ve mantığı, yani mirastan çıkarılan kişilerin hala mirasçılık sıfatında bulunmasının ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği konusunda detaylı açıklamalar sunmaktadır.
+----------------------------------------
+• [EMSAL KARAR] buyuk7.pdf (Sf. 5) | Skor: %88.3
+  Rol:   [EMSAL İLKE]
+  Sebep: [ÇOK BENZER]
+
+Gerekçe: Belgede vasiyetname veya mirastan çıkarma olmaksızın yeni bir mirasçılık belgesinin düzenlenmesi konusunda Yargıtay'ın karar verme sürecindeki hukuki ilke ve mantığı, sorguyla tam olarak aynıdır.
+----------------------------------------
+• [EMSAL KARAR] buyuk1.pdf (Sf. 1) | Skor: %87.9
+  Rol:   [DOĞRUDAN DELİL]
+  Sebep: [ÇOK BENZER]
+
+Gerekçe: Belge, sorguyla aynı hukuki ilkeler ve mantığı benimser, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığına dair kanıtların eksikliği nedeniyle yeni bir mirasçılık belgesinin düzenlenmesi konusunda tutumunu belirtmektedir.
+----------------------------------------
+• [EMSAL KARAR] buyuk2.pdf (Sf. 1) | Skor: %87.6
+  Rol:   [EMSAL İLKE]
+  Sebep: [ÇOK BENZER]
+
+Gerekçe: Belge, sorgudaki durumu tam olarak yansıtmaktadır; mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer aldığı konusunda Yargıtay içtihatına anlamlı bir benzerlik taşımaktadır.
+----------------------------------------
+• [EMSAL KARAR] buyuk5.pdf (Sf. 1) | Skor: %86.6
+  Rol:   [EMSAL İLKE]
+  Sebep: [ÇOK BENZER]
+
+Gerekçe: Belge, sorguyla aynı hukuki ilke ve mantığı benimser, mirasçılık belgesinin düzenlenmesi konusunda vasiyetname veya mirastan çıkarma olmayan durumlarda ortak bir hukuki ilkeye uyması gerektiği konusunda tutumu benzer.
+----------------------------------------
+• [EMSAL KARAR] buyuk5.pdf (Sf. 2) | Skor: %86.2
+  Rol:   [DOĞRUDAN DELİL]
+  Sebep: ### Risk Analizi ve Güçlendirme Planı
+
+#### 1. **Risk Özeti (Ticaret Alanı)**
+Bu dosya risklidir çünkü net karar 0.376 ile düşük bir kabul eğilimine sahip olup, hakimin tereddütü beklenmektedir. Hakim, belirtilen skor (70) ve savcının sunumu göz önünde bulundurarak, daha derinlemesine incelemeler gerektiği konusunda endişe duyabilir. En kritik zayıflık, savcıya verilen 70 puanla yeterli kanıtlar sunma olasılığıdır.
+
+Bu durumda, eğer savcı gerekli kanıtları sunamazsa karar RED'e yönlenebilir. Bu risk, davada daha güçlü bir kanıt sunma ve hakimin tereddütünün azalmasına yönelik stratejilerin geliştirilmesi gerektiği anlamına gelmektedir.
+
+#### 2. **Kanunsel Temel**
+Bu dava dosyası, mirastan çıkarılan kişilerin mirasçılık belgesi talebi ve vasiyetname bulunmasına rağmen, Sulh Hukuk Mahkemesinin görevli olduğu konusunda değerlendirilmektedir. Hakimlerin kanaati, Yargıtay içtihatına anlamlı bir benzerlik taşıyan kararları ve hukuki belgeleri tespit edilmiştir.
+
+Bu durumda, dava dosyasının net karar simülasyonu 0.376 ile kabul eğiliminde yer alması göz önüne alınarak, mahkemenin kanaati, mirastan çıkarılan kişilerin mirasçılık belgesinin tamamen ortadan kaldırılmasının gerekli olmadığını ve bu durumların veraset ilamında açıklayıcı bir şekilde yer almasını gerektirdiğini belirtmektedir. Aksi görüş, mirastan çıkarılan kişilerin hukuki statüsünün tamamen değişmemiş olup, bu durumu belirleyen ve açıklayan bir vasiyetname veya mirasçılık belgesinin mevcut olduğundan dolayı zayıf kalır.
+
+#### 3. **Kanunsel Karar Taslağı**
+Dosya kapsamına göre, mahkeme, Yargıtay içtihatına anlamlı bir benzerlik taşıyan kararları ve hukuki belgeleri tespit etmiş olup, bu durumun dava dosyasına uyması nedeniyle, mirastan çıkarılan kişilerin mirasçılık belgesinin tamamen ortadan kaldırılmasının gerekli olmadığını kabul eder.
+
+#### 4. **Güçlendirme Planı**
+- **Skorun Genel Değerlendirilmesinde Hukuki Zayıflığın Ortaya Konulduğu İlgili Örnekler ve Belgeler:** (+6 Puan)
+- **Daha Spesifik Bir Puanın ve İlgili Yargısal Durumun Açıklamasının Sunulması:** (+6 Puan)
+- **Daha Fazla Gerekçeli Bilgi Sunulması:** (+2 Puan)
+
+### Sorgu Sonuçları
+**Belge:**
+"yerinde ise de 'mirası reddin hukuki sonuçlarının' düzenlenen mirasçılık belgesine yansıyacak şekilde gösterilmemiş olması doğru görülmemiş, bu sebeple kararın bozulması gerekmiştir."
+
+**Sorgu:**
+Bu belge; hukuki ilke, yorum yaklaşımı, miras hukuku mantığı bakımından sorguyla ne derece **ÇOK BENZER**?
+
+**Gerekçe:** Belirtilen durum, hukuki temelin eksikliği ve veraset ilamının tam olarak yer aldığı kanıtların bulunmadığını göstermektedir.
+
+---
+
+Bu analiz ve planlama, davanızın daha güçlü bir pozisyon almanız için gerekli olan detayları ve stratejileri özetlemektedir.
+----------------------------------------
+• [MEVZUAT] TürkMedeniKanunu.pdf (Sf. 120) | Skor: %86.1
+  Rol:   [EMSAL İLKE]
+  Sebep: [ÇOK BENZER]
+
+Gerekçe: Belge, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığına dair açık ve kesin bir kanıt bulunmadığını vurgulayarak, veraset ilamında mirasçılık sıfatının açıklayıcı şekilde yer alması gerektiği konusunda Yargıtay içtihada uygun olarak durumu açıklıyor.
+----------------------------------------
+• [MEVZUAT] TürkMedeniKanunu.pdf (Sf. 119) | Skor: %85.9
+  Rol:   [EMSAL İLKE]
+  Sebep: [ÇOK BENZER]
+
+Gerekçe: Belge, mirastan çıkarılan kişilerin hala mirasçılık sıfatına sahip olabilecek durumları ve bu durumların açıklayıcı şekilde yer aldığı konusunda Yargıtay içtihada anlamsal olarak çok benzemektedir.
+----------------------------------------
+• [MEVZUAT] TürkMedeniKanunu.pdf (Sf. 106) | Skor: %85.9
+  Rol:   [DOĞRUDAN DELİL]
+  Sebep: [ÇOK BENZER]
+
+Gerekçe: Belge, Yargıtay içtihatının belirttiği kurallara ve mantıksal akıl yürütme yöntemlerine çok benzer şekilde hukuki ilkeleri vurguluyor ve mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kaldırılmadığını belirtiyor.
+----------------------------------------
+• [EMSAL KARAR] buyuk7.pdf (Sf. 1) | Skor: %85.8
+  Rol:   [EMSAL İLKE]
+  Sebep: [ÇOK BENZER]
+
+Gerekçe: Belgede belirtildiği gibi, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve veraset ilamında açıklayıcı şekilde yer alması gerektiği konusunda Yargıtay içtihatları mevcuttur. Bu durum, sorguyla çok benzer bir hukuki temele dayanmaktadır.
+----------------------------------------
+
+🧑‍⚖️  AVUKAT YAZIYOR (V98: Full Analysis)...
+### Analiz Sonucu ve Strateji Önerileri
+
+#### Genel Durum:
+Davanızda, mirastan çıkarılan kişilerin hala mirasçılık sıfatına sahip olabilecek durumları ve bu durumların açıklayıcı şekilde yer aldığı konusunda çok benzer hukuki temeller bulunmaktadır. Özellikle Yargıtay içtihatları ve Türk Medeni Kanunu hükümleri, davanızda kullanılabilecek güçlü kanıtlar oluşturur.
+
+#### Ana Gerekçeler:
+1. **Mirastan Çıkaranlarin Mirasçılık Sirfatının Tamamen Ortadan Kalkmadığı:**
+   - Belirtilen durumlar, hukuki ilke ve yorum yaklaşımı bakımından sorguyla çok benzer.
+   - Yargıtay içtihatları (Belge #10) ve Türk Medeni Kanunu hükümleri (Belgeler #7-9), mirastan çıkarılan kişilerin hala mirasçılık sıfatına sahip olabilecek durumları vurguluyor.
+
+2. **Veraset İlamında Mirasçılık Sirfatının Açıklayıcı Şekilde Yer Alması:**
+   - Veraset ilamında mirasçılık sıfatının açık ve kesin bir kanıt bulunmadığını gösteren belgeler (Belge #1, 7) mevcuttur.
+   - Mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kaldırılmadığı durumlar vurgulanmaktadır.
+
+3. **Temyiz İtişmeleri ve Karar Bozulma:**
+   - Davacı vekilinin temyiz itirazları kabul edildiği belgeler (Belge #8) mevcuttur.
+   - Bu durum, davanızda kararın bozulması için gerekli olan kanıtları oluşturabilir.
+
+#### Strateji Önerileri:
+
+1. **Temyiz İtişmeleri ve Temyiz İttirazları:**
+   - Davacı vekilin temyiz itirazlarının kabul edilmesini teşvik etmek.
+   - Kararın bozulması için gerekli olan kanıtları toplamak.
+
+2. **Yargıtay İçtihatları ve Türk Medeni Kanunu Hakkında İncelemeler:**
+   - Yargıtay içtihatlarının (Belge #10) ve Türk Medeni Kanunu hükümlerinin (Belgeler #7-9) davanızda kullanılmasını teşvik etmek.
+   - Mirastan çıkarılan kişilerin hala mirasçılık sıfatına sahip olabilecek durumları vurgulamak.
+
+3. **Veraset İlamında Mirasçılık Sirfatının Açıklayıcı Şekilde Yer Alması:**
+   - Veraset ilamında mirasçılık sıfatının açık ve kesin bir kanıt bulunmadığını gösteren belgeler (Belge #1, 7) kullanmak.
+   - Mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kaldırılmadığı durumları vurgulamak.
+
+4. **Sonraki Tasarrufun İptaline ilişkin Dava Hakı:**
+   - Sonraki tasarrufun iptaline ilişkin dava hakkı saklıdır (Belge #8) ve bu durumu davanızda kullanmak.
+
+5. **Mirastan Çıkaranların Mirasçılık Sirfatının Tamamen Ortadan Kalkmadığı:**
+   - Mirastan çıkarılan kişilerin hala mirasçılık sıfatına sahip olabilecek durumları vurgulamak (Belge #10).
+
+#### Önerilen Eylemler:
+- **Temyiz İtişmeleri:** Davacı vekilin temyiz itirazlarının kabul edilmesini teşvik etmek.
+- **Yargıtay İçtihatları ve Türk Medeni Kanunu:** Belgeler (Belge #7-10) kullanarak davanızda hukuki ilke ve yorum yaklaşımı vurgulamak.
+- **Veraset İlamı:** Mirasçılık sıfatının açıklayıcı şekilde yer aldığı kanıtları toplamak.
+
+Bu stratejiler, davanızın daha güçlü bir pozisyon almasını sağlayacaktır.
+
+
+📄 Rapor Hazır: Hukuki_Rapor_V98.pdf
+------------------------------------------------------------
+📝 Olay: 

@@ -1,0 +1,160 @@
+C:\Users\democh\PycharmProjects\game\hukuk\Scripts\python.exe C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V99_Log.py 
+🚀 LEGAL SUITE V98 (Grand Unified OS: UI Traceability)...
+   🔌 Veritabanı bağlantısı başlatılıyor...
+🔓 KİLİT DOSYASI TEMİZLENDİ.
+   ✅ Veritabanı bağlantısı BAŞARILI.
+   👉 Koleksiyon kontrol ediliyor: MEVZUAT...
+      🔍 Mevcut dosyalar taranıyor...
+      ✅ MEVZUAT güncel (3 dosya).
+   👉 Koleksiyon kontrol ediliyor: EMSAL KARAR...
+      🔍 Mevcut dosyalar taranıyor...
+      ✅ EMSAL KARAR güncel (17 dosya).
+✅ İndeksleme Tamamlandı.
+
+✅ SİSTEM HAZIR. (Çıkış: 'q')
+------------------------------------------------------------
+📝 Olay: Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et.
+🎯 Odak: miras hukuku
+🚫 Yasaklı: sendika
+   🛡️ Girdi kontrol ediliyor...
+   ↳ 🧠 Sorgu Genişletiliyor...
+   ✓ Sorgu: 770 karakter
+
+🔍 Belgeler Taranıyor (Dual Search - Aşama 1: Geniş Havuz)...
+   ✅ 3 potansiyel belge bulundu. Yargıca gönderiliyor...
+
+⚖️  Akıllı Yargıç Değerlendiriyor (V98: Grand Unified OS):
+✅ [EMSAL KARAR] buyuk2.pdf           | Güven: %82.4 | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk1.pdf           | Güven: %82.3 | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %81.8 | Rol: [EMSAL İLKE]
+
+████████████████████████████████████████████████████████████████████████████████
+🖥️  LEGAL OS V98 - TAM KAPSAMLI ANALİZ RAPORU (UI DATA JSON)
+████████████████████████████████████████████████████████████████████████████████
+
+📂 1. BELGE TARAMA VE GEREKÇELER:
+   📄 buyuk2.pdf (Sf.1) -> [EMSAL İLKE]
+      ↳ Gerekçe: [ÇOK BENZER]
+
+Gerekçesi: Belgede belirtilen durum ve hukuki temel, sorguyla sorulan Yargıtay içtihat...
+   📄 buyuk1.pdf (Sf.1) -> [EMSAL İLKE]
+      ↳ Gerekçe: [ÇOK BENZER]
+
+Gerekçesi: Belge ve sorgu, hem hukuki ilke hem de mirasçılık belgesinin düzenlenmesi k...
+   📄 buyuk7.pdf (Sf.5) -> [EMSAL İLKE]
+      ↳ Gerekçe: [ÇOK BENZER]
+
+Gerekçe: Belgede vasiyetname veya mirastan çıkarma olmayan durumlarda mirasçılık belge...
+--------------------------------------------------------------------------------
+⚖️  2. SEÇİLEN TEMEL İLKE:
+   "Yeni bir mirasçılık belgesinin düzenlenmesi için vasiyetname veya mirastan çıkarma olmaksızın bu işlemin hukuki temeli b..."
+   📊 3. Zıtlık Analizi: ⚠️ VAR
+   📈 4. Trend Logu: 💎 YERLEŞİK VE GÜNCEL.
+   🧭 5. Polarite: ALEYHINE
+   🔥 6. Çelişki Tespiti: Düşük
+--------------------------------------------------------------------------------
+⏳ 10. İLKE EVRİMİ: 💎 YERLEŞİK VE GÜNCEL.
+📅 11. GÜNCEL İÇTİHAT UYARISI: 2022-2024 Dönemi (Güncellik: ✅)
+--------------------------------------------------------------------------------
+🎲 13. RİSK & BAŞARI SKORU: %32.0 (Düşük)
+❓ 14. NEDEN BU SKOR?: Riskli.
+--------------------------------------------------------------------------------
+🗣️  PERSONA GÖRÜŞLERİ:
+   👨‍⚖️ 15. HAKİM: "Aksi görüşün zayıf çünkü Türk Hukuki sisteminde hakimin yasal ve kurumsal yetkileri belirleyen kanun..."
+   🏛️ 16. SAVCI: "Tebrik ederim, savcısınız! Türk Hukuki çerçevesinde, iddia makamında görev yapmak oldukça zor ve öne..."
+   🔍 17. BİLİRKİŞİ: "Türk Hukuku konusunda teknik bir dille bilgi vermek istiyorsanız, aşağıdaki örneklerden biriyle başl..."
+   🛑 18. RED GEREKÇESİ: "Bu sorunun tam olarak hangi hukuki durumu veya davayı ele alacak olduğuna bağlı olarak farklı gerekç..."
+--------------------------------------------------------------------------------
+⚔️  19. PERSONA ÇELİŞKİ ANALİZİ: Düşük (Skor: 30)
+      🔴 Savcı güçlü, hakim ihtiyatlı
+--------------------------------------------------------------------------------
+✍️  20. GEREKÇELİ KARAR TASLAĞI:
+   ### Anlamsal Benzer Kararlar ve Hukuki Belgeler
+
+**Gerekçe:**
+
+1. **Sulh Hukuk Mahkemesinin Görevleri ve Mirasçılık Sıfatının Ortadan Kalkmadığı Durumlar:**
+   - Sulh Hukuk Mahkemesi, mirastan çıkarma...
+--------------------------------------------------------------------------------
+📝 21. YÖNETİCİ ÖZETİ (NEDEN RİSKLİ?):
+   Risk özeti:
+
+Bu karar, Türk Hukuku bağlamında kabul edildiğine göre, genel olarak yasal ve etik standartlara uygun bir kararı temsil eder. Ancak, herhangi bir kırılma noktası veya potansiyel riskler de göz önünde bulundurulmalıdır:
+
+1. **Yasal Uyumluluğun Kontrolü**: Kararın uygulanması sırasında yasal düzenlemelerle olan uyumunu kontrol etmek önemlidir.
+2. **İşletme Politikalarına Etkisi**: Kararın işletmenin mevcut politikaları ve süreçlerine ne kadar olası bir etkisi olacağı değerlendirilmelidir.
+3. **Mali Etkiler**: Kararın mali performansına olan potansiyel etkileri incelenmelidir, özellikle gelir kaynakları ve giderleri üzerindeki değişikliklere dikkat edilmesi gerekmektedir.
+4. **Reputasyon Riski**: Kararın müşteriler, çalışanlar ve diğer stakeholderler arasında oluşturduğu tepkiler ve etkiler değerlendirilmelidir.
+
+Kırılma noktası:
+
+Bu durumda, kararın kabul edildiği varsayılan olarak kırılma noktasının belirlenmesi zor olabilir. Ancak, genel olarak bir kararın kabul edilmesinin kırılma noktasına ulaşma anlamına gelmediğini belirtmek gerekir. Kırılma noktası genellikle kararın uygulanmasından kaynaklanan olumsuz sonuçların ortaya çıkması durumunda geçerlidir.
+
+Bu nedenle, risk özeti ve potansiyel kırılma noktaları dikkatlice değerlendirilmeli ve gerekli önlemler alınmalıdır.
+--------------------------------------------------------------------------------
+🚀 22/26/27. GÜÇLENDİRME & İŞ PAKETLERİ:
+   📦 [ID: c97154] Hakim Tereddüdü'nün belirlediği üç hukuki zayıflığını somut aksiyon önerileriyle...
+      ↳ Kaynak: Dosya Kapsamı (İnceleme) (Adet: 3)
+      ↳ Risk: Bu husus giderilmezse 'Metindeki 3 hukuki zayıflığı şu şekilde ...' yönünden hakim tereddüdü devam eder.
+      ↳ Etki: +10 Puan
+   📦 [ID: 62cedd] Hakim Tereddüdü'nün belirtilen noktalarına göre, avukata delil odaklı somut bir ...
+      ↳ Kaynak: Dosya Kapsamı (İnceleme) (Adet: 3)
+      ↳ Risk: Bu husus giderilmezse '1. **İşlevsel Zayıflık:...' yönünden hakim tereddüdü devam eder.
+      ↳ Etki: +10 Puan
+   📦 [ID: 2e4db6] Avukat için SOMUT aksiyon önerisi:
+
+Sayın Hakim,
+
+Tereddütinizde belirtildiği gi...
+      ↳ Kaynak: SGK / İşyeri (Müzekkere) (Adet: 4)
+      ↳ Risk: Bu husus giderilmezse 'Metin, "Davanın işlevselliği veya hedefi...' yönünden hakim tereddüdü devam eder.
+      ↳ Etki: +5 Puan
+--------------------------------------------------------------------------------
+🔮 23/28. SİMÜLASYON SONUCU:
+   Mevcut: %32.0 --> Hedef: %51.0
+   Artış: +19 Puan
+████████████████████████████████████████████████████████████████████████████████
+
+
+🧑‍⚖️  AVUKAT YAZIYOR (V98: Final Opinion)...
+### A. MEVZUAT DAYANAKLARI
+
+- **Müntehap Kanunu (Türk Medeni Kanunu, TMK)**
+  - **Mevzuat Etiketli Belge:** [TMK Madde 598]
+    - **Özet:** Mirasçılık belgesi verilmesi görevi, yoksunluk sebeplerinin gerçekleşmesi ya da mirastan feragat edilmiş olması durumunda bu olguların hukuki sonuçlarının terekenin bölüşülmesi sırasında gözetileceğine işaret etmektedir.
+
+### B. İLGİLİ EMSAL KARARLAR
+
+- **Karar 1 (buyuk2.pdf)**
+  - **Rol:** [EMSAL İLKE]
+  - **Gerekçe:**
+    - Mirasçılık belgesinin düzenlenmesi, yoksunluk sebeplerinin gerçekleşmesi ya da mirastan feragat edilmiş olması durumunda bu olguların hukuki sonuçlarının terekenin bölüşülmesi sırasında gözetileceğine işaret etmektedir.
+    - Yargıtay içtihatı, sorguyla aynı temel hukuki ilkeyi ve mantığı taşımaktadır.
+
+- **Karar 2 (buyuk1.pdf)**
+  - **Rol:** [EMSAL İLKE]
+  - **Gerekçe:**
+    - Mirastan çıkarma veya vasiyetname olmayan durumlarda mirasçılık belgesinin düzenlenmesini tartışmaktadır ve aynı yorum yaklaşımı benimsemektedirler.
+    - Mirastan feragat eden bir kişinin mirasçılık sıfatını ortadan kaldırmaz, bu nedenle mirasçılardan biri veya birkaçı yönünden mirastan çıkarma ve yoksunluk sebeplerinin gerçekleşmesi durumunda bu olguların hukuki sonuçlarının terekenin bölüşülmesi sırasında gözetileceğine işaret etmektedir.
+
+- **Karar 3 (buyuk7.pdf)**
+  - **Rol:** [EMSAL İLKE]
+  - **Gerekçe:**
+    - Mirastan feragat eden bir kişinin mirasçılık belgesinde feragatinin gösterilmesi gerekir.
+    - Yargıtay, 2014/18198 Esas 2014/17271 Karar sayılı ve 26.09.2014 tarihli kararında mirastan feragat eden bir kişinin payının kimlere kalacağının belirlenmesi gerektiğine karar vermiştir.
+
+### C. SONUÇ VE HUKUKİ TAVSİYE
+
+- **Sonuç:**
+  - Mirasçılık belgesinin düzenlenmesi, yoksunluk sebeplerinin gerçekleşmesi ya da mirastan feragat edilmiş olması durumunda bu olguların hukuki sonuçlarının terekenin bölüşülmesi sırasında gözetileceğine işaret etmektedir.
+  - Mirastan feragat eden bir kişinin mirasçılık belgesinde feragatinin gösterilmesi gerekir.
+
+- **Tavsiye:**
+  - Olayda, mirastan çıkarma ve vasiyetname bulunmadığından, Yargıtay'ın içtihatı ve emsallara dayanarak, mirasçılık belgesinin düzenlenmesi konusunda yoksunluk sebeplerinin gerçekleşmesi ya da mirastan feragat edilmiş olması durumunda bu olguların hukuki sonuçlarının terekenin bölüşülmesi sırasında gözetileceğine dikkat etmek önemlidir.
+  - Mirastan feragat eden bir kişinin mirasçılık belgesinde feragatinin gösterilmesi gerekir. Bu durumda, mirasçılık belgesinin düzenlenmesi ve yoksunluk sebeplerinin açıkça hukuken sonuçlandırılması önemlidir.
+  - Mirastan feragat eden bir kişinin payının kimlere kalacağının belirlenmesi de gerekmektedir.
+
+
+📄 Rapor Hazır: Hukuki_Rapor_V98.pdf
+------------------------------------------------------------
+📝 Olay: 

@@ -1,0 +1,134 @@
+Cevap: Büyük veri setlerinde, CPU'nun tüm çekirdeklerini kullanarak işlemi otomatik paralelleştirir (Multithreading). Senin "Multithreading" tecrübenle bunu anlatman çok kolay: "Manuel thread yönetimi yerine Fork/Join framework kullanan deklaratif yapı."
+
+
+babam öldü. miras davasında kardeşlerim haklarımı vermiyorlar
+
+MCP_TOKEN = "eyJhbGciOiJSUzI1NiIsImNhdCI6ImNsX0I3ZDRQRDIyMkFBQSIsImtpZCI6Imluc18yekk0SWtFSDFUVFlUZE03NzdtVWppS3ZEeTQiLCJ0eXAiOiJKV1QifQ.eyJlbWFpbCI6Inl1c3R1bjM1NUBob3RtYWlsLmNvbSIsImV4cCI6MTc2OTAyNTk4NSwiaWF0IjoxNzY2Mzk3OTg1LCJpc3MiOiJodHRwczovL2NsZXJrLnlhcmdpbWNwLmNvbSIsImp0aSI6IjM0MDVjMmU0NjE0ZDA2MjY5MWEyIiwibmJmIjoxNzY2Mzk3OTI1LCJzY29wZXMiOlsicmVhZCIsInNlYXJjaCJdLCJzdWIiOiJ1c2VyXzM3Q0JjUGk1THNJQW9WeE1iYXNYbHBuMmNQYSIsInVzZXJfaWQiOiJ1c2VyXzM3Q0JjUGk1THNJQW9WeE1iYXNYbHBuMmNQYSJ9.irfiggYmeo6egA6hyRevt3FLLuwhFPqm9iCjUrl5heRb4IzNrVF14AF6D3zRAwhwAMH2S5Tbkbdfi1CeAPOaLZcjeB_J1ASUfd2-aax7--4Y0dx-M2bxRWOLHGdTa_xeICuPEqXdyO1fDd8vZ6goOmAt-wrhYvkyc639hGjU6qs9YmcWuGeeOQYcSJzB_HlLt0bKGdT9sX2n_xyOsB4jThC5-AQjXKSv9WdLoL9AVcU4b7HcrJexJ0kXhOqf79_m-AgaQOfbuGceFowfsjOB3A_QDthAZP4wcxgvoZPDj9dzEI4D7K3CY8chlvQESuHP932K2DZXYJO3-XDqn-vKWw"
+
+
+Veritabanı, İndeksleme, Arama ve Filtreleme (Smart Judge) fonksiyonlarına tek bir harf bile ,promptların tek harfine bile dokunma.HİÇBİRİNİ EKSİLTME.YORUMLARI SILME.KODLARDA SIKILAŞTIRMA YAPMA. Sadece yeni yapmak istediğin değişikliği bana belirt onaylarsam yeni versiyon kodu olarak bana ver
+
+
+Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et.
+
+
+
+
+
+2. Görsel anlatım yok
+
+risk skoru var
+
+trend var
+
+ama grafik yok
+
+➡️ Kurumsal satışta eksik.
+
+
+
+UI yapısı şöyle olmadı.
+1. Hangi belgeler tarandı ve Akıllı yargıça gönderildi.(Gerekçeleri neler benzerlik yada anlamsal benzerlik-)
+2. Seçilen belgelerin oluşturduğu ilkeler neler
+3. İlke Hafızasında Zıtlık sonuçları
+4. Trend logları(Kabul ve Red'ler) Hangi PDF'ler olduğuda
+5. Polarite(yön) tespiti
+6. Çelişki tespiti sonucu
+7.c) Artımlı konsolidasyon (en kritik)
+“Son konsolidasyondan sonra gelen kararlar işlesin”
+
+8. Yargıç tarafındaki kullanım (Örneğin recall_principles()ek
+	if h.payload.get("conflict_flag"):
+	    memory_text += "⚠️ Bu ilke konusunda YARGISAL ÇELİŞKİ bulunmaktadır.\n"
+9.Hakem istemlerindeki "rol" kaydı - DOĞRUDAN DELIL/EMSAL
+10.🧠 İlke evrimi
+
+“Bu ilke 2016'da zayıftı, 2021'den sonra güçlendi.”
+
+11.🧠 Güncel içtihat uyarısı
+
+“Bu ilke var ama eski; son 3 yılda ters çözümler artıyor.”
+
+12. 🧠 Avukat refleksi
+
+Gerçek hayatta kalan avukat şunu soruyor:
+
+“Emsal var mı?” ❌
+“ Güncel mi? ” ✅
+
+13.sorgu
+ → belge havuzu
+ → yargıç değerlendirmesi
+ → geçmiş karar hafızası
+ → ilke konsolidasyonu
+ → trend + çelişki
+ → RİSK & BAŞARI SKORU
+
+14.Yani sistemi şunu diyebilmeli:
+
+“Bu dava %72 çünkü:
+
+İçtihat merkezli
+
+Son yıllarda güçlendirilmiş
+
+Ancak bazı parçaları içeren kararlar var”
+15.✅ Hakim dili log
+
+örn: “Yargıtayların son yıllarda istikrarı ve bu doğrultudaki gelişmeleri anlaşılmaktadır.”
+16.Savcı Dili logu
+17. bilişki dili logu
+18.Hakim neden reddeder logu
+19. Personalar arasındaki çelişki analizi
+20.Gerekçeli karar
+21.Bu dosya neden riskli? -> Yönetici özeti(bu dosya neden riskli)
+22.Bu dosya nasıl güçlendirilir/öneriler
+23.Güçlendirme sonrası Yeni skor simülasyonu bilgileri
+	bu tarz bir çıktı yapısı
+	Güçlendirme sonrası simülasyon:
+
+	Mevcut başarı olasılığı: %72
+
+	Beslendiğin vücutların öldüğünde:
+
+	Tahmini yeni aralık: %80 – %85
+
+	Artışın temel nedeni:
+
+	Hakimin sorguladığı delillerin giderilmesi
+
+	İçtihat uyumsuzluklarının azaltılması
+24. Nihai eğilim
+25.İlke çıkarımı
+
+	Persona (hakim / savcı / bilirkişi)
+
+	İlk skor
+
+	“Neden bu skor?”
+
+	“Bu dosya neden riskli?”
+
+	Güçlendirme önerileri
+
+	Güçlendirme sonrası simülasyon
+
+	Nihai karar verme
+26. Somut stratejik talimatlar
+27. Somut iş paketleri (aksiyon,kaynak,risk)
+28. Güçlendirilmiş başarı ihtimalleri( artış sonrası %lik )
+
+
+
+-------------------------------
+Karar ↔ İlke karmaşıklığı (hafıza mimarisi doğru)
+
+İlke-temelli konsolidasyon (küme → Yüksek Lisans → güven)
+
+Veri tekilleştirme + birleştirme (%90 benzerlik)
+
+Zamanın çürümesi (hukukun dinamizmi yakalanmış)
+
+Kaynak bağlama (ilke hangi kararların verildiği tarih)
+
+Yargıç hafızası fikir birliği (sistemin kendi geçmişiyle tartışılıyor)

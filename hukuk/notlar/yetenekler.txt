@@ -1,0 +1,30 @@
+
+
+-Dava Türü ve Yargılama Usulü Tespiti
+-Dinamik Persona Ataması
+
+
+
+
+
+
+
+
+V100'DEN SONRA:
+
+Sistem şu an "Hikaye Anlatıcısı" (Storyteller) modunda çalıştığı için, hikayesi olmayan, kuru ve kural bazlı Mevzuat metinleri (TMK, TBK maddeleri), hikaye bazlı Emsal Kararların (Yargıtay kararları) gölgesinde kalıyor. Vektör uzayında "olay", "olaya" daha yakındır; "kurala" uzaktır. Bu yüzden mevzuatı "Pozitif Ayrımcılık" (Affirmative Action) ile listeye sokmamız şart.
+
+İsteğiniz üzerine: Kod eksiltmeden, yorumları silmeden, sıkılaştırma yapmadan, sadece LegalSearchEngine ve LegalJudge sınıflarında gerekli "Kota" ve "Prompt" güncellemelerini yaparak V101 (Quota & Statute Aware) sürümünü hazırladım.
+
+📋 V101 Değişiklikleri (Statute Visibility Fix)
+Mevzuat Kotası (retrieve_raw_candidates):
+
+Eskiden tüm sonuçlar havuzlanıp en iyi 10 alınıyordu.
+
+Şimdi: Bulunan benzersiz dokümanlar [MEVZUAT] ve [EMSAL KARAR] olarak ikiye ayrılıyor.
+
+Kota: En iyi 7 Emsal + En iyi 3 Mevzuat (Skoru ne olursa olsun) zorla finale taşınıyor.
+
+Akıllı Mevzuat Yargıcı (_check_relevance_judge_smart):
+
+Prompt güncellendi. Yargıça şu talimat verildi: "Eğer okuduğun şey bir Kanun Maddesi ise, olayla benzerliğine bakma; olaya dayanak olup olmadığına bak."

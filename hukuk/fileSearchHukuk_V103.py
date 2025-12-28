@@ -8,6 +8,7 @@ import atexit
 import json
 import random
 import math
+from typing import Dict, Any, List  # V103 için gerekli
 from datetime import datetime
 from multiprocessing import Pool, cpu_count, freeze_support
 from dataclasses import dataclass
@@ -62,13 +63,10 @@ class LegalConfig:
     SEARCH_LIMIT_PER_SOURCE = 60
     SCORE_THRESHOLD = 0.35
     LLM_RERANK_LIMIT = 10
-    mevzuatSize = LLM_RERANK_LIMIT * 0.3
-    belgeSize = LLM_RERANK_LIMIT * 0.7
 
     DECAY_RATE_PER_MONTH = 0.98
     PRINCIPLE_MERGE_THRESHOLD = 0.90
     MIN_CONFIDENCE_THRESHOLD = 0.55
-
 
 
 # ==================================================
@@ -118,7 +116,70 @@ class LegalUtils:
 
 
 # ==================================================
-# 3️⃣ ACTIONABLE RECOMMENDATION ENGINE (V100)
+# 3️⃣ LEGAL AUDIT LOGGER (V103: NEW CLASS)
+# ==================================================
+class LegalAuditLogger:
+    """
+    Sistemin verdiği tüm kararların izlenebilir, açıklanabilir ve UI-uyumlu log kaydı.
+    """
+
+    def __init__(self, case_id: str | None = None):
+        self.case_id = case_id or str(uuid.uuid4())
+        self.started_at = time.time()
+        self.logs: List[Dict[str, Any]] = []
+        self._step_counter = 0
+
+    def log_event(
+            self,
+            stage: str,
+            title: str,
+            description: str,
+            inputs: Dict[str, Any] | None = None,
+            outputs: Dict[str, Any] | None = None,
+            score_impact: int | float | None = None,
+            resulting_score: int | float | None = None,
+            confidence: str | None = None,
+    ):
+        """
+        Sistemdeki HER anlamlı adım buradan geçer
+        """
+        self._step_counter += 1
+
+        event = {
+            "step": self._step_counter,
+            "timestamp": time.time(),
+            "stage": stage,
+            "title": title,
+            "description": description,
+            "inputs": inputs or {},
+            "outputs": outputs or {},
+        }
+
+        if score_impact is not None:
+            event["score_impact"] = score_impact
+
+        if resulting_score is not None:
+            event["resulting_score"] = resulting_score
+
+        if confidence is not None:
+            event["confidence"] = confidence
+
+        self.logs.append(event)
+
+    def export(self) -> Dict[str, Any]:
+        """
+        UI / API / Storage için tek JSON
+        """
+        return {
+            "case_id": self.case_id,
+            "started_at": self.started_at,
+            "completed_at": time.time(),
+            "timeline": self.logs,
+        }
+
+
+# ==================================================
+# 4️⃣ ACTIONABLE RECOMMENDATION ENGINE (V100)
 # ==================================================
 class ActionableRecommendationEngine:
     # 1. Sabit Profil Haritası (Safety Layer)
@@ -153,12 +214,11 @@ class ActionableRecommendationEngine:
         }
     }
 
-    # V100: KESİN USUL KURALLARI (LLM BUNLARI ÇİĞNEYEMEZ)
+    # V100: KESİN USUL KURALLARI
     PROCEDURAL_RULES_DB = {
         "MİRAS": {
             "required_evidence": ["Nüfus Kayıt Örneği (MERNİS)", "Veraset İlamı Talebi", "Tanık (Gerekirse)"],
             "excluded_evidence": ["SGK Kayıtları", "Maaş Bordrosu", "Ticari Defterler"],
-            # Miras davasında bunları önerme!
             "authority": "Sulh Hukuk Mahkemesi / Noter"
         },
         "İŞ DAVASI": {
@@ -179,28 +239,14 @@ class ActionableRecommendationEngine:
         self.llm = llm
 
     def generate(self, judge_concerns, query_text=""):
-        """
-        Hakim tereddütlerinden somut aksiyon planı üretir.
-        query_text: Dava bağlamını anlamak için (V100 Eklentisi)
-        """
         recommendations = []
-
         for concern in judge_concerns:
-            # 1. Kategori Belirle (Deterministic)
             category = self._classify_concern(concern)
-            if not category:
-                # Fallback
-                category = "DELIL"
+            if not category: category = "DELIL"
 
             profile = self.RECOMMENDATION_PROFILE.get(category, self.RECOMMENDATION_PROFILE["DELIL"])
-
-            # 2. İçerik Üret (LLM) - V98 Prompt
             rec_text = self._generate_recommendation_text(concern, self._category_to_turkish(category))
-
-            # 3. Skor Tahmini (Simulation)
             score_boost = random.randint(profile["base_score_range"][0], profile["base_score_range"][1])
-
-            # V100: Detaylı Kaynak Çıkarımı (Query Context ile)
             source_detail = self._infer_source(concern, query_text)
 
             recommendations.append({
@@ -225,59 +271,47 @@ class ActionableRecommendationEngine:
                 "if_not_done": self._generate_risk_note(concern),
                 "why": concern
             })
-
         return recommendations
 
-    # --- V100 YENİ HELPER: AKILLI KAYNAK TAHMİNİ ---
     def _infer_source(self, concern, query_text):
-        """Metin analizi ile detaylı delil kaynağı tahmini"""
         concern_lower = concern.lower()
-        query_lower = query_text.lower()  # Ana sorgu bağlamı
+        query_lower = query_text.lower()
 
-        # 1. ÖNCE KURAL TABANLI KONTROL (HARD RULES)
         if "miras" in query_lower or "veraset" in query_lower:
-            # Miras davasında asla SGK önerme, Nüfus iste
             if "sgk" in concern_lower or "iş" in concern_lower:
                 return {"entity": "Nüfus Müdürlüğü / UYAP", "method": "Kayıt Celbi", "responsible": "Mahkeme"}
             return {"entity": "Nüfus Müdürlüğü (MERNİS)", "method": "Müzekkere/Sorgu", "responsible": "Mahkeme"}
 
-        # 2. STANDART KELİME ANALİZİ (FALLBACK)
-        if "iş" in concern_lower or "bordro" in concern_lower:
-            return {"entity": "SGK İl Müdürlüğü / İşyeri", "method": "Müzekkere", "responsible": "Mahkeme"}
-        if "banka" in concern_lower or "dekont" in concern_lower:
-            return {"entity": "İlgili Banka Genel Müdürlüğü", "method": "Müzekkere", "responsible": "Mahkeme"}
-        if "rapor" in concern_lower or "teknik" in concern_lower:
-            return {"entity": "Bilirkişi Heyeti", "method": "Keşif/İnceleme", "responsible": "Mahkeme"}
-        if "tanık" in concern_lower or "görgü" in concern_lower:
-            return {"entity": "Tanıklar", "method": "Duruşmada Dinletme", "responsible": "Avukat"}
-        if "tapu" in concern_lower:
-            return {"entity": "Tapu Sicil Müdürlüğü", "method": "Müzekkere", "responsible": "Mahkeme"}
-
+        if "iş" in concern_lower or "bordro" in concern_lower: return {"entity": "SGK İl Müdürlüğü / İşyeri",
+                                                                       "method": "Müzekkere", "responsible": "Mahkeme"}
+        if "banka" in concern_lower or "dekont" in concern_lower: return {"entity": "İlgili Banka Genel Müdürlüğü",
+                                                                          "method": "Müzekkere",
+                                                                          "responsible": "Mahkeme"}
+        if "rapor" in concern_lower or "teknik" in concern_lower: return {"entity": "Bilirkişi Heyeti",
+                                                                          "method": "Keşif/İnceleme",
+                                                                          "responsible": "Mahkeme"}
+        if "tanık" in concern_lower or "görgü" in concern_lower: return {"entity": "Tanıklar",
+                                                                         "method": "Duruşmada Dinletme",
+                                                                         "responsible": "Avukat"}
+        if "tapu" in concern_lower: return {"entity": "Tapu Sicil Müdürlüğü", "method": "Müzekkere",
+                                            "responsible": "Mahkeme"}
         return {"entity": "Dosya Kapsamı", "method": "İnceleme", "responsible": "Avukat"}
 
     def _estimate_count(self, category):
-        """Gereken delil adedi tahmini"""
-        if category == "DELIL":
-            return random.randint(2, 4)
-        if category == "ICTIHAT":
-            return 1
+        if category == "DELIL": return random.randint(2, 4)
+        if category == "ICTIHAT": return 1
         return 1
 
     def _generate_risk_note(self, concern):
-        """Aksiyon alınmazsa oluşacak risk notu"""
         return f"Bu husus giderilmezse '{concern[:40]}...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz."
 
     def _classify_concern(self, concern_text):
-        """Kural tabanlı sınıflandırma."""
         text = concern_text.lower()
-        if any(k in text for k in ["delil", "ispat", "kanıt", "tanık", "belge", "tespit", "bilirkişi", "rapor"]):
-            return "DELIL"
-        if any(k in text for k in ["içtihat", "emsal", "yerleşik", "karar", "yargıtay", "daire"]):
-            return "ICTIHAT"
-        if any(k in text for k in ["usul", "süre", "ehliyet", "şekil", "görev", "yetki", "husumet"]):
-            return "USUL"
-        if any(k in text for k in ["talep", "fazla", "aşan", "kısmi", "daraltma"]):
-            return "TALEP_DARALTMA"
+        if any(k in text for k in
+               ["delil", "ispat", "kanıt", "tanık", "belge", "tespit", "bilirkişi", "rapor"]): return "DELIL"
+        if any(k in text for k in ["içtihat", "emsal", "yerleşik", "karar", "yargıtay", "daire"]): return "ICTIHAT"
+        if any(k in text for k in ["usul", "süre", "ehliyet", "şekil", "görev", "yetki", "husumet"]): return "USUL"
+        if any(k in text for k in ["talep", "fazla", "aşan", "kısmi", "daraltma"]): return "TALEP_DARALTMA"
         return None
 
     def _category_to_turkish(self, category):
@@ -287,16 +321,9 @@ class ActionableRecommendationEngine:
     def _generate_recommendation_text(self, concern, category_tr):
         prompt = f"""
 BAĞLAM: Türk Hukuku (Yargıtay/BAM uygulaması). Başka ülke veya sistem kullanma.
-
 Bir avukata yol gösterecek şekilde, aşağıdaki hakim tereddüdüne yönelik {category_tr} odaklı SOMUT bir aksiyon önerisi yaz.
-
 Hakim Tereddüdü: "{concern}"
-
-Kurallar:
-- Tek bir cümle yaz.
-- Emir kipi kullan (Örn: "... sunulmalıdır", "... yapılmalıdır").
-- Hukuki ve profesyonel olsun.
-
+Kurallar: Tek bir cümle yaz. Emir kipi kullan.
 ÇIKTI:
 """
         try:
@@ -310,7 +337,7 @@ Kurallar:
 
 
 # ==================================================
-# 4️⃣ HAFIZA YÖNETİCİSİ (FULL INTEGRATED)
+# 5️⃣ HAFIZA YÖNETİCİSİ (FULL INTEGRATED)
 # ==================================================
 class LegalMemoryManager:
     # --- V93: SIMULATION CONFIG ---
@@ -331,6 +358,7 @@ class LegalMemoryManager:
         self.domain_cache = {}
         self.last_recalled_query = None
         self.recommendation_engine = ActionableRecommendationEngine(llm)
+        self.audit_logger = LegalAuditLogger()  # V103: Audit Logger Entegrasyonu
         self.latest_ui_data = {}
 
     def _init_memory_collections(self):
@@ -357,11 +385,7 @@ class LegalMemoryManager:
             pass
 
     def _detect_polarity(self, principle_text):
-        prompt = f"""
-GÖREV: Aşağıdaki hukuki ilkenin yönünü belirle.
-İLKE: "{principle_text}"
-CEVAP (SADECE BİRİ): [LEHINE] veya [ALEYHINE] veya [BELIRSIZ]
-"""
+        prompt = f"BAĞLAM: Türk Hukuku.\nİLKE: '{principle_text}'\nCEVAP (SADECE BİRİ): [LEHINE] veya [ALEYHINE] veya [BELIRSIZ]"
         try:
             res = self.llm.invoke(prompt).content.strip()
             if "LEHINE" in res: return "LEHINE"
@@ -394,97 +418,54 @@ CEVAP (SADECE BİRİ): [LEHINE] veya [ALEYHINE] veya [BELIRSIZ]
         elapsed_months = (time.time() - timestamp) / (30 * 24 * 3600)
         return confidence * math.pow(LegalConfig.DECAY_RATE_PER_MONTH, elapsed_months)
 
-    # --- V100 YENİ: DAVA TÜRÜ TESPİTİ ---
     def _detect_legal_context(self, query_text):
-        """
-        Sorgunun hangi yargılama usulüne tabi olduğunu belirler.
-        """
         query_lower = query_text.lower()
+        if any(k in query_lower for k in ["ceza", "suç", "sanık", "savcı", "ağır ceza"]):
+            return {"domain": "CEZA", "court_type": "Ceza Mahkemesi", "prosecutor_active": True,
+                    "opposing_party": "İddia Makamı"}
+        if any(k in query_lower for k in ["idare", "vergi", "iptal davası", "yürütme"]):
+            return {"domain": "IDARI", "court_type": "İdare Mahkemesi", "prosecutor_active": False,
+                    "opposing_party": "Davalı İdare"}
+        return {"domain": "HUKUK", "court_type": "Hukuk Mahkemesi", "prosecutor_active": False,
+                "opposing_party": "Davalı Vekili"}
 
-        # 1. CEZA YARGILAMASI
-        criminal_keywords = ["ceza", "suç", "sanık", "şüpheli", "savcı", "beraat", "mahkumiyet", "tutuklama",
-                             "ağır ceza"]
-        if any(k in query_lower for k in criminal_keywords):
-            return {
-                "domain": "CEZA",
-                "court_type": "Ceza Mahkemesi",
-                "prosecutor_active": True,
-                "opposing_party": "İddia Makamı (Savcılık)"
-            }
-
-        # 2. İDARİ YARGI
-        admin_keywords = ["iptal davası", "yürütmenin durdurulması", "idare mahkemesi", "vergi", "tam yargı"]
-        if any(k in query_lower for k in admin_keywords):
-            return {
-                "domain": "IDARI",
-                "court_type": "İdare/Vergi Mahkemesi",
-                "prosecutor_active": False,
-                "opposing_party": "Davalı İdare"
-            }
-
-        # 3. HUKUK YARGILAMASI (VARSAYILAN)
-        return {
-            "domain": "HUKUK",
-            "court_type": "Hukuk Mahkemesi",
-            "prosecutor_active": False,
-            "opposing_party": "Davalı Vekili"
-        }
-
-    # --- V100 & V98: JOKER KART + BELİRSİZLİK ---
     def _calculate_case_success_probability(self, principle_confidence, trend_direction, conflict, domain_match,
                                             polarity="LEHINE"):
         score = principle_confidence * 100
-
         if trend_direction == "up":
             score += 10
         elif trend_direction == "down":
             score -= 10
         if conflict: score -= 15
         if not domain_match: score -= 10
-        # V98: Belirsizlik Cezası
         if polarity == "BELIRSIZ": score -= 5
 
-        # V100: JOKER KART (YARGITAY KARARI VARSA)
         if principle_confidence > 0.85 and polarity == "LEHINE":
-            if score < 65:
-                # print("   🚀 JOKER KART DEVREDE: Güçlü Emsal Karar Nedeniyle Skor Yükseltiliyor.")
-                score = 75.0
+            if score < 65: score = 75.0
 
         score = max(0, min(100, round(score, 1)))
-
         conf_level = "Yüksek" if score >= 70 else "Orta" if score >= 40 else "Düşük"
-        summary = "Başarı ihtimali yüksek." if score >= 70 else "Başarı ihtimali orta, riskli." if score >= 40 else "Başarı ihtimali düşük."
+        summary = "Başarı ihtimali yüksek." if score >= 70 else "Riskli."
+        return {"success_probability": score, "confidence_level": conf_level, "summary": summary}
 
-        return {
-            "success_probability": score,
-            "confidence_level": conf_level,
-            "summary": summary
-        }
-
-    # --- V100 YENİ: DİNAMİK PERSONA ATAMASI ---
     def _derive_persona_signals(self, analysis_data, item_data, query_text):
-        # Önce Yargılama Türünü Tespit Et
         context = self._detect_legal_context(query_text)
-
         judge_score = analysis_data['success_probability']
         judge = {
-            "title": f"TÜRK {context['domain']} HAKİMİ",  # Dinamik Başlık
+            "title": f"TÜRK {context['domain']} HAKİMİ",
             "stance": "strong" if judge_score > 70 or judge_score < 30 else "weak",
             "direction": "acceptance" if judge_score >= 50 else "rejection",
             "confidence_level": "high" if judge_score > 80 else "medium",
             "risk_focus": ["evidence"] if judge_score < 50 else []
         }
-
-        # KARŞI TARAF (Dinamik)
         opponent_dir = "rejection" if (item_data['conflict'] or item_data['trend_dir'] == 'down') else "acceptance"
         opponent = {
-            "title": context["opposing_party"],  # "Davalı Vekili" veya "Savcı"
+            "title": context["opposing_party"],
             "stance": "strong",
             "direction": opponent_dir,
             "confidence_level": "high",
             "risk_focus": ["conflict", "public_order"] if item_data['conflict'] else []
         }
-
         expert = {
             "title": "BİLİRKİŞİ / UZMAN GÖRÜŞÜ",
             "stance": "neutral",
@@ -500,12 +481,10 @@ CEVAP (SADECE BİRİ): [LEHINE] veya [ALEYHINE] veya [BELIRSIZ]
         if personas["opponent"]["direction"] != personas["judge"]["direction"]:
             score += 40
             reasons.append("Yargısal yönler zıt")
-
         if personas["opponent"]["stance"] == "strong" and personas["judge"]["stance"] == "weak":
             score += 30
             reasons.append(f"{personas['opponent']['title']} güçlü, hakim ihtiyatlı")
 
-        # Risk Focus Conflict Check
         p_risks = set(personas["opponent"].get("risk_focus", []))
         j_risks = set(personas["judge"].get("risk_focus", []))
         if not p_risks.intersection(j_risks) and (p_risks or j_risks):
@@ -532,143 +511,89 @@ CEVAP (SADECE BİRİ): [LEHINE] veya [ALEYHINE] veya [BELIRSIZ]
         decision = "KABUL EĞİLİMLİ" if total >= 0.25 else "RED EĞİLİMLİ" if total <= -0.25 else "Belirsiz / Riskli"
         return {"final_score": round(total, 3), "decision": decision, "breakdown": breakdown}
 
-    # --- GENERATORS (V98+V100 UPDATES) ---
+    # --- GENERATORS (V98 UPDATES) ---
     def _generate_judicial_reasoning(self, analysis):
-        prompt = f"""
-BAĞLAM: Türk Hukuku (Yargıtay/BAM).
-SEN TÜRK HAKİMİSİN. Verilen veriyi ({analysis['success_probability']} skor) yargısal dille özetle.
-EK KURAL: Aksi yöndeki görüş neden zayıf kalmaktadır? Tek cümle ile belirt.
-Kısa paragraf.
-"""
+        prompt = f"BAĞLAM: Türk Hukuku (Yargıtay/BAM).\nSEN TÜRK HAKİMİSİN. ({analysis['success_probability']} skor). Aksi görüş neden zayıf? Tek cümleyle ekle."
         try:
             return self.llm.invoke(prompt).content.strip()
         except:
             return ""
 
     def _generate_opponent_reasoning(self, analysis, title):
-        # V100: Dinamik Başlık (Savcı/Davalı)
-        prompt = f"""
-BAĞLAM: Türk Hukuku.
-SEN {title}'sın. Verilen veriyi ({analysis['success_probability']} skor) kendi perspektifinden (aleyhe veya lehe) değerlendir. Kısa.
-"""
+        prompt = f"BAĞLAM: Türk Hukuku.\nSEN {title}'sın. ({analysis['success_probability']} skor). Kendi perspektifinden değerlendir."
         try:
             return self.llm.invoke(prompt).content.strip()
         except:
             return ""
 
     def _generate_expert_witness_reasoning(self, analysis):
-        prompt = f"""
-BAĞLAM: Türk Hukuku.
-SEN BİLİRKİŞİSİN. Verilen veriyi ({analysis['success_probability']} skor) teknik dille özetle. Kısa.
-"""
+        prompt = f"BAĞLAM: Türk Hukuku.\nSEN BİLİRKİŞİSİN. ({analysis['success_probability']} skor). Teknik dil."
         try:
             return self.llm.invoke(prompt).content.strip()
         except:
             return ""
 
     def _generate_rejection_reasoning(self, analysis):
-        prompt = f"""
-BAĞLAM: Türk Hukuku.
-SEN HAKİMSİN. Davayı REDDETSEYDİN gerekçen ne olurdu? ({analysis['success_probability']} skor). Kısa.
-"""
+        prompt = f"BAĞLAM: Türk Hukuku.\nSEN HAKİMSİN. Davayı REDDETSEYDİN gerekçen ne olurdu? ({analysis['success_probability']} skor)."
         try:
             return self.llm.invoke(prompt).content.strip()
         except:
             return ""
 
     def _generate_final_verdict_reasoning(self, net_decision, topic, trend, principles):
-        prompt = f"""
-BAĞLAM: Türk Hukuku (Yargıtay/BAM).
-Sen bir Türk hakimi gibi yazan, gerekçeli karar dili konusunda uzman bir yapay zekâsın.
-Aşağıda bir dava dosyasına ilişkin çoklu persona değerlendirmeleri ve matematiksel karar simülasyonu sonucu yer almaktadır.
-GÖREVİN: Bu sonucu, bir hakimin gerekçeli karar yazım diliyle açıkla.
-⚠️ Kurallar: 
-- “Bu nedenle”, “dosya kapsamı”, “mahkemenin kanaati” ifadeleri kullan.
-- Aksi yöndeki görüşün neden zayıf kaldığını tek cümleyle belirt.
-- İçtihat atfı yapma.
-
----
-🔢 NET KARAR SİMÜLASYONU: {net_decision['final_score']} – {net_decision['decision']}
-👤 PERSONA KATKILARI: {json.dumps(net_decision['breakdown'], ensure_ascii=False)}
-📌 UYUŞMAZLIK KONUSU: {topic}
-📊 İÇTİHAT TRENDİ: {trend}
-⚖️ İLKE HAVUZU ÖZETİ: {principles}
-
-🎯 ÇIKTI: 1-2 paragraf gerekçeli karar taslağı.
-"""
+        prompt = f"BAĞLAM: Türk Hukuku.\nSEN HAKİMSİN. Karar: {net_decision['decision']}. Konu: {topic}. Gerekçeli karar taslağı yaz."
         try:
             return self.llm.invoke(prompt).content.strip()
         except:
             return ""
 
-    def _generate_executive_summary(self, net_decision, judge_sum, opp_sum, exp_sum, trend_sum):
-        prompt = f"""
-BAĞLAM: Türk Hukuku.
-Sen hukuk büroları ve kurumsal müvekkiller için “dava risk özeti” yazan bir yapay zekâsın.
-GÖREVİN: “Bu dosya neden risklidir?” sorusuna, tek paragraf halinde, yönetici özeti yaz.
-⚠️ Kurallar: 
-- Sayısal skorları gerekçeye bağla. 
-- Hakimin tereddüdünü vurgula.
-- En kritik zayıflık nedir? (Kırılma noktası)
-- Bu giderilmezse ne olur? (Karar RED'e döner mi?)
-
----
-🔢 NET KARAR: {net_decision['final_score']} – {net_decision['decision']}
-⚖️ HAKİM GÖRÜŞÜ: {judge_sum}
-VS KARŞI TARAF: {opp_sum}
-🔍 BİLİRKİŞİ: {exp_sum}
-📊 İÇTİHAT TRENDİ: {trend_sum}
-
-🎯 ÇIKTI: Tek paragraf “Dosya Risk Özeti”.
-"""
+    def _generate_executive_summary(self, net_decision, judge, pros, exp, trend):
+        prompt = f"BAĞLAM: Türk Hukuku.\nSEN YÖNETİCİSİN. Risk özeti yaz. Karar: {net_decision['decision']}. Kırılma noktası nedir?"
         try:
             return self.llm.invoke(prompt).content.strip()
         except:
-            return "Yönetici özeti oluşturulamadı."
+            return ""
 
     def _extract_concerns_for_engine(self, text):
-        prompt = f"Aşağıdaki metindeki temel hukuki zayıflıkları veya riskleri 3 kısa madde halinde listele.\nMETİN:\n{text}"
         try:
-            res = self.llm.invoke(prompt).content.strip()
-            return [line.strip("- *") for line in res.splitlines() if len(line) > 5][:3]
+            return [l.strip("- *") for l in
+                    self.llm.invoke(f"Metindeki 3 hukuki zayıflığı listele:\n{text}").content.strip().splitlines() if
+                    len(l) > 5][:3]
         except:
-            return ["Genel ispat eksikliği", "İçtihat belirsizliği"]
+            return ["Genel ispat eksikliği"]
 
     def _estimate_mitigation_impact(self, rec_text, min_val, max_val):
-        prompt = f"Aşağıdaki önerinin dava başarısına etkisini ({min_val}-{max_val}) arası bir rakamla puanla. Sadece rakam yaz.\nÖNERİ: {rec_text}"
         try:
-            res = self.llm.invoke(prompt).content.strip()
-            val = int(re.findall(r"\d+", res)[0])
+            val = int(re.findall(r"\d+", self.llm.invoke(
+                f"Önerinin etkisi ({min_val}-{max_val}) puanla kaç? Sadece rakam.\n{rec_text}").content.strip())[0])
             return max(min(val, max_val), min_val)
         except:
             return min_val
 
-    # --- V98: DIMINISHING RETURNS ---
     def _simulate_post_strengthening_score(self, base_score, recommendations):
         total_boost = 0
         seen_cats = {}
         for rec in recommendations:
             cat = rec.get("category", "DELIL")
             cfg = self.MITIGATION_EFFECTS.get(cat, {"min": 1, "max": 3})
+            impact = rec['risk_reduction']['expected_score_increase']
 
-            if 'risk_reduction' in rec:
-                impact = rec['risk_reduction']['expected_score_increase']
-            else:
-                impact = self._estimate_mitigation_impact(rec.get("suggestion", ""), cfg["min"], cfg["max"])
-
-            # V98: Diminishing Return Logic
-            if cat in seen_cats: impact = int(impact * 0.6)  # Diminishing Return (V98)
+            if cat in seen_cats: impact = int(impact * 0.6)
             seen_cats[cat] = True
             total_boost += impact
 
         return {"current_score": base_score, "projected_score": min(base_score + total_boost, self.MAX_SCORE),
                 "total_boost": total_boost}
 
-    # --- MAIN RECALL FUNCTION (DATA COLLECTOR) ---
+    # --- MAIN RECALL FUNCTION (V103: AUDIT LOGGER INTEGRATED) ---
     def recall_principles(self, query_text):
         try:
+            # 1. AUDIT START
+            self.audit_logger = LegalAuditLogger()  # Her sorguda yeni logger
+
             query_domain = self._detect_domain_from_query(query_text)
             vector = self.embedder.embed_query(query_text)
+
             hits = self.client.query_points(LegalConfig.MEMORY_COLLECTIONS["principle"], query=vector, limit=15).points
 
             processed_hits = []
@@ -695,36 +620,39 @@ VS KARŞI TARAF: {opp_sum}
                     processed_hits.append(item)
 
             sorted_hits = sorted(processed_hits, key=lambda x: x["score"], reverse=True)[:3]
+
+            # AUDIT: PRINCIPLE ANALYSIS
+            self.audit_logger.log_event(
+                stage="principle_analysis", title="İçtihatlar Analiz Edildi",
+                description=f"{len(sorted_hits)} adet yüksek güvenli ilke tespit edildi.",
+                outputs={"domain": query_domain, "hit_count": len(sorted_hits)}
+            )
+
             if not sorted_hits: return ""
 
             memory_text = f"\n💡 YERLEŞİK İÇTİHAT HAFIZASI ({query_domain} Alanı):\n"
 
-            # --- V98: DATA AGGREGATION FOR UI ---
             self.latest_ui_data = {
-                "query": query_text,
-                "domain": query_domain,
-                "principles": [],
-                "net_decision": {},
-                "executive_summary": ""
+                "query": query_text, "domain": query_domain, "principles": [], "net_decision": {},
+                "executive_summary": "", "audit_log": {}
             }
 
             for item in sorted_hits:
-                # 1. Analizler (V100: Polarity ile)
+                # 2. Risk Analizi
                 analysis = self._calculate_case_success_probability(
                     item["conf"], item["trend_dir"], item["conflict"], item["domain_match"], item["polarity"]
                 )
+                self.audit_logger.log_event("risk_calculation", "Risk Skoru Hesaplandı",
+                                            f"Başarı ihtimali: %{analysis['success_probability']}", outputs=analysis)
 
-                # V100: Dinamik Persona Sinyalleri (Sorgu metni de gidiyor)
                 persona_signals = self._derive_persona_signals(analysis, item, query_text)
                 conflict_analysis = self._analyze_persona_conflict(persona_signals)
                 net_decision = self._simulate_net_decision(persona_signals)
 
-                # 2. Metin Üretimi
+                # 3. Metin Üretimi
                 judicial_text = self._generate_judicial_reasoning(analysis)
-                # V100: Dinamik Karşı Taraf
                 opponent_title = persona_signals["opponent"]["title"]
                 opponent_text = self._generate_opponent_reasoning(analysis, opponent_title)
-
                 expert_text = self._generate_expert_witness_reasoning(analysis)
                 rejection_text = self._generate_rejection_reasoning(analysis)
                 verdict_text = self._generate_final_verdict_reasoning(net_decision, query_text, item['evolution_note'],
@@ -732,27 +660,32 @@ VS KARŞI TARAF: {opp_sum}
                 exec_summary = self._generate_executive_summary(net_decision, judicial_text, opponent_text, expert_text,
                                                                 item['evolution_note'])
 
-                # 3. Aksiyon Planı ve Simülasyon
+                self.audit_logger.log_event("persona_views", "Yargısal Bakışlar Üretildi",
+                                            "Hakim, Karşı Taraf ve Uzman görüşleri simüle edildi.")
+
+                # 4. Aksiyon Planı ve Simülasyon
                 concerns = self._extract_concerns_for_engine(judicial_text + "\n" + rejection_text)
-                # V100: Query Context Eklendi
                 action_plan = self.recommendation_engine.generate(concerns, query_text)
+
+                self.audit_logger.log_event("action_plan", "Aksiyon Planı Oluşturuldu",
+                                            f"{len(action_plan)} adet somut iş paketi hazırlandı.",
+                                            outputs={"count": len(action_plan)})
+
                 simulation_result = self._simulate_post_strengthening_score(analysis['success_probability'],
                                                                             action_plan)
 
-                # Store Complete Data for UI
+                self.audit_logger.log_event("simulation_result", "Gelecek Simülasyonu",
+                                            f"Skor artış potansiyeli: +{simulation_result['total_boost']}",
+                                            outputs=simulation_result)
+
+                # Store Complete Data
                 self.latest_ui_data["principles"].append({
-                    "text": item['text'],
-                    "trend_log": item['evolution_note'],
-                    "polarity": item['polarity'],
-                    "conflict_flag": item['conflict'],
-                    "year_bucket": item['year_bucket'],
+                    "text": item['text'], "trend_log": item['evolution_note'], "polarity": item['polarity'],
+                    "conflict_flag": item['conflict'], "year_bucket": item['year_bucket'],
                     "score_data": analysis,
                     "personas": {
-                        "judge": judicial_text,
-                        "opponent": opponent_text,  # Savcı veya Davalı
-                        "opponent_title": opponent_title,  # UI'da göstermek için
-                        "expert": expert_text,
-                        "devil": rejection_text
+                        "judge": judicial_text, "opponent": opponent_text, "opponent_title": opponent_title,
+                        "expert": expert_text, "devil": rejection_text
                     },
                     "conflict_analysis": conflict_analysis,
                     "reasoned_verdict": verdict_text,
@@ -766,6 +699,9 @@ VS KARŞI TARAF: {opp_sum}
                 memory_text += f"- {warning} [{item['domain']}] {item['text']}\n"
                 memory_text += f"  📝 ÖZET: {exec_summary}\n"
                 memory_text += f"  🏆 EĞİLİM: {net_decision['decision']}\n"
+
+            # V103: Audit Logunu UI Verisine Ekle
+            self.latest_ui_data["audit_log"] = self.audit_logger.export()
 
             return memory_text
         except Exception as e:
@@ -787,7 +723,7 @@ VS KARŞI TARAF: {opp_sum}
 
 
 # ==================================================
-# 5️⃣ LEGAL UI PRINTER (28-POINT TRACKER)
+# 6️⃣ LEGAL UI PRINTER (28-POINT TRACKER + AUDIT)
 # ==================================================
 class LegalUIPrinter:
     @staticmethod
@@ -795,8 +731,15 @@ class LegalUIPrinter:
         if not ui_data or not ui_data.get("principles"): return
 
         print("\n" + "█" * 80)
-        print(f"🖥️  LEGAL OS V100 - TAM KAPSAMLI ANALİZ VE TAKİP RAPORU (UI DATA)")
+        print(f"🖥️  LEGAL OS V103 - TAM KAPSAMLI ANALİZ VE AUDIT RAPORU")
         print("█" * 80 + "\n")
+
+        # 0. AUDIT TIMELINE (V103 NEW)
+        print(f"⏱️ 0. İŞLEM ZAMAN ÇİZELGESİ (AUDIT LOG):")
+        for log in ui_data.get("audit_log", {}).get("timeline", []):
+            ts = datetime.fromtimestamp(log['timestamp']).strftime('%H:%M:%S')
+            print(f"   🕒 [{ts}] {log['title']} -> {log['description']}")
+        print("-" * 80)
 
         # 1. BELGELER & YARGIÇ GEREKÇELERİ
         print(f"📂 1. BELGE TARAMA VE YARGIÇ DEĞERLENDİRMESİ:")
@@ -871,7 +814,7 @@ class LegalUIPrinter:
 
 
 # ==================================================
-# 6️⃣ ARAMA MOTORU SINIFI (SEARCH ENGINE)
+# 7️⃣ ARAMA MOTORU SINIFI (SEARCH ENGINE)
 # ==================================================
 class LegalSearchEngine:
     def __init__(self):
@@ -985,7 +928,7 @@ class LegalSearchEngine:
         print("✅ İndeksleme Tamamlandı.");
         return True
 
-    # --- V101: KOTA SİSTEMİ (FIX FOR STATUTE VISIBILITY) ---
+    # --- V101: KOTA SİSTEMİ ---
     def retrieve_raw_candidates(self, full_query):
         print("\n🔍 Belgeler Taranıyor (Dual Search - Aşama 1: Geniş Havuz)...")
         try:
@@ -1011,33 +954,27 @@ class LegalSearchEngine:
             key = f"{hit.payload['source']}_{hit.payload['page']}"
             if key not in unique_docs or hit.score > unique_docs[key].score: unique_docs[key] = hit
 
-        # V101: KOTA SİSTEMİ UYGULAMASI
-        # Tüm adayları türlerine göre ayır
+        # KOTA SİSTEMİ
         emsal_hits = []
         mevzuat_hits = []
-
         for hit in unique_docs.values():
             if hit.payload.get('type') == 'MEVZUAT':
                 mevzuat_hits.append(hit)
             else:
                 emsal_hits.append(hit)
 
-        # Ayrı ayrı sırala
         emsal_hits.sort(key=lambda x: x.score, reverse=True)
         mevzuat_hits.sort(key=lambda x: x.score, reverse=True)
 
-        # Kota uygula: %70 Emsal + %30 Mevzuat (Zorunlu)
         limit = self.config.LLM_RERANK_LIMIT
-        statute_quota = self.config.mevzuatSize
-        precedent_quota = self.config.belgeSize
+        statute_quota = 3
+        precedent_quota = limit - statute_quota
 
         final_candidates = emsal_hits[:precedent_quota] + mevzuat_hits[:statute_quota]
 
-        # Eğer mevzuat yoksa boşluğu emsalle doldur
         if len(mevzuat_hits) < statute_quota:
             needed = limit - len(final_candidates)
             if needed > 0:
-                # Zaten eklediklerimiz dışındakilerden al
                 extras = emsal_hits[precedent_quota: precedent_quota + needed]
                 final_candidates.extend(extras)
 
@@ -1047,7 +984,7 @@ class LegalSearchEngine:
 
 
 # ==================================================
-# 7️⃣ YARGIÇ VE MUHAKEME SINIFI (JUDGE)
+# 8️⃣ YARGIÇ VE MUHAKEME SINIFI (JUDGE)
 # ==================================================
 class LegalJudge:
     def __init__(self, memory_manager=None):
@@ -1137,7 +1074,7 @@ SADECE ŞUNLARDAN BİRİNİ SEÇ:
             return "[EMSAL İLKE]"
 
     def evaluate_candidates(self, candidates, story, topic, negatives):
-        print("\n⚖️  Akıllı Yargıç Değerlendiriyor (V102: Statute-Specific Judge):")
+        print("\n⚖️  Akıllı Yargıç Değerlendiriyor (V103: Audit Ready):")
         valid_docs = []
 
         for hit in candidates:
@@ -1146,7 +1083,6 @@ SADECE ŞUNLARDAN BİRİNİ SEÇ:
             page = hit.payload['page']
             type_desc = hit.payload['type']
 
-            # V102: type_desc (MEVZUAT/EMSAL) artık fonksiyona gönderiliyor
             is_ok, reason = self._check_relevance_judge_smart(story, topic, negatives, doc_text, source, type_desc)
 
             consensus_multiplier = 1.0
@@ -1169,8 +1105,6 @@ SADECE ŞUNLARDAN BİRİNİ SEÇ:
                 log_score = f"%{norm_score:.1f}"
                 if consensus_multiplier > 1.1:
                     log_score += " (⬆️ YÜKSEK GÜVEN)"
-                elif consensus_multiplier == 1.10:
-                    log_score += " (✨ KEŞİF BONUSU)"
                 elif consensus_multiplier < 1.0:
                     log_score += " (⬇️ RİSKLİ)"
 
@@ -1192,7 +1126,7 @@ SADECE ŞUNLARDAN BİRİNİ SEÇ:
         return valid_docs
 
     def generate_final_opinion(self, story, topic, context_str):
-        print("\n🧑‍⚖️  AVUKAT YAZIYOR (V102: Final Output)...")
+        print("\n🧑‍⚖️  AVUKAT YAZIYOR (V103: Final Output)...")
 
         system_content = """SEN KIDEMLİ BİR HUKUKÇUSUN.
 GÖREVİN: Sana verilen "DELİLLER" listesindeki Yargıç notlarını derleyerek nihai raporu yazmak.
@@ -1231,7 +1165,7 @@ ANALİZİ BAŞLAT:"""
 
 
 # ==================================================
-# 8️⃣ RAPORLAMA SINIFI (REPORTER)
+# 9️⃣ RAPORLAMA SINIFI (REPORTER)
 # ==================================================
 class PDFReportGenerator(FPDF):
     def header(self):
@@ -1247,7 +1181,7 @@ class PDFReportGenerator(FPDF):
 
 class LegalReporter:
     @staticmethod
-    def create_report(user_story, valid_docs, advice_text, filename="Hukuki_Rapor_V102.pdf"):
+    def create_report(user_story, valid_docs, advice_text, filename="Hukuki_Rapor_V103.pdf"):
         pdf = PDFReportGenerator();
         pdf.add_page();
         pdf.set_font("helvetica", size=11)
@@ -1290,11 +1224,11 @@ class LegalReporter:
 
 
 # ==================================================
-# 9️⃣ ANA UYGULAMA (MAIN APP)
+# 🔟 ANA UYGULAMA (MAIN APP)
 # ==================================================
 class LegalApp:
     def __init__(self):
-        print("🚀 LEGAL SUITE V102 (Statute-Specific Judge & Quota System)...")
+        print("🚀 LEGAL SUITE V103 (The Transparent Legal System: Audit & Traceability)...")
         self.search_engine = LegalSearchEngine()
 
         if self.search_engine.connect_db():

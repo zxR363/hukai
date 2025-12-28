@@ -2,7 +2,10 @@
 
 -Dava Türü ve Yargılama Usulü Tespiti
 -Dinamik Persona Ataması
-
+✅ Hakim nasıl düşündü → görülebiliyor
+✅ Karşı taraf nereden saldırır → net
+✅ İtiraz nasıl yazılır → otomatik
+✅ PDF mahkemeye sunulabilir → kurumsal
 
 
 

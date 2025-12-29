@@ -179,7 +179,7 @@ class LegalAuditLogger:
 
 
 # ==================================================
-# 4️⃣ ACTIONABLE RECOMMENDATION ENGINE (V100)
+# 4️⃣ ACTIONABLE RECOMMENDATION ENGINE
 # ==================================================
 class ActionableRecommendationEngine:
     # 1. Sabit Profil Haritası (Safety Layer)
@@ -211,27 +211,6 @@ class ActionableRecommendationEngine:
             "estimated_cost": "Düşük",
             "time_impact": "Kısa",
             "base_score_range": (4, 6)
-        }
-    }
-
-    # V100: KESİN USUL KURALLARI
-    PROCEDURAL_RULES_DB = {
-        "MİRAS": {
-            "required_evidence": ["Nüfus Kayıt Örneği (MERNİS)", "Veraset İlamı Talebi", "Tanık (Gerekirse)"],
-            "excluded_evidence": ["SGK Kayıtları", "Maaş Bordrosu", "Ticari Defterler"],
-            "authority": "Sulh Hukuk Mahkemesi / Noter"
-        },
-        "İŞ DAVASI": {
-            "required_evidence": ["SGK Hizmet Dökümü", "İşyeri Şahsi Sicil Dosyası", "Banka Maaş Yazısı", "Tanık"],
-            "authority": "İş Mahkemesi"
-        },
-        "TAPU": {
-            "required_evidence": ["Tapu Kaydı (TAKBİS)", "Keşif", "Bilirkişi Raporu"],
-            "authority": "Asliye Hukuk Mahkemesi"
-        },
-        "CEZA": {
-            "required_evidence": ["İfade Tutanakları", "HTS Kayıtları", "Adli Tıp Raporu"],
-            "authority": "Cumhuriyet Başsavcılığı / Ceza Mahkemesi"
         }
     }
 
@@ -337,10 +316,10 @@ Kurallar: Tek bir cümle yaz. Emir kipi kullan.
 
 
 # ==================================================
-# 5️⃣ HAFIZA YÖNETİCİSİ (FULL INTEGRATED)
+# 5️⃣ HAFIZA YÖNETİCİSİ (FULL INTEGRATED - V120 REFACTOR)
 # ==================================================
 class LegalMemoryManager:
-    # --- V93: SIMULATION CONFIG ---
+    # --- SIMULATION CONFIG ---
     MITIGATION_EFFECTS = {
         "DELIL": {"min": 5, "max": 10}, "BELGE": {"min": 5, "max": 10},
         "ICTIHAT": {"min": 3, "max": 7}, "ARGUMAN": {"min": 3, "max": 7},
@@ -418,17 +397,6 @@ class LegalMemoryManager:
         elapsed_months = (time.time() - timestamp) / (30 * 24 * 3600)
         return confidence * math.pow(LegalConfig.DECAY_RATE_PER_MONTH, elapsed_months)
 
-    def _detect_legal_context(self, query_text):
-        query_lower = query_text.lower()
-        if any(k in query_lower for k in ["ceza", "suç", "sanık", "savcı", "ağır ceza"]):
-            return {"domain": "CEZA", "court_type": "Ceza Mahkemesi", "prosecutor_active": True,
-                    "opposing_party": "İddia Makamı"}
-        if any(k in query_lower for k in ["idare", "vergi", "iptal davası", "yürütme"]):
-            return {"domain": "IDARI", "court_type": "İdare Mahkemesi", "prosecutor_active": False,
-                    "opposing_party": "Davalı İdare"}
-        return {"domain": "HUKUK", "court_type": "Hukuk Mahkemesi", "prosecutor_active": False,
-                "opposing_party": "Davalı Vekili"}
-
     def _calculate_case_success_probability(self, principle_confidence, trend_direction, conflict, domain_match,
                                             polarity="LEHINE"):
         score = principle_confidence * 100
@@ -448,135 +416,160 @@ class LegalMemoryManager:
         summary = "Başarı ihtimali yüksek." if score >= 70 else "Riskli."
         return {"success_probability": score, "confidence_level": conf_level, "summary": summary}
 
-    def _derive_persona_signals(self, analysis_data, item_data, query_text):
-        context = self._detect_legal_context(query_text)
-        judge_score = analysis_data['success_probability']
-        judge = {
-            "title": f"TÜRK {context['domain']} HAKİMİ",
-            "stance": "strong" if judge_score > 70 or judge_score < 30 else "weak",
-            "direction": "acceptance" if judge_score >= 50 else "rejection",
-            "confidence_level": "high" if judge_score > 80 else "medium",
-            "risk_focus": ["evidence"] if judge_score < 50 else []
-        }
-        opponent_dir = "rejection" if (item_data['conflict'] or item_data['trend_dir'] == 'down') else "acceptance"
-        opponent = {
-            "title": context["opposing_party"],
-            "stance": "strong",
-            "direction": opponent_dir,
-            "confidence_level": "high",
-            "risk_focus": ["conflict", "public_order"] if item_data['conflict'] else []
-        }
-        expert = {
-            "title": "BİLİRKİŞİ / UZMAN GÖRÜŞÜ",
-            "stance": "neutral",
-            "direction": "cautious",
-            "confidence_level": "medium",
-            "risk_focus": ["technical_data"]
-        }
-        return {"judge": judge, "opponent": opponent, "expert": expert}
+    # --- V120: YENİ PERSONA PROMPTLARI ---
 
-    def _analyze_persona_conflict(self, personas):
-        score = 0
-        reasons = []
-        if personas["opponent"]["direction"] != personas["judge"]["direction"]:
-            score += 40
-            reasons.append("Yargısal yönler zıt")
-        if personas["opponent"]["stance"] == "strong" and personas["judge"]["stance"] == "weak":
-            score += 30
-            reasons.append("Savcı güçlü, hakim ihtiyatlı")
+    def _generate_judge_doubts_v120(self, query, principle_text):
+        """Hakimin ilk refleksini ve tereddütlerini üretir."""
+        prompt = f"""
+SEN BİR TÜRK HAKİMİSİN.
+Olay: "{query}"
+İlgili Hukuki İlke: "{principle_text}"
 
-        p_risks = set(personas["opponent"].get("risk_focus", []))
-        j_risks = set(personas["judge"].get("risk_focus", []))
-        if not p_risks.intersection(j_risks) and (p_risks or j_risks):
-            score += 20
-            reasons.append("Risk odakları farklı")
+GÖREVİN:
+Bu ilke ışığında, olayı değerlendirirken yaşadğin 3 TEMEL TEREDDÜTÜ (Doubts) listele.
+Ayrıca dosya hakkındaki İLK REFLEKSİNİ (Red/Kabul Eğilimli) tek kelimeyle yaz.
 
-        return {"conflict_score": min(score, 100), "conflict_level": "Yüksek" if score >= 70 else "Düşük",
-                "summary": reasons}
+ÇIKTI FORMATI (JSON):
+{{
+  "reflex": "RED EĞİLİMLİ veya KABUL EĞİLİMLİ",
+  "doubts": ["Tereddüt 1...", "Tereddüt 2...", "Tereddüt 3..."]
+}}
+"""
+        try:
+            res = self.llm.invoke(prompt).content.strip()
+            # JSON temizliği
+            if "```json" in res:
+                res = res.split("```json")[1].split("```")[0].strip()
+            elif "```" in res:
+                res = res.split("```")[1].split("```")[0].strip()
+            return json.loads(res)
+        except:
+            return {"reflex": "BELİRSİZ",
+                    "doubts": ["Dosya kapsamında delil durumu", "Emsal kararın uygunluğu", "Usul eksiklikleri"]}
 
-    def _simulate_net_decision(self, personas):
-        dir_map = {"acceptance": 1, "cautious": 0, "rejection": -1}
-        stance_map = {"strong": 1.0, "neutral": 0.6, "weak": 0.3}
-        conf_map = {"high": 1.0, "medium": 0.7, "low": 0.4}
-        weights = {"judge": 0.60, "opponent": 0.25, "expert": 0.15}
+    def _generate_plaintiff_response_v120(self, doubts, principle_text):
+        doubts_text = "\n".join([f"- {d}" for d in doubts])
+        prompt = f"""
+Sen DAVACI VEKİLİSİN.
 
-        total = 0
-        breakdown = {}
-        for name, data in personas.items():
-            s = dir_map.get(data["direction"], 0) * stance_map.get(data["stance"], 0.6) * conf_map.get(
-                data["confidence_level"], 0.7) * weights.get(name, 0)
-            breakdown[name] = round(s, 3)
-            total += s
-        decision = "KABUL EĞİLİMLİ" if total >= 0.25 else "RED EĞİLİMLİ" if total <= -0.25 else "BELIRSIZ"
-        return {"final_score": round(total, 3), "decision": decision, "breakdown": breakdown}
+ÖNÜNDE:
+- Hakimin tereddütleri:
+{doubts_text}
+- Mevzuat ve emsal özeti: "{principle_text}"
 
-    # --- GENERATORS (V98 UPDATES) ---
-    def _generate_judicial_reasoning(self, analysis):
-        prompt = f"BAĞLAM: Türk Hukuku (Yargıtay/BAM).\nSEN TÜRK HAKİMİSİN. ({analysis['success_probability']} skor). Aksi görüş neden zayıf? Tek cümleyle ekle."
+GÖREVİN:
+- Her bir tereddüte AYRI AYRI cevap vermek.
+- Hakimi kabul yönünde ikna etmeye çalışmak.
+
+KURALLAR:
+1. Her tereddüt için:
+   - Mevzuat veya emsale dayan.
+   - Somut olayla bağlantı kur.
+2. Usulden red riskini özellikle bertaraf et.
+3. Varsayım yapma, belge dışına çıkma.
+
+ÇIKTI FORMATINI ASLA DEĞİŞTİRME:
+
+--------------------------------------------------
+DAVACI VEKİLİ DEĞERLENDİRMESİ
+--------------------------------------------------
+Tereddüt 1:
+- Cevap:
+
+Tereddüt 2:
+- Cevap:
+
+Tereddüt 3:
+- Cevap:
+"""
         try:
             return self.llm.invoke(prompt).content.strip()
         except:
-            return ""
+            return "Davacı vekili beyanı oluşturulamadı."
 
-    def _generate_opponent_reasoning(self, analysis, title):
-        prompt = f"BAĞLAM: Türk Hukuku.\nSEN {title}'sın. ({analysis['success_probability']} skor). Kendi perspektifinden değerlendir."
+    def _generate_defendant_response_v120(self, doubts, principle_text):
+        doubts_text = "\n".join([f"- {d}" for d in doubts])
+        prompt = f"""
+Sen DAVALI (KARŞI TARAF) VEKİLİSİN.
+
+ÖNÜNDE:
+- Hakimin tereddütleri:
+{doubts_text}
+- Mevzuat ve emsal özeti: "{principle_text}"
+
+GÖREVİN:
+- Hakimin tereddütlerini DERİNLEŞTİRMEK.
+- Kabul ihtimalini zayıflatmak.
+
+KURALLAR:
+1. Her tereddüt için:
+   - Neden giderilemeyeceğini açıkla.
+   - Emsalin neden birebir olmadığını vurgula.
+2. Usul eksiklerini büyüt.
+3. Hakimin takdir alanını öne çıkar.
+
+ÇIKTI FORMATINI ASLA DEĞİŞTİRME:
+
+--------------------------------------------------
+DAVALI VEKİLİ DEĞERLENDİRMESİ
+--------------------------------------------------
+Tereddüt 1:
+- Karşı Argüman:
+
+Tereddüt 2:
+- Karşı Argüman:
+
+Tereddüt 3:
+- Karşı Argüman:
+"""
         try:
             return self.llm.invoke(prompt).content.strip()
         except:
-            return ""
+            return "Davalı vekili beyanı oluşturulamadı."
 
-    def _generate_expert_witness_reasoning(self, analysis):
-        prompt = f"BAĞLAM: Türk Hukuku.\nSEN BİLİRKİŞİSİN. ({analysis['success_probability']} skor). Teknik dil."
+    def _generate_expert_response_v120(self, doubts, principle_text):
+        doubts_text = "\n".join([f"- {d}" for d in doubts])
+        prompt = f"""
+Sen TARAFSIZ BİLİRKİŞİSİN.
+
+ÖNÜNDE:
+- Hakimin tereddütleri:
+{doubts_text}
+- Mevzuat ve emsal özeti: "{principle_text}"
+
+GÖREVİN:
+- Hukuki mantık zincirini kontrol etmek.
+
+YANITLA:
+- Tereddütler hukuken yerinde mi?
+- Davacı cevapları yeterli mi?
+- Davalı itirazları hukuki mi?
+
+ÇIKTI FORMATINI ASLA DEĞİŞTİRME:
+
+--------------------------------------------------
+BİLİRKİŞİ TESPİTLERİ
+--------------------------------------------------
+Genel Hukuki Değerlendirme:
+- ...
+
+Zayıf Noktalar:
+- ...
+
+Tutarlı Noktalar:
+- ...
+"""
         try:
             return self.llm.invoke(prompt).content.strip()
         except:
-            return ""
-
-    def _generate_rejection_reasoning(self, analysis):
-        prompt = f"BAĞLAM: Türk Hukuku.\nSEN HAKİMSİN. Davayı REDDETSEYDİN gerekçen ne olurdu? ({analysis['success_probability']} skor)."
-        try:
-            return self.llm.invoke(prompt).content.strip()
-        except:
-            return ""
-
-    def _generate_final_verdict_reasoning(self, net_decision, topic, trend, principles):
-        prompt = f"BAĞLAM: Türk Hukuku.\nSEN HAKİMSİN. Karar: {net_decision['decision']}. Konu: {topic}. Gerekçeli karar taslağı yaz."
-        try:
-            return self.llm.invoke(prompt).content.strip()
-        except:
-            return ""
-
-    def _generate_executive_summary(self, net_decision, judge, pros, exp, trend):
-        prompt = f"BAĞLAM: Türk Hukuku.\nSEN YÖNETİCİSİN. Risk özeti yaz. Karar: {net_decision['decision']}. Kırılma noktası nedir?"
-        try:
-            return self.llm.invoke(prompt).content.strip()
-        except:
-            return ""
-
-    def _extract_concerns_for_engine(self, text):
-        try:
-            return [l.strip("- *") for l in
-                    self.llm.invoke(f"Metindeki 3 hukuki zayıflığı listele:\n{text}").content.strip().splitlines() if
-                    len(l) > 5][:3]
-        except:
-            return ["Genel ispat eksikliği"]
-
-    def _estimate_mitigation_impact(self, rec_text, min_val, max_val):
-        try:
-            val = int(re.findall(r"\d+", self.llm.invoke(
-                f"Önerinin etkisi ({min_val}-{max_val}) puanla kaç? Sadece rakam.\n{rec_text}").content.strip())[0])
-            return max(min(val, max_val), min_val)
-        except:
-            return min_val
+            return "Bilirkişi raporu oluşturulamadı."
 
     def _simulate_post_strengthening_score(self, base_score, recommendations):
         total_boost = 0
         seen_cats = {}
         for rec in recommendations:
             cat = rec.get("category", "DELIL")
-            cfg = self.MITIGATION_EFFECTS.get(cat, {"min": 1, "max": 3})
             impact = rec['risk_reduction']['expected_score_increase']
-
             if cat in seen_cats: impact = int(impact * 0.6)
             seen_cats[cat] = True
             total_boost += impact
@@ -584,7 +577,7 @@ class LegalMemoryManager:
         return {"current_score": base_score, "projected_score": min(base_score + total_boost, self.MAX_SCORE),
                 "total_boost": total_boost}
 
-    # --- MAIN RECALL FUNCTION (V103: AUDIT LOGGER INTEGRATED) ---
+    # --- MAIN RECALL FUNCTION (V120 UPDATE) ---
     def recall_principles(self, query_text):
         try:
             # 1. AUDIT START
@@ -603,7 +596,6 @@ class LegalMemoryManager:
                 polarity = h.payload.get("polarity", "BELIRSIZ")
                 final_conf = self._apply_time_decay(raw_conf, ts)
                 if polarity == "BELIRSIZ": final_conf *= 0.8
-
                 is_domain_match = (query_domain.lower() in domain.lower())
 
                 if final_conf >= LegalConfig.MIN_CONFIDENCE_THRESHOLD:
@@ -640,65 +632,89 @@ class LegalMemoryManager:
                 analysis = self._calculate_case_success_probability(
                     item["conf"], item["trend_dir"], item["conflict"], item["domain_match"], item["polarity"]
                 )
-                self.audit_logger.log_event("risk_calculation", "Risk Skoru Hesaplandı",
-                                            f"Başarı ihtimali: %{analysis['success_probability']}", outputs=analysis)
 
-                persona_signals = self._derive_persona_signals(analysis, item, query_text)
-                conflict_analysis = self._analyze_persona_conflict(persona_signals)
-                net_decision = self._simulate_net_decision(persona_signals)
+                # --- V120: PERSONA SİSTEMİ BAŞLANGICI ---
 
-                # 3. Metin Üretimi
-                judicial_text = self._generate_judicial_reasoning(analysis)
-                opponent_title = persona_signals["opponent"]["title"]
-                opponent_text = self._generate_opponent_reasoning(analysis, opponent_title)
-                expert_text = self._generate_expert_witness_reasoning(analysis)
-                rejection_text = self._generate_rejection_reasoning(analysis)
-                verdict_text = self._generate_final_verdict_reasoning(net_decision, query_text, item['evolution_note'],
-                                                                      item['text'])
-                exec_summary = self._generate_executive_summary(net_decision, judicial_text, opponent_text, expert_text,
-                                                                item['evolution_note'])
+                # A. HAKİM REFLEKSİ VE TEREDDÜTLER (TRIGGER)
+                judge_data = self._generate_judge_doubts_v120(query_text, item['text'])
+                doubts = judge_data.get("doubts", [])
+                reflex = judge_data.get("reflex", "BELİRSİZ")
 
-                self.audit_logger.log_event("persona_views", "Yargısal Bakışlar Üretildi",
-                                            "Hakim, Karşı Taraf ve Uzman görüşleri simüle edildi.")
+                self.audit_logger.log_event(
+                    stage="judge_analysis",
+                    title="JUDGE ANALYSIS COMPLETED",
+                    description=f"Hakim Refleksi: {reflex}",
+                    outputs={"reflex": reflex, "doubt_count": len(doubts), "doubts": doubts}
+                )
 
-                # 4. Aksiyon Planı ve Simülasyon
-                concerns = self._extract_concerns_for_engine(judicial_text + "\n" + rejection_text)
-                action_plan = self.recommendation_engine.generate(concerns, query_text)
+                # B. PERSONA PHASE (SIRALI AKIŞ)
+                self.audit_logger.log_event(stage="persona_phase", title="PERSONA PHASE STARTED",
+                                            description="Taraf vekilleri ve bilirkişi devreye giriyor.")
 
-                self.audit_logger.log_event("action_plan", "Aksiyon Planı Oluşturuldu",
-                                            f"{len(action_plan)} adet somut iş paketi hazırlandı.",
-                                            outputs={"count": len(action_plan)})
+                # Davacı
+                plaintiff_text = self._generate_plaintiff_response_v120(doubts, item['text'])
+                self.audit_logger.log_event(
+                    stage="plaintiff_arg", title="DAVACI VEKİLİ DEĞERLENDİRMESİ",
+                    description=f"Ele alınan tereddüt sayısı: {len(doubts)}",
+                    outputs={"full_text": plaintiff_text}
+                )
 
+                # Davalı
+                defendant_text = self._generate_defendant_response_v120(doubts, item['text'])
+                self.audit_logger.log_event(
+                    stage="defendant_arg", title="DAVALI VEKİLİ DEĞERLENDİRMESİ",
+                    description="Karşı argümanlar ve usul itirazları sunuldu.",
+                    outputs={"full_text": defendant_text}
+                )
+
+                # Bilirkişi
+                expert_text = self._generate_expert_response_v120(doubts, item['text'])
+                self.audit_logger.log_event(
+                    stage="expert_arg", title="BİLİRKİŞİ TESPİTLERİ",
+                    description="Hukuki zincir ve tutarlılık kontrolü yapıldı.",
+                    outputs={"full_text": expert_text}
+                )
+
+                self.audit_logger.log_event(stage="persona_completed", title="PERSONA PHASE COMPLETED",
+                                            description="Tüm taraflar dinlendi.")
+
+                # C. ACTION ENGINE (Tereddütler üzerinden çalışır)
+                action_plan = self.recommendation_engine.generate(doubts, query_text)
+
+                # D. SIMULATION
                 simulation_result = self._simulate_post_strengthening_score(analysis['success_probability'],
                                                                             action_plan)
 
-                self.audit_logger.log_event("simulation_result", "Gelecek Simülasyonu",
-                                            f"Skor artış potansiyeli: +{simulation_result['total_boost']}",
-                                            outputs=simulation_result)
+                # E. EXECUTIVE SUMMARY
+                exec_summary = f"Hakim '{reflex}' eğilimindedir. {len(doubts)} temel tereddüt (Örn: {doubts[0]}) mevcuttur. Davacı vekili bu hususları gidermeye çalışsa da Davalı taraf usul itirazlarını sürdürmektedir."
 
-                # Store Complete Data
+                # Store Complete Data (V120 Structure)
                 self.latest_ui_data["principles"].append({
                     "text": item['text'], "trend_log": item['evolution_note'], "polarity": item['polarity'],
                     "conflict_flag": item['conflict'], "year_bucket": item['year_bucket'],
                     "score_data": analysis,
-                    "personas": {
-                        "judge": judicial_text, "opponent": opponent_text, "opponent_title": opponent_title,
-                        "expert": expert_text, "devil": rejection_text
+                    "personas_v120": {
+                        "judge_reflex": reflex,
+                        "doubts": doubts,
+                        "plaintiff": plaintiff_text,
+                        "defendant": defendant_text,
+                        "expert": expert_text
                     },
-                    "conflict_analysis": conflict_analysis,
-                    "reasoned_verdict": verdict_text,
+                    # Backward compatibility dummy data
+                    "personas": {"judge": str(doubts), "opponent": defendant_text, "opponent_title": "Davalı",
+                                 "expert": expert_text, "devil": "N/A"},
+                    "conflict_analysis": {"conflict_level": "N/A", "conflict_score": 0, "summary": []},
+                    "reasoned_verdict": f"HAKİMİN GEÇİCİ KANAATİ: {reflex}. Gerekçe: {doubts}",
                     "action_plan": action_plan,
                     "simulation": simulation_result
                 })
-                self.latest_ui_data["net_decision"] = net_decision
                 self.latest_ui_data["executive_summary"] = exec_summary
+                self.latest_ui_data["net_decision"] = {"decision": reflex}
 
-                warning = "⚠️ [YARGISAL ÇELİŞKİ]" if item["conflict"] else ""
-                memory_text += f"- {warning} [{item['domain']}] {item['text']}\n"
-                memory_text += f"  📝 ÖZET: {exec_summary}\n"
-                memory_text += f"  🏆 EĞİLİM: {net_decision['decision']}\n"
+                memory_text += f"- [{item['domain']}] {item['text']}\n"
+                memory_text += f"  ⚖️ REFLEKS: {reflex} | ⚠️ Tereddüt: {len(doubts)} adet\n"
 
-            # V103: Audit Logunu UI Verisine Ekle
+            # V120: Audit Log Export
             self.latest_ui_data["audit_log"] = self.audit_logger.export()
 
             return memory_text
@@ -780,7 +796,7 @@ class LegalMemoryManager:
 
     # --- KONSOLİDASYON (TAM) ---
     def consolidate_principles_v79(self):
-        print("\n🔥 İÇTİHAT MİMARI: Artımlı Konsolidasyon (V110)...")
+        print("\n🔥 İÇTİHAT MİMARI: Artımlı Konsolidasyon (V120)...")
         try:
             time_filter = Filter(must=[FieldCondition(key="timestamp", range=Range(gt=self.last_consolidation_ts))])
             points, _ = self.client.scroll(LegalConfig.MEMORY_COLLECTIONS["decision"], scroll_filter=time_filter,
@@ -875,7 +891,7 @@ ALAN: [Hukuk Dalı]
                 "principle": text, "confidence": confidence, "domain": domain,
                 "polarity": polarity, "trend": trend_dict, "conflict_flag": conflict,
                 "source_count": len(source_ids), "source_ids": source_ids, "evolution_note": evolution,
-                "generated_by": "consolidation_v110", "timestamp": time.time(), "created_at": datetime.now().isoformat()
+                "generated_by": "consolidation_v120", "timestamp": time.time(), "created_at": datetime.now().isoformat()
             }
             self.client.upsert("principle_memory_v1", [PointStruct(id=str(uuid.uuid4()), vector=vec, payload=payload)])
         except:
@@ -883,7 +899,7 @@ ALAN: [Hukuk Dalı]
 
 
 # ==================================================
-# 7️⃣ YENİ ARAÇLAR: REASONING & STRATEGY (V105-V109)
+# 7️⃣ YENİ ARAÇLAR: REASONING & STRATEGY
 # ==================================================
 class WhiteLabelConfig:
     def __init__(self, firm_name="LEGAL OS", logo_path=None, footer_text="Otomatik Analiz Raporu", color=(0, 0, 0)):
@@ -955,8 +971,6 @@ DEGERLENDIRME ADIMLARI:
 
 
 class AppealArgumentGenerator:
-    """V107: Hakim gerekçesine karşı otomatik itiraz üretici (Eksik İnceleme Odaklı)"""
-
     def __init__(self, llm):
         self.llm = llm
 
@@ -980,10 +994,7 @@ HAKIM GEREKCESI:
             return "İtiraz argümanları oluşturulamadı."
 
 
-# --- V108 YENİ SINIFLAR ---
 class AppealPetitionGenerator:
-    """V108: Tam Metin İstinaf/Temyiz Dilekçesi Yazar"""
-
     def __init__(self, llm):
         self.llm = llm
 
@@ -1018,14 +1029,11 @@ HAKİM GEREKÇESİ: {judge_reasoning}
 
 
 class AppealActionMapper:
-    """V108: İtiraz maddelerini somut iş paketlerine çevirir"""
-
     def __init__(self, llm):
         self.llm = llm
 
     def map_arguments(self, appeal_text):
         actions = []
-        # Basit madde ayrıştırma (1., 2. vb.)
         arguments = [a.strip() for a in appeal_text.split("\n") if re.match(r"^\d+\.", a.strip())][:5]
 
         for arg in arguments:
@@ -1040,7 +1048,6 @@ ITIRAZ ARGUMANI: {arg}
 """
             try:
                 res = self.llm.invoke(prompt).content.strip()
-                # JSON temizliği
                 if "```json" in res:
                     res = res.split("```json")[1].split("```")[0].strip()
                 elif "```" in res:
@@ -1057,7 +1064,7 @@ ITIRAZ ARGUMANI: {arg}
 
 class CorporateCover:
     @staticmethod
-    def add(pdf, case_id, version="V110"):
+    def add(pdf, case_id, version="V120"):
         pdf.add_page()
         pdf.set_font("DejaVu", "B", 24)
         pdf.ln(60)
@@ -1193,7 +1200,6 @@ class LegalSearchEngine:
         print("✅ İndeksleme Tamamlandı.");
         return True
 
-    # --- V101: KOTA SİSTEMİ (FIX FOR STATUTE VISIBILITY) ---
     def retrieve_raw_candidates(self, full_query):
         print("\n🔍 Belgeler Taranıyor (Dual Search - Aşama 1: Geniş Havuz)...")
         try:
@@ -1340,7 +1346,7 @@ SADECE ŞUNLARDAN BİRİNİ SEÇ:
             return "[EMSAL İLKE]"
 
     def evaluate_candidates(self, candidates, story, topic, negatives):
-        print("\n⚖️  Akıllı Yargıç Değerlendiriyor (V105: Corporate Intelligence):")
+        print("\n⚖️  Akıllı Yargıç Değerlendiriyor (V120: Corporate Intelligence):")
         valid_docs = []
 
         for hit in candidates:
@@ -1497,7 +1503,7 @@ ANALİZİ BAŞLAT:"""
 
 
 # ==================================================
-# 🔟 RAPORLAMA SINIFI (BRANDED GENERATOR)
+# 🔟 RAPORLAMA SINIFI (BRANDED GENERATOR - V120)
 # ==================================================
 class BrandedPDFGenerator(FPDF):
     """V106: Markalanabilir PDF Motoru"""
@@ -1573,7 +1579,6 @@ class LegalReporter:
         pdf.set_font("DejaVu", "", 10)
         pdf.multi_cell(0, 6, appeal_text)
 
-    # V108: İSTİNAF DİLEKÇESİ EKLEME
     @staticmethod
     def add_petition_page(pdf, petition_text):
         if not petition_text: return
@@ -1584,7 +1589,6 @@ class LegalReporter:
         pdf.set_font("DejaVu", "", 10)
         pdf.multi_cell(0, 6, petition_text)
 
-    # V108: AKSİYON PLANI EKLEME
     @staticmethod
     def add_action_plan_page(pdf, action_plan):
         if not action_plan: return
@@ -1633,8 +1637,61 @@ class LegalReporter:
                 pdf.cell(0, 5, f">> SKOR ETKISI: %{score}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.ln(2)
 
+    # V120: YENİ PERSONA BÖLÜMÜ
     @staticmethod
-    def create_report(user_story, valid_docs, advice_text, audit_data=None, filename="Hukuki_Rapor_V110.pdf", llm=None,
+    def add_persona_debate_section_v120(pdf, personas_data):
+        if not personas_data: return
+
+        pdf.add_page()
+        pdf.set_font("DejaVu", "B", 14)
+        # Siyah zemin üzerine beyaz yazı efekti simülasyonu (Draw Rect + White Text)
+        pdf.set_fill_color(0, 0, 0)
+        pdf.rect(pdf.get_x(), pdf.get_y(), 190, 12, 'F')
+        pdf.set_text_color(255, 255, 255)
+        pdf.cell(0, 12, "X. YARGISAL TARTISMA VE TARAFLARIN POZISYONU", align='C', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_text_color(0, 0, 0)  # Rengi geri al
+        pdf.ln(5)
+
+        # 1. DAVACI VEKİLİ
+        pdf.set_font("DejaVu", "B", 11)
+        pdf.set_text_color(0, 102, 51)  # Koyu Yeşil
+        pdf.cell(0, 8, "DAVACI VEKILI DEGERLENDIRMESI", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_text_color(0, 0, 0)
+        pdf.set_font("DejaVu", "", 10)
+        pdf.multi_cell(0, 5, personas_data.get("plaintiff", "Veri yok."))
+        pdf.ln(5)
+
+        # 2. DAVALI VEKİLİ
+        pdf.set_font("DejaVu", "B", 11)
+        pdf.set_text_color(153, 0, 0)  # Koyu Kırmızı
+        pdf.cell(0, 8, "DAVALI VEKILI (KARSI TARAF) DEGERLENDIRMESI", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_text_color(0, 0, 0)
+        pdf.set_font("DejaVu", "", 10)
+        pdf.multi_cell(0, 5, personas_data.get("defendant", "Veri yok."))
+        pdf.ln(5)
+
+        # 3. BİLİRKİŞİ
+        pdf.set_font("DejaVu", "B", 11)
+        pdf.set_text_color(0, 51, 102)  # Lacivert
+        pdf.cell(0, 8, "TARAFSIZ BILIRKISI TESPITLERI", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_text_color(0, 0, 0)
+        pdf.set_font("DejaVu", "I", 10)
+        pdf.multi_cell(0, 5, personas_data.get("expert", "Veri yok."))
+        pdf.ln(5)
+
+        # 4. FINAL NOTU
+        pdf.set_draw_color(100, 100, 100)
+        pdf.line(pdf.get_x(), pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(2)
+        pdf.set_font("DejaVu", "B", 10)
+        pdf.cell(0, 6, "HAKIMIN PERSONA SONRASI DEGERLENDIRMESI:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_font("DejaVu", "", 9)
+        reflex = personas_data.get("judge_reflex", "Belirsiz")
+        pdf.multi_cell(0, 5,
+                       f"Taraflarin beyanlari birlikte degerlendirildiginde, hakimin ilk refleksi olan '{reflex}' egilimi cercevesinde, bazi tereddutlerin giderildigi ancak dosyanin kabulu icin ek aciklama ve belge sunulmasinin gerekli oldugu kanaatine varilmistir.")
+
+    @staticmethod
+    def create_report(user_story, valid_docs, advice_text, audit_data=None, filename="Hukuki_Rapor_V120.pdf", llm=None,
                       personas=None, case_topic=""):
         branding = WhiteLabelConfig(
             firm_name="LEGAL OS CORP",
@@ -1643,7 +1700,7 @@ class LegalReporter:
         )
         pdf = BrandedPDFGenerator(branding)
 
-        CorporateCover.add(pdf, audit_data.get("case_id", "N/A") if audit_data else "N/A", "V110")
+        CorporateCover.add(pdf, audit_data.get("case_id", "N/A") if audit_data else "N/A", "V120")
 
         pdf.add_page();
         pdf.set_font("DejaVu", size=11)
@@ -1665,6 +1722,15 @@ class LegalReporter:
         pdf.cell(0, 10, clean("2. INCELEME VE HUKUKI GORUS:"), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.set_font(style='', size=10);
         pdf.multi_cell(0, 6, clean(advice_text))
+
+        # V120: PERSONA DEBATE SECTION
+        if personas:
+            clean_personas = {k: clean(v) if isinstance(v, str) else v for k, v in personas.items()}
+            # Eğer personas içinde judge_reflex varsa V120 yapısıdır
+            if "judge_reflex" in personas:
+                LegalReporter.add_persona_debate_section_v120(pdf, clean_personas)
+            else:
+                LegalReporter.add_persona_comparison_page(pdf, clean_personas)  # Fallback
 
         if audit_data:
             LegalReporter.add_audit_log_section(pdf, audit_data)
@@ -1699,12 +1765,9 @@ class LegalReporter:
                     ap['risk_if_missing'] = clean(ap.get('risk_if_missing', ''))
                 LegalReporter.add_action_plan_page(pdf, action_plan)
 
-            if personas:
-                clean_personas = {k: clean(v) for k, v in personas.items() if isinstance(v, str)}
-                LegalReporter.add_persona_comparison_page(pdf, clean_personas)
-
         try:
-            pdf.output(filename); print(f"\n📄 Kurumsal Rapor (V110) Hazır: {filename}")
+            pdf.output(filename);
+            print(f"\n📄 Kurumsal Rapor (V120) Hazır: {filename}")
         except:
             pass
 
@@ -1718,85 +1781,62 @@ class LegalUIPrinter:
         if not ui_data or not ui_data.get("principles"): return
 
         print("\n" + "█" * 80)
-        print(f"🖥️  LEGAL OS V110 - TAM KAPSAMLI ANALİZ VE TAKİP RAPORU")
+        print(f"🖥️  LEGAL OS V120 - YARGISAL ANALİZ VE TARTIŞMA RAPORU")
         print("█" * 80 + "\n")
 
-        # 0. AUDIT TIMELINE
-        print(f"⏱️ 0. İŞLEM ZAMAN ÇİZELGESİ (AUDIT LOG):")
+        # AUDIT TIMELINE (V120 FORMAT)
+        print(f"⏱️ İŞLEM ZAMAN ÇİZELGESİ (AUDIT LOG V120):")
         for log in ui_data.get("audit_log", {}).get("timeline", []):
             ts = datetime.fromtimestamp(log['timestamp']).strftime('%H:%M:%S')
-            print(f"   🕒 [{ts}] {log['title']} -> {log['description']}")
+
+            # V120 Özel İkonlar
+            icon = "🔹"
+            if log['stage'] == "judge_analysis":
+                icon = "🧠"
+            elif log['stage'] == "persona_phase":
+                icon = "⚔️"
+            elif log['stage'] == "plaintiff_arg":
+                icon = "👨‍💼"
+            elif log['stage'] == "defendant_arg":
+                icon = "🏛️"
+            elif log['stage'] == "expert_arg":
+                icon = "🔍"
+            elif log['stage'] == "persona_completed":
+                icon = "⚖️"
+
+            print(f"   {icon} [{ts}] {log['title']}")
+            if log.get('description'):
+                print(f"      ↳ {log['description']}")
+            # Outputs detayları
+            outs = log.get('outputs', {})
+            if "reflex" in outs: print(f"      ↳ Refleks: {outs['reflex']} | Tereddütler: {outs['doubt_count']}")
+            if "full_text" in outs:
+                # İlk 100 karakteri göster
+                preview = outs['full_text'].replace('\n', ' ')[:100]
+                print(f"      ↳ Özet: \"{preview}...\"")
+
         print("-" * 80)
 
-        # 1. BELGELER & YARGIÇ GEREKÇELERİ
-        print(f"📂 1. BELGE TARAMA VE YARGIÇ DEĞERLENDİRMESİ:")
-        for doc in doc_scan_log:
-            print(f"   📄 {doc['source']} (Sf.{doc['page']}) -> {doc['role']}")
-            print(f"      ↳ Gerekçe: {doc['reason'][:100]}...")
-        print("-" * 80)
-
-        # PRINCIPLE LOOP
+        # PRINCIPLE & ACTION PLAN
         p = ui_data["principles"][0]
+        print(f"⚖️  TEMEL İLKE:\n   \"{p['text'][:120]}...\"")
 
-        # 2-6. İLKE ANALİZİ
-        print(f"⚖️  2. SEÇİLEN TEMEL İLKE:\n   \"{p['text'][:120]}...\"")
-        print(f"   📊 3. Zıtlık Analizi: {'⚠️ VAR' if p['conflict_flag'] else '✅ YOK'}")
-        print(f"   📈 4. Trend Logu: {p['trend_log']}")
-        print(f"   🧭 5. Polarite: {p['polarity']}")
-        print(f"   🔥 6. Çelişki Tespiti: {p['conflict_analysis']['conflict_level']}")
+        # V120 Persona Özeti
+        if "personas_v120" in p:
+            v120 = p["personas_v120"]
+            print(f"\n🗣️  TARAFLARIN POZİSYONLARI (V120 DETAY):")
+            print(f"   🧠 HAKİM: {v120.get('reflex', 'N/A')}")
+            print(f"      ⚠️ Tereddütler: {v120.get('doubts', [])}")
+            print("-" * 40)
+            print(f"   👨‍💼 DAVACI: {len(v120.get('plaintiff', ''))} karakterlik savunma sunuldu.")
+            print(f"   🏛️ DAVALI: {len(v120.get('defendant', ''))} karakterlik itiraz sunuldu.")
+            print(f"   🔍 BİLİRKİŞİ: Zincir kontrolü yapıldı.")
+
         print("-" * 80)
-
-        # 10-12. ZAMAN VE EVRİM
-        print(f"⏳ 10. İLKE EVRİMİ: {p['trend_log']}")
-        print(f"📅 11. GÜNCEL İÇTİHAT UYARISI: {p['year_bucket']} Dönemi")
-        print("-" * 80)
-
-        # 13-14. SKOR VE NEDENİ
-        print(
-            f"🎲 13. RİSK & BAŞARI SKORU: %{p['score_data']['success_probability']} ({p['score_data']['confidence_level']})")
-        print(f"❓ 14. NEDEN BU SKOR?: {p['score_data']['summary']}")
-        print("-" * 80)
-
-        # 15-18. PERSONA LOGLARI
-        opp_title = p['personas']['opponent_title']
-        print("🗣️  PERSONA GÖRÜŞLERİ:")
-        print(f"   👨‍⚖️ 15. HAKİM DİLİ: \"{p['personas']['judge'][:100]}...\"")
-        print(f"   🏛️ 16. {opp_title} (KARŞI TARAF): \"{p['personas']['opponent'][:100]}...\"")
-        print(f"   🔍 17. BİLİRKİŞİ DİLİ: \"{p['personas']['expert'][:100]}...\"")
-        print(f"   🛑 18. HAKİM NEDEN REDDEDER?: \"{p['personas']['devil'][:100]}...\"")
-        print("-" * 80)
-
-        # 19. ÇELİŞKİ ANALİZİ
-        if p['conflict_analysis']['conflict_score'] > 0:
-            print(
-                f"⚔️  19. PERSONA ÇELİŞKİ ANALİZİ: {p['conflict_analysis']['conflict_level']} (Skor: {p['conflict_analysis']['conflict_score']})")
-            for r in p['conflict_analysis']['summary']: print(f"      🔴 {r}")
-        print("-" * 80)
-
-        # 20. GEREKÇELİ KARAR
-        print(f"✍️  20. GEREKÇELİ KARAR TASLAĞI:\n   {p['reasoned_verdict'][:200]}...")
-        print("-" * 80)
-
-        # 21. YÖNETİCİ ÖZETİ
-        print(f"📝 21. YÖNETİCİ ÖZETİ (BU DOSYA NEDEN RİSKLİ?):\n   {ui_data['executive_summary']}")
-        print("-" * 80)
-
-        # 22, 26, 27. STRATEJİ VE İŞ PAKETLERİ
-        print("🚀 22/26/27. GÜÇLENDİRME & SOMUT İŞ PAKETLERİ:")
+        print("🚀 GÜÇLENDİRME & SOMUT İŞ PAKETLERİ:")
         for act in p['action_plan']:
-            src = act['evidence']['source']
-            src_str = f"{src['entity']} ({src['method']})" if isinstance(src, dict) else src
-            print(f"   📦 [ID: {act['action_id'][:6]}] {act['title']}")
-            print(f"      ↳ Kaynak: {src_str} (Adet: {act['evidence']['count']})")
-            print(f"      ↳ Risk: {act['if_not_done']}")
-            print(f"      ↳ Etki: +{act['risk_reduction']['expected_score_increase']} Puan")
-        print("-" * 80)
+            print(f"   📦 {act['title']} (+{act['risk_reduction']['expected_score_increase']} Puan)")
 
-        # 23, 28. SİMÜLASYON
-        sim = p['simulation']
-        print(f"🔮 23/28. SİMÜLASYON SONUCU:")
-        print(f"   Mevcut: %{sim['current_score']} --> Hedef: %{sim['projected_score']}")
-        print(f"   Artış: +{sim['total_boost']} Puan")
         print("█" * 80 + "\n")
 
 
@@ -1805,7 +1845,7 @@ class LegalUIPrinter:
 # ==================================================
 class LegalApp:
     def __init__(self):
-        print("🚀 LEGAL SUITE V110 (Ultimate Full Stack)...")
+        print("🚀 LEGAL SUITE V120 (Ultimate Full Stack)...")
         self.search_engine = LegalSearchEngine()
 
         if self.search_engine.connect_db():
@@ -1878,18 +1918,23 @@ class LegalApp:
                     self.ui_printer.print_grand_ui_log(self.memory_manager.latest_ui_data, doc_scan_log)
 
                     if self.memory_manager.latest_ui_data.get("principles"):
-                        current_personas = self.memory_manager.latest_ui_data["principles"][0]["personas"]
+                        p_data = self.memory_manager.latest_ui_data["principles"][0]
+                        # V120 kontrolü
+                        if "personas_v120" in p_data:
+                            current_personas = p_data["personas_v120"]
+                        else:
+                            current_personas = p_data["personas"]
 
                 full_advice = self.judge.generate_final_opinion(story, topic, context_str)
 
-                # V110: FULL PARAMETER PASS
+                # V120: FULL PARAMETER PASS
                 audit_dump = {}
                 llm_instance = None
                 if self.memory_manager and hasattr(self.memory_manager, 'latest_ui_data'):
                     audit_dump = self.memory_manager.latest_ui_data.get("audit_log", {})
                     llm_instance = self.memory_manager.recommendation_engine.llm
 
-                self.reporter.create_report(story, valid_docs, full_advice, audit_dump, "Hukuki_Rapor_V110.pdf",
+                self.reporter.create_report(story, valid_docs, full_advice, audit_dump, "Hukuki_Rapor_V120.pdf",
                                             llm_instance, current_personas, full_query)
 
         except KeyboardInterrupt:

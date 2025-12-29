@@ -79,6 +79,67 @@ ZORUNLU YAZIM KURALLARI:
 - Kısa, net ve dosyaya özgü yaz.
 """
 
+    # --- V120: CORE RULE REGISTRY (YAML SIMULATION) ---
+    # Harici dosya okuma mantığı eklendiğinde burası fallback olur.
+    CORE_RULES_DB = {
+        "miras_hukuku": {
+            "description": "Miras ve çekişmesiz yargı işleri",
+            "rules": [
+                {
+                    "id": "CR_MIRAS_001",
+                    "rule": "Veraset ilamı çekişmesiz yargı işidir.",
+                    "effect": "Maddi anlamda kesin hüküm oluşturmaz.",
+                    "applies_to": ["judge", "risk", "persona"]
+                },
+                {
+                    "id": "CR_MIRAS_002",
+                    "rule": "Mirasçılık belgesi aksi ispat edilinceye kadar geçerlidir.",
+                    "effect": "İptal davası açılabilir.",
+                    "applies_to": ["judge"]
+                }
+            ]
+        },
+        "ceza_hukuku": {
+            "description": "Ceza yargılamasına ilişkin temel ilkeler",
+            "rules": [
+                {
+                    "id": "CR_CEZA_001",
+                    "rule": "Şüpheden sanık yararlanır (In Dubio Pro Reo).",
+                    "effect": "Delil yetersizliği halinde beraat esastır.",
+                    "applies_to": ["judge", "risk"]
+                },
+                {
+                    "id": "CR_CEZA_002",
+                    "rule": "Ceza hukukunda kıyas yasağı esastır.",
+                    "effect": "Kanunsuz suç ve ceza olmaz, aleyhe yorum yapılamaz.",
+                    "applies_to": ["judge"]
+                }
+            ]
+        },
+        "is_hukuku": {
+            "description": "İş hukuku ve işçi-işveren ilişkileri",
+            "rules": [
+                {
+                    "id": "CR_IS_001",
+                    "rule": "İş hukukunda işçi lehine yorum ilkesi esastır.",
+                    "effect": "Mevzuat boşluklarında işçi yararı gözetilir.",
+                    "applies_to": ["judge", "persona"]
+                }
+            ]
+        },
+        "genel_hukuk": {
+            "description": "Genel hukuk ilkeleri",
+            "rules": [
+                {
+                    "id": "CR_GENEL_001",
+                    "rule": "İddia eden iddiasını ispatla mükelleftir.",
+                    "effect": "İspat yükü kural olarak davacıdadır.",
+                    "applies_to": ["judge", "risk"]
+                }
+            ]
+        }
+    }
+
     SEARCH_LIMIT_PER_SOURCE = 60
     SCORE_THRESHOLD = 0.35
     LLM_RERANK_LIMIT = 3
@@ -100,6 +161,39 @@ def worker_embed_batch_global(args):
     except Exception as e:
         print(f"⚠️ Batch hatası (atlanıyor): {e}")
         return []
+
+
+# --- V120: DOMAIN DETECTION & RULES ---
+class LegalDomainUtils:
+    @staticmethod
+    def detect_legal_domain(query_text, focus_tag):
+        """Sorgu ve odaktan hukuk alanı tespiti."""
+        text = (query_text + " " + focus_tag).lower()
+
+        if "ceza" in text or "sanık" in text or "suç" in text:
+            return "ceza_hukuku"
+        if "iş" in text or "kıdem" in text or "ihbar" in text or "işçi" in text:
+            return "is_hukuku"
+        if "miras" in text or "veraset" in text or "tereke" in text:
+            return "miras_hukuku"
+        return "genel_hukuk"
+
+    @staticmethod
+    def get_active_rules(domain, target="judge"):
+        """Belirtilen domain ve hedef (judge/risk) için kuralları çeker."""
+        domain_cfg = LegalConfig.CORE_RULES_DB.get(domain, LegalConfig.CORE_RULES_DB["genel_hukuk"])
+        all_rules = domain_cfg.get("rules", [])
+
+        active_rules = [r for r in all_rules if target in r.get("applies_to", [])]
+        return active_rules
+
+    @staticmethod
+    def format_rules_for_prompt(rules):
+        """Judge prompt'una gömmek için metin formatlar."""
+        if not rules:
+            return "Bu dosya için özel bir temel ilke tanımlanmamıştır."
+
+        return "\n".join(f"- {r['rule']} ({r['effect']})" for r in rules)
 
 
 class LegalUtils:
@@ -752,12 +846,10 @@ Karar Eğilimi: {net_decision['decision']}
                     item["conf"], item["trend_dir"], item["conflict"], item["domain_match"], item["polarity"]
                 )
 
-                # --- V120: RISK CLASSIFICATION INJECTION (BURASI EKLENDI) ---
+                # --- V120: RISK CLASSIFICATION INJECTION ---
                 risk_context = self._classify_risk_v120(analysis['success_probability'])
-                # Analysis sözlüğüne risk bağlamını da ekleyelim ki taşınsın
                 analysis.update(risk_context)
 
-                # Log'a işleyelim
                 self.audit_logger.log_event(
                     stage="risk_classification",
                     title="RİSK SINIFLANDIRILDI",
@@ -783,7 +875,6 @@ Karar Eğilimi: {net_decision['decision']}
                 self.audit_logger.log_event(stage="persona_phase", title="PERSONA PHASE STARTED",
                                             description="Taraf vekilleri ve bilirkişi devreye giriyor.")
 
-                # Davacı
                 plaintiff_text = self._generate_plaintiff_response_v120(doubts, item['text'])
                 self.audit_logger.log_event(
                     stage="plaintiff_arg", title="DAVACI VEKİLİ DEĞERLENDİRMESİ",
@@ -791,7 +882,6 @@ Karar Eğilimi: {net_decision['decision']}
                     outputs={"full_text": plaintiff_text}
                 )
 
-                # Davalı
                 defendant_text = self._generate_defendant_response_v120(doubts, item['text'])
                 self.audit_logger.log_event(
                     stage="defendant_arg", title="DAVALI VEKİLİ DEĞERLENDİRMESİ",
@@ -799,7 +889,6 @@ Karar Eğilimi: {net_decision['decision']}
                     outputs={"full_text": defendant_text}
                 )
 
-                # Bilirkişi
                 expert_text = self._generate_expert_response_v120(doubts, item['text'])
                 self.audit_logger.log_event(
                     stage="expert_arg", title="BİLİRKİŞİ TESPİTLERİ",
@@ -818,8 +907,7 @@ Karar Eğilimi: {net_decision['decision']}
                                                                             action_plan)
 
                 # E. EXECUTIVE SUMMARY (UPDATED V120)
-                # Artık ham skor yerine risk_context kullanıyoruz.
-                net_decision = {"decision": reflex}  # Basit eşleme
+                net_decision = {"decision": reflex}
                 exec_summary = self._generate_executive_summary_v120(net_decision, None, None, None, None, risk_context)
 
                 # V120 SANITIZATION LOG
@@ -833,7 +921,7 @@ Karar Eğilimi: {net_decision['decision']}
                 self.latest_ui_data["principles"].append({
                     "text": item['text'], "trend_log": item['evolution_note'], "polarity": item['polarity'],
                     "conflict_flag": item['conflict'], "year_bucket": item['year_bucket'],
-                    "score_data": analysis,  # Artık risk_context içeriyor
+                    "score_data": analysis,
                     "personas_v120": {
                         "judge_reflex": reflex,
                         "doubts": doubts,
@@ -841,7 +929,6 @@ Karar Eğilimi: {net_decision['decision']}
                         "defendant": defendant_text,
                         "expert": expert_text
                     },
-                    # Backward compatibility dummy data
                     "personas": {"judge": str(doubts), "opponent": defendant_text, "opponent_title": "Davalı",
                                  "expert": expert_text, "devil": "N/A"},
                     "conflict_analysis": {"conflict_level": "N/A", "conflict_score": 0, "summary": []},
@@ -1551,7 +1638,8 @@ SADECE ŞUNLARDAN BİRİNİ SEÇ:
 
         return valid_docs
 
-    def generate_final_opinion(self, story, topic, context_str):
+    # V120: CORE RULES ENTEGRASYONU
+    def generate_final_opinion(self, story, topic, context_str, core_rules_text=""):
         print("\n🧑‍⚖️  AVUKAT YAZIYOR (V120: Final Output)...")
 
         system_content = f"""SEN BİR TÜRK HAKİMİSİN.
@@ -1561,11 +1649,8 @@ Görevin:
 - Tarafları savunmak DEĞİL
 - Dosyanın RED veya KABUL ihtimallerini, hukuki ve usuli açıdan değerlendirmektir.
 
-ÖN KABULLER:
-1. Veraset ilamı çekişmesiz yargı işidir.
-2. Çekişmesiz yargı kararları maddi anlamda kesin hüküm oluşturmaz.
-3. Hakim her zaman önce RED ihtimalini değerlendirir.
-4. Usul eksikliği varsa ESASA GİRİLMEZ.
+ÖN KABULLER VE TEMEL İLKELER:
+{core_rules_text}
 
 SANA SAĞLANAN BELGELER ETİKETLİDİR:
 - [MEVZUAT]
@@ -1770,7 +1855,7 @@ class LegalReporter:
         pdf.cell(0, 10, "3. KARAR SURECI VE DENETIM (AUDIT LOG)", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(3)
 
-        # V120 RISK HEADER (INJECTED)
+        # V120 RISK HEADER
         for log in audit_data["timeline"]:
             if log.get("stage") == "risk_classification":
                 outs = log.get("outputs", {})
@@ -1783,6 +1868,26 @@ class LegalReporter:
                 pdf.multi_cell(0, 5, f"Hukuki Anlam: {outs.get('legal_meaning', '')}")
                 pdf.ln(8)
                 break
+
+        # V120 CORE RULES SECTION (EKLENDI)
+        pdf.set_font("DejaVu", "B", 11)
+        pdf.cell(0, 8, "📐 UYGULANAN TEMEL HUKUKİ İLKELER", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_font("DejaVu", "", 9)
+
+        # Logdan çekilen rules verisi varsa yazdır, yoksa genel bilgi ver
+        rules_found = False
+        for log in audit_data["timeline"]:
+            if log.get("title") == "CORE RULES LOADED":
+                outs = log.get("outputs", {})
+                pdf.multi_cell(0, 5, f"Dosya '{outs.get('domain', 'Genel Hukuk')}' kapsaminda degerlendirilmistir.")
+                pdf.ln(2)
+                for r in outs.get('rules', []):
+                    pdf.multi_cell(0, 5, f"- {r['rule']} ({r['effect']})")
+                rules_found = True
+                break
+        if not rules_found:
+            pdf.multi_cell(0, 5, "Bu dosya icin genel hukuk ilkeleri esas alinmistir.")
+        pdf.ln(5)
 
         timeline = AuditTimelineBuilder.build(audit_data)
         explanation = ScoreExplanationEngine.generate(timeline)
@@ -1966,7 +2071,7 @@ class LegalUIPrinter:
             if log['stage'] == "judge_analysis":
                 icon = "🧠"
             elif log['stage'] == "risk_classification":
-                icon = "🎲"  # EKLENDI
+                icon = "🎲"
             elif log['stage'] == "persona_phase":
                 icon = "⚔️"
             elif log['stage'] == "plaintiff_arg":
@@ -1986,6 +2091,10 @@ class LegalUIPrinter:
             # Outputs detayları
             outs = log.get('outputs', {})
             if "reflex" in outs: print(f"      ↳ Refleks: {outs['reflex']} | Tereddütler: {outs['doubt_count']}")
+            if "rules" in outs:  # Core Rules Log
+                print(f"      ↳ Domain: {outs.get('domain')}")
+                for r in outs['rules']: print(f"      ↳ Kural: {r['id']}")
+
             if "full_text" in outs:
                 # İlk 100 karakteri göster
                 preview = outs['full_text'].replace('\n', ' ')[:100]
@@ -2061,6 +2170,20 @@ class LegalApp:
                     print("   ❌ UYARI: Girdi anlamsız. Lütfen mantıklı bir olay giriniz.")
                     continue
 
+                # V120: CORE RULE DETECTION
+                detected_domain = LegalDomainUtils.detect_legal_domain(story, topic)
+                judge_rules = LegalDomainUtils.get_active_rules(detected_domain, "judge")
+                formatted_rules = LegalDomainUtils.format_rules_for_prompt(judge_rules)
+
+                # Log Core Rules
+                if self.memory_manager:
+                    self.memory_manager.audit_logger.log_event(
+                        stage="core_rules_load",
+                        title="CORE RULES LOADED",
+                        description=f"Alan: {detected_domain}",
+                        outputs={"domain": detected_domain, "rules": judge_rules}
+                    )
+
                 expanded = self.judge.generate_expanded_queries(story, topic)
                 full_query = f"{story} {topic} " + " ".join(expanded)
                 print(f"   ✓ Sorgu: {len(full_query)} karakter")
@@ -2101,7 +2224,8 @@ class LegalApp:
                         else:
                             current_personas = p_data["personas"]
 
-                full_advice = self.judge.generate_final_opinion(story, topic, context_str)
+                # V120: Pass formatted_rules to Judge
+                full_advice = self.judge.generate_final_opinion(story, topic, context_str, formatted_rules)
 
                 # V120: FULL PARAMETER PASS
                 audit_dump = {}

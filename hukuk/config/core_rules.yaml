@@ -1,0 +1,40 @@
+version: "1.0"
+
+domains:
+
+  miras_hukuku:
+    description: "Miras ve çekişmesiz yargı işleri"
+    rules:
+      - id: CR_MIRAS_001
+        rule: "Veraset ilamı çekişmesiz yargı işidir."
+        effect: "Maddi anlamda kesin hüküm oluşturmaz."
+        applies_to:
+          - judge
+          - risk
+          - persona
+
+  ceza_hukuku:
+    description: "Ceza yargılamasına ilişkin temel ilkeler"
+    rules:
+      - id: CR_CEZA_001
+        rule: "Şüpheden sanık yararlanır."
+        effect: "Delil yetersizliği halinde beraat esastır."
+        applies_to:
+          - judge
+          - risk
+
+      - id: CR_CEZA_002
+        rule: "Ceza hukukunda kıyas yasağı esastır."
+        effect: "Aleyhe yorum yapılamaz."
+        applies_to:
+          - judge
+
+  is_hukuku:
+    description: "İş hukuku ve işçi-işveren ilişkileri"
+    rules:
+      - id: CR_IS_001
+        rule: "İş hukukunda işçi lehine yorum esastır."
+        effect: "Belirsizlik işçi lehine çözülür."
+        applies_to:
+          - judge
+          - persona

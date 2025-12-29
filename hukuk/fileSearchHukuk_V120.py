@@ -477,6 +477,35 @@ class LegalMemoryManager:
         summary = "Başarı ihtimali yüksek." if score >= 70 else "Riskli."
         return {"success_probability": score, "confidence_level": conf_level, "summary": summary}
 
+    # ===============================
+    # RISK CLASSIFICATION (V120)
+    # ===============================
+    def _classify_risk_v120(self, score: float):
+        if score < 40:
+            return {
+                "level": "LOW",
+                "label": "DÜŞÜK BAŞARI İHTİMALİ",
+                "legal_meaning": "Dosya mevcut haliyle reddedilmeye yakındır.",
+                "judge_reflex": "Hakim dosyaya ihtiyatla yaklaşır.",
+                "strategy": "Usul ve gerekçe güçlendirilmelidir."
+            }
+        elif score < 70:
+            return {
+                "level": "MEDIUM",
+                "label": "ORTA RİSK",
+                "legal_meaning": "Hakimin takdir alanı yüksektir.",
+                "judge_reflex": "Hakim ek açıklama ve netlik bekler.",
+                "strategy": "Emsal–somut olay bağlantısı kurulmalıdır."
+            }
+        else:
+            return {
+                "level": "HIGH",
+                "label": "YÜKSEK BAŞARI İHTİMALİ",
+                "legal_meaning": "Yerleşik içtihat ile uyumlu dosya.",
+                "judge_reflex": "Hakim kabul yönünde eğilimlidir.",
+                "strategy": "Mevcut yapı korunmalıdır."
+            }
+
     # --- V120: YENİ PERSONA PROMPTLARI & GUARD ---
 
     def _generate_judge_doubts_v120(self, query, principle_text):
@@ -633,6 +662,26 @@ Tutarlı Noktalar:
         except:
             return "Bilirkişi raporu oluşturulamadı."
 
+    # V120: GÜNCELLENMİŞ EXECUTIVE SUMMARY (RISK CONTEXT)
+    def _generate_executive_summary_v120(self, net_decision, judge, pros, exp, trend, risk_context):
+        prompt = f"""
+BAĞLAM: Türk Hukuku.
+SEN YÖNETİCİSİN.
+
+RİSK DEĞERLENDİRMESİ (SADECE BU VERİYİ KULLAN, SAYI SÖYLEME):
+- Etiket: {risk_context['label']}
+- Hukuki Anlamı: {risk_context['legal_meaning']}
+- Hakim Refleksi: {risk_context['judge_reflex']}
+
+GÖREV:
+Yukarıdaki risk çerçevesinde, dosyanın kırılma noktasını anlatan kısa bir yönetici özeti yaz.
+Karar Eğilimi: {net_decision['decision']}
+"""
+        try:
+            return self.llm.invoke(prompt).content.strip()
+        except:
+            return f"Dosya {risk_context['label']} kategorisindedir."
+
     def _simulate_post_strengthening_score(self, base_score, recommendations):
         total_boost = 0
         seen_cats = {}
@@ -698,9 +747,22 @@ Tutarlı Noktalar:
             }
 
             for item in sorted_hits:
-                # 2. Risk Analizi
+                # 2. Risk Analizi ve HESAPLAMA
                 analysis = self._calculate_case_success_probability(
                     item["conf"], item["trend_dir"], item["conflict"], item["domain_match"], item["polarity"]
+                )
+
+                # --- V120: RISK CLASSIFICATION INJECTION (BURASI EKLENDI) ---
+                risk_context = self._classify_risk_v120(analysis['success_probability'])
+                # Analysis sözlüğüne risk bağlamını da ekleyelim ki taşınsın
+                analysis.update(risk_context)
+
+                # Log'a işleyelim
+                self.audit_logger.log_event(
+                    stage="risk_classification",
+                    title="RİSK SINIFLANDIRILDI",
+                    description=f"{risk_context['label']} | Hakim Refleksi: {risk_context['judge_reflex']}",
+                    outputs=risk_context
                 )
 
                 # --- V120: PERSONA SİSTEMİ ---
@@ -755,8 +817,10 @@ Tutarlı Noktalar:
                 simulation_result = self._simulate_post_strengthening_score(analysis['success_probability'],
                                                                             action_plan)
 
-                # E. EXECUTIVE SUMMARY
-                exec_summary = f"Hakim '{reflex}' eğilimindedir. {len(doubts)} temel tereddüt (Örn: {doubts[0]}) mevcuttur. Davacı vekili bu hususları gidermeye çalışsa da Davalı taraf usul itirazlarını sürdürmektedir."
+                # E. EXECUTIVE SUMMARY (UPDATED V120)
+                # Artık ham skor yerine risk_context kullanıyoruz.
+                net_decision = {"decision": reflex}  # Basit eşleme
+                exec_summary = self._generate_executive_summary_v120(net_decision, None, None, None, None, risk_context)
 
                 # V120 SANITIZATION LOG
                 self.audit_logger.log_event(
@@ -769,7 +833,7 @@ Tutarlı Noktalar:
                 self.latest_ui_data["principles"].append({
                     "text": item['text'], "trend_log": item['evolution_note'], "polarity": item['polarity'],
                     "conflict_flag": item['conflict'], "year_bucket": item['year_bucket'],
-                    "score_data": analysis,
+                    "score_data": analysis,  # Artık risk_context içeriyor
                     "personas_v120": {
                         "judge_reflex": reflex,
                         "doubts": doubts,
@@ -786,7 +850,7 @@ Tutarlı Noktalar:
                     "simulation": simulation_result
                 })
                 self.latest_ui_data["executive_summary"] = exec_summary
-                self.latest_ui_data["net_decision"] = {"decision": reflex}
+                self.latest_ui_data["net_decision"] = net_decision
 
                 memory_text += f"- [{item['domain']}] {item['text']}\n"
                 memory_text += f"  ⚖️ REFLEKS: {reflex} | ⚠️ Tereddüt: {len(doubts)} adet\n"
@@ -1706,6 +1770,20 @@ class LegalReporter:
         pdf.cell(0, 10, "3. KARAR SURECI VE DENETIM (AUDIT LOG)", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(3)
 
+        # V120 RISK HEADER (INJECTED)
+        for log in audit_data["timeline"]:
+            if log.get("stage") == "risk_classification":
+                outs = log.get("outputs", {})
+                pdf.set_fill_color(240, 240, 240)
+                pdf.rect(pdf.get_x(), pdf.get_y(), 190, 20, 'F')
+                pdf.set_font("DejaVu", "B", 11)
+                pdf.cell(0, 8, f"🎲 RİSK SEVİYESİ: {outs.get('label', 'BILINMIYOR')}", new_x=XPos.LMARGIN,
+                         new_y=YPos.NEXT)
+                pdf.set_font("DejaVu", "", 10)
+                pdf.multi_cell(0, 5, f"Hukuki Anlam: {outs.get('legal_meaning', '')}")
+                pdf.ln(8)
+                break
+
         timeline = AuditTimelineBuilder.build(audit_data)
         explanation = ScoreExplanationEngine.generate(timeline)
 
@@ -1887,6 +1965,8 @@ class LegalUIPrinter:
             icon = "🔹"
             if log['stage'] == "judge_analysis":
                 icon = "🧠"
+            elif log['stage'] == "risk_classification":
+                icon = "🎲"  # EKLENDI
             elif log['stage'] == "persona_phase":
                 icon = "⚔️"
             elif log['stage'] == "plaintiff_arg":

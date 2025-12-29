@@ -31,3 +31,13 @@ Kota: En iyi 7 Emsal + En iyi 3 Mevzuat (Skoru ne olursa olsun) zorla finale ta�
 Akıllı Mevzuat Yargıcı (_check_relevance_judge_smart):
 
 Prompt güncellendi. Yargıça şu talimat verildi: "Eğer okuduğun şey bir Kanun Maddesi ise, olayla benzerliğine bakma; olaya dayanak olup olmadığına bak."
+
+
+
+EKLE::
+
+Önce 1️⃣ Conflict Detector’ı kodlayalım
+
+Sonra otomatik olarak 2️⃣ Priority Engine onun üstüne binsin
+
+En sonda 3️⃣ Coverage Report PDF’e eklensin

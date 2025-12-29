@@ -1,0 +1,52 @@
+@dataclass
+class LegalConfig:
+    # Google Drive Ana Yolu (HukAI Klasörü)
+    DRIVE_ROOT = "/content/drive/MyDrive/HukAI"
+
+    SOURCES = {
+        "mevzuat": {
+            "folder": os.path.join(DRIVE_ROOT, "mevzuatlar"),
+            "collection": "legal_statutes_v48",
+            "desc": "MEVZUAT"
+        },
+        "emsal": {
+            "folder": os.path.join(DRIVE_ROOT, "belgeler"),
+            "collection": "legal_precedents_v48",
+            "desc": "EMSAL KARAR"
+        }
+    }
+
+# Veritabanını da HukAI içine kaydediyoruz (Kalıcı Hafıza)
+    QDRANT_PATH = os.path.join(DRIVE_ROOT, "qdrant_db_master")
+
+    # Sistem durum dosyası da burada
+    STATE_FILE = os.path.join(DRIVE_ROOT, "system_state.json")
+
+
+
+ //----------------YERELl
+
+ # ==================================================
+# 1️⃣ KONFİGÜRASYON SINIFI
+# ==================================================
+@dataclass
+class LegalConfig:
+    SOURCES = {
+        "mevzuat": {
+            "folder": "mevzuatlar",
+            "collection": "legal_statutes_v48",
+            "desc": "MEVZUAT"
+        },
+        "emsal": {
+            "folder": "belgeler",
+            "collection": "legal_precedents_v48",
+            "desc": "EMSAL KARAR"
+        }
+    }
+    MEMORY_COLLECTIONS = {
+        "decision": "judge_memory_v1",
+        "principle": "principle_memory_v1"
+    }
+
+    QDRANT_PATH = "qdrant_db_master"
+    STATE_FILE = "system_state.json"

@@ -1059,20 +1059,20 @@ class CorporateCover:
     @staticmethod
     def add(pdf, case_id, version="V110"):
         pdf.add_page()
-        pdf.set_font("helvetica", "B", 24)
+        pdf.set_font("DejaVu", "B", 24)
         pdf.ln(60)
         pdf.cell(0, 10, "LEGAL OS", align="C", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-        pdf.set_font("helvetica", size=14)
+        pdf.set_font("DejaVu", size=14)
         pdf.cell(0, 10, "Yapay Zeka Destekli Hukuki Analiz Raporu", align="C", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(30)
-        pdf.set_font("helvetica", "B", 10)
+        pdf.set_font("DejaVu", "B", 10)
         pdf.cell(0, 8, f"DOSYA KIMLIGI: {case_id}", align="C", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-        pdf.set_font("helvetica", size=10)
+        pdf.set_font("DejaVu", "", 10)
         pdf.cell(0, 8, f"RAPOR TARIHI: {datetime.now().strftime('%d.%m.%Y %H:%M')}", align="C", new_x=XPos.LMARGIN,
                  new_y=YPos.NEXT)
         pdf.cell(0, 8, f"SISTEM SURUMU: {version}", align="C", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(50)
-        pdf.set_font("helvetica", "I", 8)
+        pdf.set_font("DejaVu", "I", 8)
         pdf.multi_cell(0, 5,
                        "YASAL UYARI: Bu rapor, yapay zeka algoritmalari kullanilarak uretilmistir. Hukuki tavsiye niteliginde olmayip, karar destek amaclidir.",
                        align="C")
@@ -1440,10 +1440,17 @@ class BrandedPDFGenerator(FPDF):
         super().__init__()
         self.branding = branding
 
+        # ✅ UNICODE FONT REGISTRATION
+        self.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
+        self.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
+        self.add_font("DejaVu", "I", "fonts/DejaVuSans.ttf", uni=True)
+        self.add_font("DejaVu", "I", "fonts/DejaVuSans.ttf", uni=True)
+        self.add_font("DejaVu", "BI", "fonts/DejaVuSans-Bold.ttf", uni=True)
+
     def header(self):
         if self.branding.logo_path and os.path.exists(self.branding.logo_path):
             self.image(self.branding.logo_path, x=10, y=8, w=30)
-        self.set_font("helvetica", "B", 12)
+        self.set_font("DejaVu", "B", 12)
         self.set_text_color(*self.branding.color)
         self.cell(0, 10, self.branding.firm_name, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='R')
         self.set_draw_color(200, 200, 200)
@@ -1453,7 +1460,7 @@ class BrandedPDFGenerator(FPDF):
 
     def footer(self):
         self.set_y(-15);
-        self.set_font('helvetica', 'I', 8);
+        self.set_font('DejaVu', 'I', 8);
         self.set_text_color(128, 128, 128)
         self.cell(0, 10, f'{self.branding.footer_text} | Sayfa {self.page_no()}', align='C')
 
@@ -1463,7 +1470,7 @@ class LegalReporter:
     def add_persona_comparison_page(pdf, personas):
         if not personas: return
         pdf.add_page()
-        pdf.set_font("helvetica", "B", 12)
+        pdf.set_font("DejaVu", "B", 12)
         pdf.cell(0, 10, "EK-2: YARGISAL PERSPEKTIF KARSILASTIRMASI", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(5)
 
@@ -1480,11 +1487,11 @@ class LegalReporter:
         for i, (title, text) in enumerate(p_list):
             x = pdf.l_margin + i * col_width
             pdf.set_xy(x, start_y)
-            pdf.set_font("helvetica", "B", 10)
+            pdf.set_font("DejaVu", "B", 10)
             pdf.multi_cell(col_width - 2, 6, title, align='C')
             pdf.ln(1)
             pdf.set_xy(x, pdf.get_y())  # Reset X after multicell
-            pdf.set_font("helvetica", size=8)
+            pdf.set_font("DejaVu", size=8)
             pdf.multi_cell(col_width - 2, 4, text)
             max_y = max(max_y, pdf.get_y())
 
@@ -1494,10 +1501,10 @@ class LegalReporter:
     def add_appeal_arguments_page(pdf, appeal_text):
         if not appeal_text: return
         pdf.add_page()
-        pdf.set_font("helvetica", "B", 12)
+        pdf.set_font("DejaVu", "B", 12)
         pdf.cell(0, 10, "EK-3: OLASI ITIRAZ ARGUMANLARI", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(5)
-        pdf.set_font("helvetica", size=10)
+        pdf.set_font("DejaVu", "", 10)
         pdf.multi_cell(0, 6, appeal_text)
 
     # V108: İSTİNAF DİLEKÇESİ EKLEME
@@ -1505,10 +1512,10 @@ class LegalReporter:
     def add_petition_page(pdf, petition_text):
         if not petition_text: return
         pdf.add_page()
-        pdf.set_font("helvetica", "B", 12)
+        pdf.set_font("DejaVu", "B", 12)
         pdf.cell(0, 10, "EK-4: ISTINAF / TEMYIZ DILEKCESI TASLAGI", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(5)
-        pdf.set_font("helvetica", size=10)
+        pdf.set_font("DejaVu", "", 10)
         pdf.multi_cell(0, 6, petition_text)
 
     # V108: AKSİYON PLANI EKLEME
@@ -1516,14 +1523,14 @@ class LegalReporter:
     def add_action_plan_page(pdf, action_plan):
         if not action_plan: return
         pdf.add_page()
-        pdf.set_font("helvetica", "B", 12)
+        pdf.set_font("DejaVu", "B", 12)
         pdf.cell(0, 10, "EK-5: ITIRAZ AKSİYON PLANI", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(5)
 
         for action in action_plan:
-            pdf.set_font("helvetica", "B", 10)
+            pdf.set_font("DejaVu", "B", 10)
             pdf.cell(0, 8, f">> {action.get('title', 'Aksiyon')}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-            pdf.set_font("helvetica", size=9)
+            pdf.set_font("DejaVu", size=9)
             pdf.multi_cell(0, 5, f"Kaynak: {action.get('source', '')} | Risk: {action.get('risk_if_missing', '')}")
             pdf.ln(2)
 
@@ -1531,16 +1538,16 @@ class LegalReporter:
     def add_audit_log_section(pdf, audit_data):
         if not audit_data or "timeline" not in audit_data: return
         pdf.add_page()
-        pdf.set_font("helvetica", "B", 13)
+        pdf.set_font("DejaVu", "B", 13)
         pdf.cell(0, 10, "3. KARAR SURECI VE DENETIM (AUDIT LOG)", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(3)
 
         timeline = AuditTimelineBuilder.build(audit_data)
         explanation = ScoreExplanationEngine.generate(timeline)
 
-        pdf.set_font("helvetica", "B", 10)
+        pdf.set_font("DejaVu", "B", 10)
         pdf.cell(0, 8, "SKOR DEGISIM ANALIZI:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-        pdf.set_font("helvetica", "I", 10)
+        pdf.set_font("DejaVu", "I", 10)
         pdf.multi_cell(0, 5, explanation)
         pdf.ln(5)
 
@@ -1551,12 +1558,12 @@ class LegalReporter:
             score = log.get("resulting_score")
             ts = datetime.fromtimestamp(log.get("timestamp", time.time())).strftime('%H:%M:%S')
 
-            pdf.set_font("helvetica", "B", 10)
+            pdf.set_font("DejaVu", "B", 10)
             pdf.cell(0, 6, f"{step}. {title.upper()} [{ts}]", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-            pdf.set_font("helvetica", size=9)
+            pdf.set_font("DejaVu", size=9)
             pdf.multi_cell(w=0, h=5, text=f"Detay: {desc}")
             if score:
-                pdf.set_font("helvetica", "B", 8)
+                pdf.set_font("DejaVu", "B", 8)
                 pdf.cell(0, 5, f">> SKOR ETKISI: %{score}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.ln(2)
 
@@ -1573,7 +1580,7 @@ class LegalReporter:
         CorporateCover.add(pdf, audit_data.get("case_id", "N/A") if audit_data else "N/A", "V110")
 
         pdf.add_page();
-        pdf.set_font("helvetica", size=11)
+        pdf.set_font("DejaVu", size=11)
 
         def clean(t):
             if not t: return ""
@@ -1601,10 +1608,10 @@ class LegalReporter:
                 judge_text = reasoning_gen.generate(audit_data)
 
                 pdf.add_page()
-                pdf.set_font("helvetica", "B", 13)
+                pdf.set_font("DejaVu", "B", 13)
                 pdf.cell(0, 10, clean("EK-1: HAKIM KARAR GEREKCESI TASLAGI"), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                 pdf.ln(5)
-                pdf.set_font("helvetica", "I", 10)
+                pdf.set_font("DejaVu", "I", 10)
                 pdf.multi_cell(0, 6, clean(judge_text))
 
                 appeal_gen = AppealArgumentGenerator(llm)

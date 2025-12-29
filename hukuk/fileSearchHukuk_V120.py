@@ -60,6 +60,25 @@ class LegalConfig:
     EMBEDDING_MODEL = "nomic-embed-text"
     LLM_MODEL = "qwen2.5"
 
+    # V120: YENİ LLM PARAMETRELERİ (GLOBAL KALİTE KONTROL)
+    LLM_CONFIG = {
+        "temperature": 0.3,
+        "top_p": 0.9,
+        "repeat_penalty": 1.1,  # frequency_penalty karşılığı (Ollama/Llama)
+        "num_predict": 1200  # max_tokens karşılığı
+    }
+
+    # V120: GLOBAL PROMPT GUARD
+    PROMPT_GUARD = """
+ZORUNLU YAZIM KURALLARI:
+- Aynı cümleyi veya aynı fikri tekrar etme.
+- Bir kavramı yalnızca BİR KEZ açıkla.
+- Genel hukuk anlatısı yapma.
+- Akademik veya öğretici dil kullanma.
+- Her paragraf yeni bir bilgi içersin.
+- Kısa, net ve dosyaya özgü yaz.
+"""
+
     SEARCH_LIMIT_PER_SOURCE = 60
     SCORE_THRESHOLD = 0.35
     LLM_RERANK_LIMIT = 3
@@ -113,6 +132,47 @@ class LegalUtils:
         text = re.sub(r'(\w+)-\s*\n\s*(\w+)', r'\1\2', text)
         text = re.sub(r'\s+', ' ', text).strip()
         return text
+
+
+# --- V120: TEXT SANITIZER CLASS ---
+class LegalTextSanitizer:
+    """V120: Loop Engelleme ve Bölüm Bazlı Bellek"""
+
+    def __init__(self):
+        self.written_ideas = set()
+        self.dropped_count = 0
+
+    def enforce_no_repeat(self, text):
+        """Metindeki tekrarları temizler."""
+        if not text: return ""
+        paragraphs = text.split("\n")
+        cleaned = []
+
+        for p in paragraphs:
+            # Çok kısa satırları (başlık vs) atlama
+            if len(p.strip()) < 10:
+                cleaned.append(p)
+                continue
+
+            # Fikir anahtarı: İlk 120 karakter (lowercase)
+            key = p.strip().lower()[:120]
+            if key not in self.written_ideas:
+                self.written_ideas.add(key)
+                cleaned.append(p)
+            else:
+                self.dropped_count += 1
+
+        return "\n".join(cleaned)
+
+    def enforce_document_scope(self, text, allowed_docs_keywords):
+        """Basit halüsinasyon kontrolü (Stub)"""
+        # Gelişmiş versiyonda burada regex ile atıf kontrolü yapılır.
+        # Şimdilik pass geçiyoruz (log için placeholder).
+        return True
+
+    def reset(self):
+        self.written_ideas = set()
+        self.dropped_count = 0
 
 
 # ==================================================
@@ -338,6 +398,7 @@ class LegalMemoryManager:
         self.last_recalled_query = None
         self.recommendation_engine = ActionableRecommendationEngine(llm)
         self.audit_logger = LegalAuditLogger()
+        self.sanitizer = LegalTextSanitizer()  # V120 Sanitizer
         self.latest_ui_data = {}
 
     def _init_memory_collections(self):
@@ -416,12 +477,14 @@ class LegalMemoryManager:
         summary = "Başarı ihtimali yüksek." if score >= 70 else "Riskli."
         return {"success_probability": score, "confidence_level": conf_level, "summary": summary}
 
-    # --- V120: YENİ PERSONA PROMPTLARI ---
+    # --- V120: YENİ PERSONA PROMPTLARI & GUARD ---
 
     def _generate_judge_doubts_v120(self, query, principle_text):
         """Hakimin ilk refleksini ve tereddütlerini üretir."""
         prompt = f"""
 SEN BİR TÜRK HAKİMİSİN.
+{LegalConfig.PROMPT_GUARD}
+
 Olay: "{query}"
 İlgili Hukuki İlke: "{principle_text}"
 
@@ -451,6 +514,7 @@ Ayrıca dosya hakkındaki İLK REFLEKSİNİ (Red/Kabul Eğilimli) tek kelimeyle 
         doubts_text = "\n".join([f"- {d}" for d in doubts])
         prompt = f"""
 Sen DAVACI VEKİLİSİN.
+{LegalConfig.PROMPT_GUARD}
 
 ÖNÜNDE:
 - Hakimin tereddütleri:
@@ -483,7 +547,8 @@ Tereddüt 3:
 - Cevap:
 """
         try:
-            return self.llm.invoke(prompt).content.strip()
+            raw = self.llm.invoke(prompt).content.strip()
+            return self.sanitizer.enforce_no_repeat(raw)  # V120 Sanitizer
         except:
             return "Davacı vekili beyanı oluşturulamadı."
 
@@ -491,6 +556,7 @@ Tereddüt 3:
         doubts_text = "\n".join([f"- {d}" for d in doubts])
         prompt = f"""
 Sen DAVALI (KARŞI TARAF) VEKİLİSİN.
+{LegalConfig.PROMPT_GUARD}
 
 ÖNÜNDE:
 - Hakimin tereddütleri:
@@ -523,7 +589,8 @@ Tereddüt 3:
 - Karşı Argüman:
 """
         try:
-            return self.llm.invoke(prompt).content.strip()
+            raw = self.llm.invoke(prompt).content.strip()
+            return self.sanitizer.enforce_no_repeat(raw)  # V120 Sanitizer
         except:
             return "Davalı vekili beyanı oluşturulamadı."
 
@@ -531,6 +598,7 @@ Tereddüt 3:
         doubts_text = "\n".join([f"- {d}" for d in doubts])
         prompt = f"""
 Sen TARAFSIZ BİLİRKİŞİSİN.
+{LegalConfig.PROMPT_GUARD}
 
 ÖNÜNDE:
 - Hakimin tereddütleri:
@@ -560,7 +628,8 @@ Tutarlı Noktalar:
 - ...
 """
         try:
-            return self.llm.invoke(prompt).content.strip()
+            raw = self.llm.invoke(prompt).content.strip()
+            return self.sanitizer.enforce_no_repeat(raw)  # V120 Sanitizer
         except:
             return "Bilirkişi raporu oluşturulamadı."
 
@@ -582,6 +651,7 @@ Tutarlı Noktalar:
         try:
             # 1. AUDIT START
             self.audit_logger = LegalAuditLogger()
+            self.sanitizer.reset()  # Reset memory for new query
 
             query_domain = self._detect_domain_from_query(query_text)
             vector = self.embedder.embed_query(query_text)
@@ -633,7 +703,7 @@ Tutarlı Noktalar:
                     item["conf"], item["trend_dir"], item["conflict"], item["domain_match"], item["polarity"]
                 )
 
-                # --- V120: PERSONA SİSTEMİ BAŞLANGICI ---
+                # --- V120: PERSONA SİSTEMİ ---
 
                 # A. HAKİM REFLEKSİ VE TEREDDÜTLER (TRIGGER)
                 judge_data = self._generate_judge_doubts_v120(query_text, item['text'])
@@ -687,6 +757,13 @@ Tutarlı Noktalar:
 
                 # E. EXECUTIVE SUMMARY
                 exec_summary = f"Hakim '{reflex}' eğilimindedir. {len(doubts)} temel tereddüt (Örn: {doubts[0]}) mevcuttur. Davacı vekili bu hususları gidermeye çalışsa da Davalı taraf usul itirazlarını sürdürmektedir."
+
+                # V120 SANITIZATION LOG
+                self.audit_logger.log_event(
+                    stage="output_sanitizer", title="OUTPUT SANITIZER APPLIED",
+                    description=f"Tekrar eden paragraflar temizlendi.",
+                    outputs={"repeated_paragraphs_removed": self.sanitizer.dropped_count}
+                )
 
                 # Store Complete Data (V120 Structure)
                 self.latest_ui_data["principles"].append({
@@ -953,6 +1030,8 @@ class JudgeReasoningGenerator:
 
         prompt = f"""
 SEN BIR HAKIMSIN.
+{LegalConfig.PROMPT_GUARD}
+
 Asagida, bir davaya iliskin teknik degerlendirme adimlari yer almaktadir.
 Bu adimlari kullanarak, resmi, hukuki ve tarafsiz bir 'KARAR GEREKCESI' yaz.
 
@@ -977,6 +1056,8 @@ class AppealArgumentGenerator:
     def generate(self, judge_reasoning):
         prompt = f"""
 SEN KIDEMLI BIR AVUKATSIN.
+{LegalConfig.PROMPT_GUARD}
+
 Asagida bir hakimin karar gerekcesi yer almaktadir.
 Bu gerekceden hareketle, UST MAHKEMEYE sunulmak uzere itiraz argumanlari yaz.
 
@@ -1002,6 +1083,7 @@ class AppealPetitionGenerator:
         prompt = f"""
 BAĞLAM: Türk Hukuku. BAM / Yargıtay uygulaması.
 SEN: Kıdemli bir avukatsın.
+{LegalConfig.PROMPT_GUARD}
 
 Aşağıda yer alan hakim gerekçesine karşı, üst mahkemeye sunulmak üzere
 RESMİ, KURUMSAL ve HUKUKİ DİLDE tam bir İTİRAZ / İSTİNAF / TEMYİZ DİLEKÇESİ taslağı yaz.
@@ -1260,8 +1342,16 @@ class LegalSearchEngine:
 # ==================================================
 class LegalJudge:
     def __init__(self, memory_manager=None):
-        self.llm = ChatOllama(model=LegalConfig.LLM_MODEL, temperature=0.1)
+        # V120: Global Config Kullanımı
+        self.llm = ChatOllama(
+            model=LegalConfig.LLM_MODEL,
+            temperature=LegalConfig.LLM_CONFIG["temperature"],
+            top_p=LegalConfig.LLM_CONFIG["top_p"],
+            # Diğer parametreler LangChain entegrasyonuna göre kwargs olarak geçilebilir
+            # ancak temel olarak temp ve top_p yeterlidir.
+        )
         self.memory = memory_manager
+        self.sanitizer = LegalTextSanitizer()
 
     def validate_user_input(self, story, topic):
         prompt = f"""
@@ -1400,7 +1490,8 @@ SADECE ŞUNLARDAN BİRİNİ SEÇ:
     def generate_final_opinion(self, story, topic, context_str):
         print("\n🧑‍⚖️  AVUKAT YAZIYOR (V120: Final Output)...")
 
-        system_content = """SEN BİR TÜRK HAKİMİSİN.
+        system_content = f"""SEN BİR TÜRK HAKİMİSİN.
+{LegalConfig.PROMPT_GUARD}
 
 Görevin:
 - Tarafları savunmak DEĞİL
@@ -1499,7 +1590,10 @@ ANALİZİ BAŞLAT:"""
             full_res += c;
             print(c, end="", flush=True)
         print("\n")
-        return full_res
+
+        # V120 SANITIZATION
+        cleaned_res = self.sanitizer.enforce_no_repeat(full_res)
+        return cleaned_res
 
 
 # ==================================================
@@ -1803,6 +1897,8 @@ class LegalUIPrinter:
                 icon = "🔍"
             elif log['stage'] == "persona_completed":
                 icon = "⚖️"
+            elif log['stage'] == "output_sanitizer":
+                icon = "🧹"
 
             print(f"   {icon} [{ts}] {log['title']}")
             if log.get('description'):

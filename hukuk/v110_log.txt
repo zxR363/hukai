@@ -1,4 +1,4 @@
-C:\Users\democh\PycharmProjects\game\hukuk\Scripts\python.exe C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V110.py 
+C:\Users\democh\PycharmProjects\game\hukuk\Scripts\python.exe C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V114.py 
 🚀 LEGAL SUITE V110 (Ultimate Full Stack)...
    🔌 Veritabanı bağlantısı başlatılıyor...
 🔓 KİLİT DOSYASI TEMİZLENDİ.
@@ -12,7 +12,7 @@ C:\Users\democh\PycharmProjects\game\hukuk\Scripts\python.exe C:\Users\democh\Py
 ✅ İndeksleme Tamamlandı.
 
 🔥 İÇTİHAT MİMARI: Artımlı Konsolidasyon (V110)...
-   🔍 8 adet YENİ gerekçe analiz ediliyor...
+   🔍 7 adet YENİ gerekçe analiz ediliyor...
 ✅ Konsolidasyon tamamlandı.
 
 ✅ SİSTEM HAZIR. (Çıkış: 'q')
@@ -22,83 +22,48 @@ C:\Users\democh\PycharmProjects\game\hukuk\Scripts\python.exe C:\Users\democh\Py
 🚫 Yasaklı: sendika
    🛡️ Girdi kontrol ediliyor...
    ↳ 🧠 Sorgu Genişletiliyor...
-   ✓ Sorgu: 744 karakter
+   ✓ Sorgu: 746 karakter
 
 🔍 Belgeler Taranıyor (Dual Search - Aşama 1: Geniş Havuz)...
-   ✅ 10 potansiyel belge bulundu. Yargıca gönderiliyor...
+   ✅ 3 potansiyel belge bulundu. Yargıca gönderiliyor...
 
 ⚖️  Akıllı Yargıç Değerlendiriyor (V105: Corporate Intelligence):
-✅ [EMSAL KARAR] buyuk1.pdf           | Güven: %95.3 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
-✅ [EMSAL KARAR] buyuk2.pdf           | Güven: %95.3 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
-✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %94.3 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
-✅ [EMSAL KARAR] buyuk5.pdf           | Güven: %93.7 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
-✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %93.5 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
-✅ [EMSAL KARAR] buyuk5.pdf           | Güven: %92.3 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
-✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %92.1 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
-✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %94.7 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
-✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %94.6 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
-✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %92.5 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk1.pdf           | Güven: %93.7 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk1.pdf           | Güven: %93.7 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %93.2 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
 
 ████████████████████████████████████████████████████████████████████████████████
 🖥️  LEGAL OS V110 - TAM KAPSAMLI ANALİZ VE TAKİP RAPORU
 ████████████████████████████████████████████████████████████████████████████████
 
 ⏱️ 0. İŞLEM ZAMAN ÇİZELGESİ (AUDIT LOG):
-   🕒 [23:03:55] İçtihatlar Analiz Edildi -> 3 adet yüksek güvenli ilke tespit edildi.
-   🕒 [23:03:55] Risk Skoru Hesaplandı -> Başarı ihtimali: %41.9
-   🕒 [23:08:54] Yargısal Bakışlar Üretildi -> Hakim, Karşı Taraf ve Uzman görüşleri simüle edildi.
-   🕒 [23:09:53] Aksiyon Planı Oluşturuldu -> 3 adet somut iş paketi hazırlandı.
-   🕒 [23:09:53] Gelecek Simülasyonu -> Skor artış potansiyeli: +19
-   🕒 [23:09:53] Risk Skoru Hesaplandı -> Başarı ihtimali: %56.9
-   🕒 [23:13:17] Yargısal Bakışlar Üretildi -> Hakim, Karşı Taraf ve Uzman görüşleri simüle edildi.
-   🕒 [23:14:04] Aksiyon Planı Oluşturuldu -> 3 adet somut iş paketi hazırlandı.
-   🕒 [23:14:04] Gelecek Simülasyonu -> Skor artış potansiyeli: +15
-   🕒 [23:14:04] Risk Skoru Hesaplandı -> Başarı ihtimali: %79.9
-   🕒 [23:18:08] Yargısal Bakışlar Üretildi -> Hakim, Karşı Taraf ve Uzman görüşleri simüle edildi.
-   🕒 [23:19:28] Aksiyon Planı Oluşturuldu -> 3 adet somut iş paketi hazırlandı.
-   🕒 [23:19:28] Gelecek Simülasyonu -> Skor artış potansiyeli: +13
+   🕒 [07:32:24] İçtihatlar Analiz Edildi -> 3 adet yüksek güvenli ilke tespit edildi.
+   🕒 [07:32:24] Risk Skoru Hesaplandı -> Başarı ihtimali: %31.9
+   🕒 [07:37:25] Yargısal Bakışlar Üretildi -> Hakim, Karşı Taraf ve Uzman görüşleri simüle edildi.
+   🕒 [07:38:42] Aksiyon Planı Oluşturuldu -> 3 adet somut iş paketi hazırlandı.
+   🕒 [07:38:42] Gelecek Simülasyonu -> Skor artış potansiyeli: +15
+   🕒 [07:38:42] Risk Skoru Hesaplandı -> Başarı ihtimali: %46.9
+   🕒 [07:42:13] Yargısal Bakışlar Üretildi -> Hakim, Karşı Taraf ve Uzman görüşleri simüle edildi.
+   🕒 [07:43:14] Aksiyon Planı Oluşturuldu -> 3 adet somut iş paketi hazırlandı.
+   🕒 [07:43:14] Gelecek Simülasyonu -> Skor artış potansiyeli: +14
+   🕒 [07:43:14] Risk Skoru Hesaplandı -> Başarı ihtimali: %75.0
+   🕒 [07:47:48] Yargısal Bakışlar Üretildi -> Hakim, Karşı Taraf ve Uzman görüşleri simüle edildi.
+   🕒 [07:48:51] Aksiyon Planı Oluşturuldu -> 3 adet somut iş paketi hazırlandı.
+   🕒 [07:48:51] Gelecek Simülasyonu -> Skor artış potansiyeli: +18
 --------------------------------------------------------------------------------
 📂 1. BELGE TARAMA VE YARGIÇ DEĞERLENDİRMESİ:
-   📄 buyuk1.pdf (Sf.1) -> [DOĞRUDAN DELİL]
+   📄 buyuk1.pdf (Sf.0) -> [EMSAL İLKE]
       ↳ Gerekçe: [ÇOK BENZER]
 
-Gerekçe: Her iki durumda da mirastan çıkarma veya vasiyetname olmayan durumlarda miras...
-   📄 buyuk2.pdf (Sf.1) -> [EMSAL İLKE]
+Gerekçe: Emşal kararında mirasçılıktan çıkarılan kişinin miras payının ne durumda neye...
+   📄 buyuk1.pdf (Sf.1) -> [EMSAL İLKE]
       ↳ Gerekçe: [ÇOK BENZER]
 
-Gerekçe: Her iki durumda da mirastan çıkarma veya vasiyetname olmayan durumlarda miras...
-   📄 buyuk7.pdf (Sf.5) -> [EMSAL İLKE]
-      ↳ Gerekçe: [ÇOK BENZER]
-
-Gerekçe: Her iki durumda da mirastan çıkarma veya vasiyetname olmayan durumlarda miras...
-   📄 buyuk5.pdf (Sf.1) -> [DOĞRUDAN DELİL]
-      ↳ Gerekçe: [ÇOK BENZER]
-
-Gerekçe: Her iki durumda da mirasçılık belgesinin düzenlenmesi konusu ve bu işlemde va...
-   📄 buyuk7.pdf (Sf.6) -> [EMSAL İLKE]
-      ↳ Gerekçe: [ÇOK BENZER/UYGUN]
-
-Gerekçe: Her iki durumda da mirasçılık belgesinin düzenlenmesi konusu ele alınma...
-   📄 buyuk5.pdf (Sf.2) -> [DOĞRUDAN DELİL]
-      ↳ Gerekçe: [ÇOK BENZER]
-
-Gerekçe: Her iki durumda da mirasçılık belgesinin düzenlenmesi konusunda hukuki temel ...
-   📄 buyuk7.pdf (Sf.3) -> [DOĞRUDAN DELİL]
-      ↳ Gerekçe: [ÇOK BENZER]
-
-Gerekçe: Emşal kararında mirastan feragat sözleşmesinin hukuki niteliği ve uygulaması ...
+Gerekçe: Bu EMSAL kararında belirtilen durum, mirastan çıkarma ve vasiyetname bulunmad...
    📄 TürkMedeniKanunu.pdf (Sf.119) -> [DOĞRUDAN DELİL]
       ↳ Gerekçe: [ÇOK BENZER]
 
-Gerekçe: Bu kanun maddesi, mirasçılık belgesinin geçersiz olmasına ilişkin kuralları v...
-   📄 TürkMedeniKanunu.pdf (Sf.120) -> [EMSAL İLKE]
-      ↳ Gerekçe: [ÇOK BENZER/UYGUN]
-
-Gerekçe: Bu kanun maddesi, miras reddine ilişkin kuralları belirtir ve olayda va...
-   📄 TürkMedeniKanunu.pdf (Sf.107) -> [EMSAL İLKE]
-      ↳ Gerekçe: [ÇOK BENZER]
-
-Gerekçe: Bu kanun maddesi, mirastan çıkarma ve vasiyetname olmayan durumlarda mirasçıl...
+Gerekçe: Bu kanun maddesi, mirasçılık belgesinin geçersiz olabileceğini ve mirasçılar ...
 --------------------------------------------------------------------------------
 ⚖️  2. SEÇİLEN TEMEL İLKE:
    "Yeni bir mirasçılık belgesinin düzenlenmesi için vasiyetname veya mirastan çıkarma olmaksızın bu işlemin hukuki temeli b..."
@@ -110,103 +75,123 @@ Gerekçe: Bu kanun maddesi, mirastan çıkarma ve vasiyetname olmayan durumlarda
 ⏳ 10. İLKE EVRİMİ: 💎 YERLEŞİK VE GÜNCEL.
 📅 11. GÜNCEL İÇTİHAT UYARISI: 2022-2024 Dönemi
 --------------------------------------------------------------------------------
-🎲 13. RİSK & BAŞARI SKORU: %41.9 (Orta)
+🎲 13. RİSK & BAŞARI SKORU: %31.9 (Düşük)
 ❓ 14. NEDEN BU SKOR?: Riskli.
 --------------------------------------------------------------------------------
 🗣️  PERSONA GÖRÜŞLERİ:
-   👨‍⚖️ 15. HAKİM DİLİ: "Aksi görüşün zayıf çünkü Türk Hükümeti ve yasalarına uygun olmayan kararlar vermek hakiminin amaca a..."
-   🏛️ 16. Davalı Vekili (KARŞI TARAF): "Türk Hukuki bağlamında, davalı vekili olarak görev yaparken, hedefim her zaman adaletin sağlanması v..."
-   🔍 17. BİLİRKİŞİ DİLİ: "Türk Hukuku alanında teknik bir dille konuşmak için, size çeşitli konular sunabilirim. Hangi konuda ..."
-   🛑 18. HAKİM NEDEN REDDEDER?: "Bu sorunun tam olarak hangi hukuki durumu veya davayı ele alması gerektiği belirsiz görünüyor. Ancak..."
+   👨‍⚖️ 15. HAKİM DİLİ: "Aksi görüşün zayıf çünkü Türk Hukuki sisteminde Yargıtay ve Başka Hakimler Meclisi'nin (BAM) kararla..."
+   🏛️ 16. Davalı Vekili (KARŞI TARAF): "Türk Hukuki bağlamında, davalı vekili olarak 31.9 skoru elde etmek oldukça iyi bir puan olduğunu söy..."
+   🔍 17. BİLİRKİŞİ DİLİ: "Türk Hukuku alanında teknik bir dille konuşmak için, bazı temel kavramları ve terminolojileri kullan..."
+   🛑 18. HAKİM NEDEN REDDEDER?: "Bu sorunun tam olarak hangi hukuki durumu veya davayı ele alacak olduğuna bağlı olarak cevap verebil..."
 --------------------------------------------------------------------------------
 ⚔️  19. PERSONA ÇELİŞKİ ANALİZİ: Düşük (Skor: 50)
       🔴 Savcı güçlü, hakim ihtiyatlı
       🔴 Risk odakları farklı
 --------------------------------------------------------------------------------
 ✍️  20. GEREKÇELİ KARAR TASLAĞI:
-   ### Anlamsal Benzer Kararlar ve Hukuki Belgeler Tespiti
+   **Gerekçe ve Karar Taslağı**
 
-#### 1. **Yargıtay İçtihat No: 2005/374**
-   - **Tarih:** 26 Mart 2005
-   - **Konu:** Mirasçılık belgesi talebi ve mirastan çıkarma (ıskat) ve ...
+**Konu:** Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin miras...
 --------------------------------------------------------------------------------
 📝 21. YÖNETİCİ ÖZETİ (BU DOSYA NEDEN RİSKLİ?):
-   Risk özeti:
+   Bu durumda, risk özeti ve kırılma noktasını belirlemek için daha fazla bilgiye ihtiyaç duyulabilir. Ancak, Türk Hukuku bağlamında genel bir yaklaşım sunabilirim:
 
-Bu karar, Türk Hukuku bağlamında kabul eğilimindedir ve bu durumun yasal ve sosyal açıdan olumlu sonuçlar doğrudan veya dolaylı olarak getirebileceği düşünülüyor. Ancak, herhangi bir kararın uygulanması sırasında ortaya çıkabilecek potansiyel riskler de göz önünde bulundurulmalıdır:
+Risk Özeti:
+1. Kararın belirsizliği: Belirsiz karar, yasal veya hukuki durumu belirliyorum olmaz.
+2. Potansiyel yasal sorunlar: Kararın uygulanması sonucunda ortaya çıkabilecek yasal çatışmalara ve iddialara karşı hazırmız.
+3. Ekonomik ve sosyal etkiler: Belirsiz karar, işletmelere veya bireylere potansiyel olarak ekonomik zararlara neden olabilir.
 
-1. **Yasal Uyumluluğun Kontrolü**: Kararın yasal çerçevesine uygun olup olmadığı kontrol edilmeli ve gerekli düzenlemeler yapılmalıdır.
-2. **Sosyal Reaksiyonlar**: Kararın uygulanması sonucunda ortaya çıkabilecek sosyal tepkiler ve gerilimler değerlendirilmelidir.
-3. **İşletimsel Sorunlar**: Uygulama sürecinde karşılaşılacak olan işletimsel zorluklar ve potansiyel sorunların önceden belirlenmesi gerekmektedir.
+Kırılma Noktası:
+Kırılma noktası, durumu belirsiz bir durumdan daha net bir hale getirmek için gereken eylemi ifade eder. Bu noktayı belirlemek için şu sorulara cevap arayabiliriz:
 
-Kırılma noktası:
+1. Kararın belirlenmesi için ne kadar zaman ve kaynak harcanacak?
+2. Belirsizliği çözme çabaları sonucunda ortaya çıkabilecek potansiyel riskler nedir?
+3. Kararın uygulanması sonucunda beklenen olumlu sonuçlar, belirsiz durumu devam ettirmekten daha fazla mı?
+4. Alternatif çözümler ve onların etkileri ne?
 
-Kararın kabul eğilimli olmasına rağmen, kırılma noktasının belirlenmesi önemlidir. Bu nokta, kararın uygulanması sırasında ortaya çıkabilecek en büyük sorun veya riski temsil eder. Kırılma noktasını belirlemek için şu faktörleri göz önünde bulundurmak önemlidir:
-
-1. **Yasal Uyumluluk**: Kararın yasal çerçevesine tam olarak uymadığı durumlar.
-2. **Sosyal Reaksiyonlar**: Kararın uygulanması sonucunda olası sosyal tepkiler ve gerilimler.
-3. **İşletimsel Zorluklar**: Uygulama sürecinde karşılaşılacak olan en büyük işletimsel zorluklar.
-
-Örneğin, kararın yasal çerçevesine tam olarak uymadığı durumda veya sosyal tepkiler neden olabilecek hedef grupların varsa, bu durumlardan biri kırılma noktasını oluşturabilir. Ayrıca, uygulama sürecinde karşılaşılan en büyük işletimsel zorluklar da kırılma noktasına katkıda bulunabilir.
-
-Sonuç olarak, risk özeti ve kırılma noktası belirleme süreci, kararın uygulanması sırasında ortaya çıkabilecek olası sorunları önceden belirlemek ve bunları önlemeye veya en az zararlı şekilde yönetmek için gereklidir.
+Bu genel yaklaşım, belirli bir duruma uygulandığında daha spesifik bilgiler ve bağlamın değerlendirilmesine dayanmalıdır.
 --------------------------------------------------------------------------------
 🚀 22/26/27. GÜÇLENDİRME & SOMUT İŞ PAKETLERİ:
-   📦 [ID: ad6c3f] Metinde belirtilen üç hukuki zayıflığı, metnin içeriği ve bağlamını dikkate alar...
-      ↳ Kaynak: Nüfus Müdürlüğü (MERNİS) (Müzekkere/Sorgu) (Adet: 2)
-      ↳ Risk: Bu husus giderilmezse 'Verilen metinde 3 hukuki zayıflığı liste...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
-      ↳ Etki: +10 Puan
-   📦 [ID: dbbb33] "Sayın Hakim, tereddütiniz hakkındaki kararınızı rehberleştirmek üzere şunları ö...
+   📦 [ID: b0f5f4] Hakimin tereddüdünü çözmek için, metindeki hukuki zayıflıkları belirleyen ve bun...
       ↳ Kaynak: Nüfus Müdürlüğü (MERNİS) (Müzekkere/Sorgu) (Adet: 1)
-      ↳ Risk: Bu husus giderilmezse '1. **Yasal Temel Olmayan Karar:...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
-      ↳ Etki: +5 Puan
-   📦 [ID: de5b87] Hakim, metninizde belirtildiği gibi karardaki yasal temelin eksikliğini vurgulay...
-      ↳ Kaynak: Nüfus Müdürlüğü / UYAP (Kayıt Celbi) (Adet: 1)
-      ↳ Risk: Bu husus giderilmezse 'Metinde "Türk Hükümeti ve yasalarına uyg...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
-      ↳ Etki: +7 Puan
+      ↳ Risk: Bu husus giderilmezse 'Metindeki 3 hukuki zayıflığı şu şekilde ...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ↳ Etki: +2 Puan
+   📦 [ID: 6e5aa5] Hukukçu,
+
+Tereddütiniz hakkındaki konu hakkında somut deliller ve ispatlar sunar...
+      ↳ Kaynak: Nüfus Müdürlüğü (MERNİS) (Müzekkere/Sorgu) (Adet: 2)
+      ↳ Risk: Bu husus giderilmezse '1. **Genel Geçerlilik ve Uygulanabilirli...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ↳ Etki: +9 Puan
+   📦 [ID: 725713] Avukatınız, metnin belirli davaya uygun spesifik gerekçeler sunarak hakimin tere...
+      ↳ Kaynak: Nüfus Müdürlüğü (MERNİS) (Müzekkere/Sorgu) (Adet: 3)
+      ↳ Risk: Bu husus giderilmezse 'Metin genel bir durumu ele alırken, beli...' yönünden hakim tereddüdü devam eder ve ispat yükü karşılanamaz.
+      ↳ Etki: +8 Puan
 --------------------------------------------------------------------------------
 🔮 23/28. SİMÜLASYON SONUCU:
-   Mevcut: %41.9 --> Hedef: %60.9
-   Artış: +19 Puan
+   Mevcut: %31.9 --> Hedef: %46.9
+   Artış: +15 Puan
 ████████████████████████████████████████████████████████████████████████████████
 
 
 🧑‍⚖️  AVUKAT YAZIYOR (V105: Final Output)...
-### Analiz Sonucu
+### A. MEVZUAT DAYANAKLARI
 
-#### Ana Konular ve İlişkiler:
-1. **Mirasçılık Belgesinin Geçersizliği ve Miras Reddine ilişkin Kurallar**:
-   - **Belge #8 ve #9**: Bu belgeler, mirasçılık belgesinin geçersiz olmasına ve miras reddine ilişkin kuralları açıklıyor. İlişkisi, olayda mirasçılık belgesi talebi ve mirastan çıkarma veya vasiyetname bulunmadığı durumlar incelenmesi gerektiği konusunda benzerlik gösteriyor.
+- **Mevzuat Dayanakları:** 
+  - **Türk Medeni Kanunu (TMK) Madde 599:** Bu maddede, mirasçılık belgesinin geçersiz olabileceğini ve mirasçılar doğrudan doğruya mirası kazanabileceklerini belirtmektedir. Bu durum, olayla çok benzerlik göstermektedir.
 
-2. **Mirasçılık Belgesinin Düzenlenmesi ve Mirastan Çıkarma**:
-   - **Belge #6, #7, #10**: Bu belgeler, mirasçılık belgesinin düzenlenmesi konusunda hukuki temel eksiklikler ve bu nedenle kararın bozulması gerektiği görüşünü ortaya koymaktadır. İlişkisi, olayda mirastan çıkarma veya vasiyetname bulunmadığı durumlarla ilgili hukuki temellere benzerlik gösteriyor.
+### B. İLGİLİ EMSAL KARARLAR
 
-3. **Mirasreddine ve Mirastan Çıkarmaya ilişkin Hukuki Temeller**:
-   - **Belge #5, #6, #7**: Bu belgeler, miras reddine ve mirastan çıkarma konusunda hukuki temel eksiklikler ve bu nedenle kararın bozulması gerektiği görüşünü ortaya koymaktadır. İlişkisi, olayda mirastan çıkarma veya vasiyetname bulunmadığı durumlarla ilgili hukuki temellere benzerlik gösteriyor.
+- **EMSAL KARAR 1:**
+  - **Gerekçe:** Emşal kararında mirasçılıktan çıkarılan kişinin miras payının ne durumda neye kalacağı konusunda belirgin bir karar verilmesi ve mirasçılık belgesinin düzenlenmesi için vasiyetname veya mirastan çıkarma olmaksızın hukuki temellere dayalı karar verilmesi gibi noktalar, soruludoğu olayla çok benzerlik göstermektedir.
+  - **İçerik Özeti:** Hukukundan doğan yükümlülüklerini önemli ölçüde yerine getirmemişse ölüme bağlı bir tasarrufla saklı paylı mirasçısını mirasçılıktan çıkarabilir. Mirasçılıktan çıkarılan kişi, mirastan pay alamaz. Mirasçılıktan çıkarılan kimsenin miras payı, o kimse miras bırakandan önce ölmüş gibi, mirasçılıktan çıkarılanın varsa altsoyuna, yoksa miras bırakanın yasal mirasçılarına kalır. Mirasçılıktan çıkarılan kimsenin altsoyu, o kimse miras bırakandan önce ölmüş gibi saklı payını isteyebilir. Mirasçılık belgesi istemek ise, maddi bir olayın varlığını ikrar ile kişiler arasındaki soybağı ilişkisini tespit ettirmekten ibarettir.
+  - **Rol:** EMSAL İLKE
 
-4. **Yargıtay İçtihadi ve Mirastan Çıkarma**:
-   - **Belge #5, #6, #7**: Bu belgeler, Yargıtay içtihadiyle mirastan çıkarılan kişilerin mirasçılığı hakkında karar verme hakkını vurgulamaktadır. İlişkisi, olayda mirastan çıkarma veya vasiyetname bulunmadığı durumlarla ilgili hukuki temellere benzerlik gösteriyor.
+- **EMSAL KARAR 2:**
+  - **Gerekçe:** Bu EMSAL kararında belirtilen durum, mirastan çıkarma ve vasiyetname bulunmadığı ve mirasçılık belgesinin düzenlenmesi konusunda hukuki temellere dayalı karar verilme gerekliliği ile karşılaşılan olayın benzerlikleri nedeniyle çok benzemektedir.
+  - **İçerik Özeti:** Hukukundan doğan yükümlülüklerini önemli ölçüde yerine getirmemişse ölüme bağlı bir tasarrufla saklı paylı mirasçısını mirasçılıktan çıkarabilir. Mirasçılıktan çıkarılan kimse, mirastan pay alamaz. Mirasçılıktan çıkarılan kimsenin miras payı, o kimse miras bırakandan önce ölmüş gibi, mirasçılıktan çıkarılanın varsa altsoyuna, yoksa miras bırakanın yasal mirasçılarına kalır. Mirasçılıktan çıkarılan kimsenin altsoyu, o kimse miras bırakandan önce ölmüş gibi saklı payını isteyebilir. Mirasçılık belgesi istemek ise, maddi bir olayın varlığını ikrar ile kişiler arasındaki soybağı ilişkisini tespit ettirmekten ibarettir.
+  - **Rol:** EMSAL İLKE
 
-5. **Mirasreddine ve Mirastan Çıkarmaya ilişkin Hukuki Temeller**:
-   - **Belge #9, #10**: Bu belgeler, miras reddine ve mirastan çıkarma konusunda hukuki ilkeleri ortaya koymaktadır. İlişkisi, olayda mirastan çıkarma veya vasiyetname bulunmadığı durumlarla ilgili hukuki temellere benzerlik gösteriyor.
+### C. SONUÇ VE HUKUKİ TAVSİYE
 
-### Önerilen Eylemler ve Karar Verme Yolu:
+- **Sonuç:**
+  - Mirastan çıkarma ve vasiyetname bulunmadığı durumda, mirasçılık belgesinin düzenlenmesi konusunda hukuki temellere dayalı karar verilme gerekliliği ile karşılaşılan olay, Türk Medeni Kanunu (TMK) Madde 599 ve EMSAL KARAR 1-2'ye göre çok benzerlik göstermektedir.
+  
+- **Hukuki Tavsiye:**
+  - Olayın durumu, mirasçılık belgesinin geçersiz olabileceğini ve mirasçılar doğrudan doğruya mirası kazanabileceklerini belirtmektedir. Mirastan çıkarma ve vasiyetname bulunmadığı durumda, mirasçılık belgesi istemek veya düzenlemesi konusunda hukuki temellere dayalı karar verilmesi gerekmektedir.
+  - Mirasçılıktan çıkarılan kişinin miras payının ne durumda neye kalacağı konusunda belirgin bir karar verilmesi ve mirasçılık belgesinin düzenlenmesi için vasiyetname veya mirastan çıkarma olmaksızın hukuki temellere dayalı karar verilmesi gibi noktalar, olayla çok benzerlik göstermektedir.
+  - Mirasçılıktan çıkarılan kimsenin miras payının ne durumda neye kalacağı konusunda belirgin bir karar verilmesi ve mirasçılık belgesinin düzenlenmesi için vasiyetname veya mirastan çıkarma olmaksızın hukuki temellere dayalı karar verilmesi gibi noktalar, olayla çok benzerlik göstermektedir.
 
-1. **Mirasçılık Belgesinin Geçersiz Olmasına ilişkin İnceleme**:
-   - Olayda mirasçılık belgesi talebi, mirastan çıkarma veya vasiyetname bulunmadığı durumlar incelenmesi gerektiği konusunda benzer bir yaklaşımla ilgili olduğu için, mirasçılık belgesinin geçersiz olmasına ilişkin kuralları ve hukuki temelleri dikkatlice incelemek önemlidir.
+C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V114.py:1444: DeprecationWarning: "uni" parameter is deprecated since v2.5.1 and will be removed in a future release
+  self.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
+C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V114.py:1445: DeprecationWarning: "uni" parameter is deprecated since v2.5.1 and will be removed in a future release
+  self.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
+C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V114.py:1446: DeprecationWarning: "uni" parameter is deprecated since v2.5.1 and will be removed in a future release
+  self.add_font("DejaVu", "I", "fonts/DejaVuSans.ttf", uni=True)
+C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V114.py:1447: DeprecationWarning: "uni" parameter is deprecated since v2.5.1 and will be removed in a future release
+  self.add_font("DejaVu", "I", "fonts/DejaVuSans.ttf", uni=True)
+C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V114.py:1447: UserWarning: Core font or font already added 'dejavuI': doing nothing
+  self.add_font("DejaVu", "I", "fonts/DejaVuSans.ttf", uni=True)
+C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V114.py:1448: DeprecationWarning: "uni" parameter is deprecated since v2.5.1 and will be removed in a future release
+  self.add_font("DejaVu", "BI", "fonts/DejaVuSans-Bold.ttf", uni=True)
 
-2. **Mirasreddine ve Mirastan Çıkarmaya ilişkin Hukuki Temeller**:
-   - Olayda mirastan çıkarma veya vasiyetname bulunmadığı durumlarla ilgili hukuki temellere dayalı olarak, miras reddine ve mirastan çıkarma konusunda hukuki ilkeleri ve Yargıtay içtihadiyi dikkate alarak karar vermek gereklidir.
-
-3. **Mirasçılık Belgesinin Düzenlenmesi**:
-   - Mirasçılık belgesinin düzenlenmesi konusunda, hukuki temel eksiklikler ve bu nedenle kararın bozulması gerektiği görüşünü dikkate alarak, mirastan çıkarma veya vasiyetname bulunmadığı durumlarla ilgili hukuki temellere dayalı olarak karar vermek önemlidir.
-
-### Sonuç:
-Olayın çözümü için, mirasçılık belgesinin geçersiz olmasına ve mirastan çıkarma veya vasiyetname bulunmadığı durumlarla ilgili hukuki temelleri dikkate alarak, miras reddine ve mirastan çıkarma konusunda hukuki ilkeleri ve Yargıtay içtihadiyi kullanmak en uygun yoldur.
-
-
-⚠️ Hata: Character "İ" at index 3 in text is outside the range of characters supported by the font used: "helveticaB". Please consider using a Unicode font.
+📄 Kurumsal Rapor (V110) Hazır: Hukuki_Rapor_V110.pdf
+------------------------------------------------------------
+📝 Olay: 
+⚠️ Hata: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
 
 🔒 Veritabanı bağlantısı güvenli şekilde kapatıldı.
+Exception ignored in atexit callback: <bound method finalize._exitfunc of <class 'weakref.finalize'>>
+Traceback (most recent call last):
+  File "C:\Users\democh\AppData\Local\Programs\Python\Python311\Lib\weakref.py", line 666, in _exitfunc
+    f()
+  File "C:\Users\democh\AppData\Local\Programs\Python\Python311\Lib\weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\democh\PycharmProjects\game\hukuk\Lib\site-packages\torch\library.py", line 402, in _del_library
+    handle.destroy()
+  File "C:\Users\democh\PycharmProjects\game\hukuk\Lib\site-packages\torch\_library\utils.py", line 29, in destroy
+    def destroy(self) -> None:
 
-Process finished with exit code 0
+KeyboardInterrupt: 
+
+Process finished with exit code -1

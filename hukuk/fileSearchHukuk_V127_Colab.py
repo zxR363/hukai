@@ -78,17 +78,20 @@ class LegalConfig:
 
     # V124: GÜÇLENDİRİLMİŞ PROMPT GUARD
     PROMPT_GUARD = """
-ZORUNLU YAZIM KURALLARI:
-- Aynı cümleyi veya aynı fikri tekrar etme.
-- Bir kavramı yalnızca BİR KEZ açıkla.
-- Genel hukuk anlatısı yapma.
-- Akademik veya öğretici dil kullanma (örneğin "hukuki rejim", "normatif düzenleme").
-- Her paragraf yeni bir bilgi içersin.
-- Kısa, net ve dosyaya özgü yaz.
-- Aynı TMK maddesini birden fazla kez açıklama.
-- "Genel olarak" , "genellikle" gibi belirsiz ifadeler kullanma.
-- Aynı cümleyi farklı şekilde tekrar etme.
-- Emsal karar yoksa uydurma.
+ZORUNLU YAZIM VE AKIL YÜRÜTME KURALLARI:
+
+1. SADECE verilen olay, scope ve hukuki bağlam içinde kal.
+2. Genel hukuk bilgisi, öğretici anlatım veya akademik açıklama YAPMA.
+3. “Genel olarak”, “çoğunlukla”, “doktrinde” gibi belirsiz ifadeler KULLANMA.
+4. Aynı hukuki ilkeyi veya TMK/Yargıtay maddesini BİR KEZ açıkla.
+5. Aynı düşünceyi farklı kelimelerle TEKRAR ETME.
+6. Somut olayla bağlantısı olmayan hiçbir bilgi EKLEME.
+7. Emsal yoksa uydurma; belirsizlik varsa AÇIKÇA belirt.
+8. Değer yargısı, ahlaki yorum, sosyal politika yorumu YAPMA.
+9. “Bu durumda karar verilmelidir” gibi HÜKÜM KURAN ifadeler kullanma.
+10. Hakim, avukat veya bilirkişi rolü dışında düşünme.
+11. Çıktı, gerçek bir mahkeme dosyasına girebilecek ciddiyette olsun.
+12. Bu kuralların dışına çıkma; çıktıyı bu kurallara göre DENETLE.
 """
 
     # --- V120: CORE RULE REGISTRY (YAML SIMULATION) ---

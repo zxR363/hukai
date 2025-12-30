@@ -233,6 +233,7 @@ class ReportOrchestrator:
     def generate_all(self, **kwargs) -> List[str]:
         paths = []
         for reporter in self.reporters:
+
             path = reporter.generate(**kwargs)
             paths.append(path)
         return paths
@@ -263,8 +264,8 @@ class PDFFontManager:
         """
         try:
             if (
-                os.path.exists("fonts/DejaVuSans.ttf")
-                and os.path.exists("fonts/DejaVuSans-Bold.ttf")
+                    os.path.exists("fonts/DejaVuSans.ttf")
+                    and os.path.exists("fonts/DejaVuSans-Bold.ttf")
             ):
                 self.pdf.add_font(
                     "DejaVu", "",
@@ -279,10 +280,11 @@ class PDFFontManager:
                 self.pdf.set_font("DejaVu", "", 10)
                 self.unicode_enabled = True
             else:
-                raise FileNotFoundError
-
-        except Exception:
-            # 🔒 Güvenli fallback
+                print("⚠️ DejaVu fontu bulunamadı. Arial fallback kullanılıyor.")
+                self.pdf.set_font("Arial", "", 10)  # Fallback doğrudan burada
+                self.unicode_enabled = False
+        except Exception as e:
+            print(f"⚠️ Font hatası: {e}. Arial fallback kullanılıyor.")
             self.pdf.set_font("Arial", "", 10)
             self.unicode_enabled = False
 

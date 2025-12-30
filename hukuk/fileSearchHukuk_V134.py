@@ -622,7 +622,6 @@ class LegalTextSanitizer:
         self.dropped_count = 0
 
     def enforce_no_repeat(self, text):
-
         PROTECTED_PREFIXES = (
             "⚠️",
             "A.",
@@ -634,22 +633,23 @@ class LegalTextSanitizer:
         """Metindeki anlamsal tekrarları ve aynı kanun maddelerini temizler."""
         if not text: return ""
 
-        # Markdown başlıklarını koru, içeriği satır satır böl
         lines = text.split("\n")
         cleaned_lines = []
 
         for line in lines:
+            # 1. ÖNCE değişkeni tanımla
+            clean_line = line.strip()
+
+            # 2. SONRA kontrol et
             if clean_line.startswith(PROTECTED_PREFIXES):
                 cleaned_lines.append(line)
                 continue
 
-            clean_line = line.strip()
             if len(clean_line) < 5:  # Çok kısa satırları (boşluk vb.) geç
                 cleaned_lines.append(line)
                 continue
 
             # --- V121 GÜNCELLEME: Madde Numarası Kontrolü ---
-            # "Madde 598", "Md. 598", "TMK m. 598" gibi yapıları yakalar.
             article_match = re.search(
                 r'(?:(TMK|HMK|BK|TBK|CMK)\s*)?(?:Madde|Md\.|m\.)\s*(\d+)',
                 clean_line,

@@ -34,10 +34,18 @@ if project_root not in sys.path:
 os.chdir(project_root)
 
 import uuid
-try:
-    from web.legal_engine import LegalSearchEngine, LegalJudge, LegalReporter
-except ImportError:
-    from legal_engine import LegalSearchEngine, LegalJudge, LegalReporter
+
+# --- MOCK TOGGLE (SET TO True FOR TESTING) ---
+USE_MOCK = True 
+
+if USE_MOCK:
+    print("⚠️  WARNING: Using MOCK Legal Engine (Test Mode)")
+    from web.mock_legal_engine import LegalSearchEngine, LegalJudge, LegalReporter
+else:
+    try:
+        from web.legal_engine import LegalSearchEngine, LegalJudge, LegalReporter
+    except ImportError:
+        from legal_engine import LegalSearchEngine, LegalJudge, LegalReporter
 
 app = FastAPI(title="Legal Suite V55 Web")
 

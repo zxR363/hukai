@@ -1,83 +1,60 @@
 import asyncio
 import random
+import os
+
+class MockHit:
+    def __init__(self, score, payload):
+        self.score = score
+        self.payload = payload
 
 class LegalSearchEngine:
-    def __init__(self, log_callback=None):
-        self.log_callback = log_callback
+    def __init__(self):
+        pass
 
-    async def alog(self, msg: str):
-        if self.log_callback:
-            await self.log_callback(msg)
+    def connect_db(self):
+        return True
 
-    async def run_analysis(self, story: str, topic: str, negatives: list):
-        # 1. Start
-        await self.alog("-" * 60)
-        await self.alog(f"📝 Olay: {story}")
-        await self.alog(f"🎯 Odak: {topic}")
-        await asyncio.sleep(0.5)
+    def validate_user_input(self, story, topic):
+        return True
 
-        # 2. Search Simulation
-        await self.alog("\n🔍 Belgeler Taranıyor (Dual Search - Aşama 1)...")
-        await asyncio.sleep(1.0)
-        await self.alog("   ✓ Sorgu Genişletildi: 145 karakter")
-        await self.alog("   ✓ Vektör Arama Tamamlandı: 25 aday bulundu")
-
-        # 3. Judge Simulation
-        await self.alog("\n⚖️  Akıllı Yargıç Değerlendiriyor (Aşama 2: Rol Atama)...")
-        
-        # Generate some dummy docs
-        docs = []
-        doc_templates = [
-            ("Yargitay_3_HD_2023_145.pdf", "EMSAL KARAR", "[EMSAL İLKE]", 92.5),
-            ("Yargitay_12_CD_2022_89.pdf", "EMSAL KARAR", "[DOĞRUDAN DELİL]", 88.0),
-            ("TBK_Madde_444.pdf", "MEVZUAT", "[EMSAL İLKE]", 95.0),
-            ("Bilirkişi_Raporu_Örnek.pdf", "EMSAL KARAR", "[EMSAL İLKE]", 75.4),
-            ("Anayasa_Mahkemesi_Karari.pdf", "EMSAL KARAR", "[DOĞRUDAN DELİL]", 82.1),
+    def retrieve_raw_candidates(self, full_query):
+        # Return mock candidates that look like Qdrant hits
+        return [
+            MockHit(0.95, {"source": "Mock_Mevzuat_1.pdf", "page": 1, "type": "MEVZUAT", "page_content": "Mock mevzuat içeriği..."}),
+            MockHit(0.88, {"source": "Mock_Karar_1.pdf", "page": 5, "type": "EMSAL KARAR", "page_content": "Mock karar içeriği..."})
         ]
 
-        for i, (src, type_desc, role, score) in enumerate(doc_templates):
-            await asyncio.sleep(0.3) # Simulate processing time per doc
-            reason = f"Bu belge, {topic} konusundaki {random.choice(['emsal niteliği', 'hukuki dayanağı', 'benzerlik derecesi'])} nedeniyle seçilmiştir."
-            
-            await self.alog(f"✅ [{type_desc}] {src} | Güven: %{score:.1f} | Rol: {role}")
-            
-            docs.append({
-                "source": src,
-                "page": i + 1,
-                "type": type_desc,
-                "role": role,
-                "text": f"<h1>{src} İçeriği</h1><p>Bu bir simülasyon içeriğidir. {story} konusu ile ilgili önemli hukuki değerlendirmeler içermektedir.</p><p>LOREM IPSUM DOLOR SIT AMET...</p>",
-                "score": score,
-                "reason": reason
+    def close(self):
+        pass
+
+class LegalJudge:
+    def __init__(self):
+        pass
+
+    def generate_expanded_queries(self, story, topic):
+        return ["mock sorgu 1", "mock sorgu 2"]
+
+    def evaluate_candidates(self, candidates, story, topic, negatives):
+        valid_docs = []
+        for i, hit in enumerate(candidates):
+            valid_docs.append({
+                "source": hit.payload['source'],
+                "page": hit.payload['page'],
+                "type": hit.payload['type'],
+                "role": "[EMSAL İLKE]" if i % 2 == 0 else "[DOĞRUDAN DELİL]",
+                "text": hit.payload['page_content'] + "\n(MOCK DATA)",
+                "score": hit.score * 100,
+                "reason": "Bu bir mock değerlendirme gerekçesidir."
             })
+        return valid_docs
 
-        # 4. Writing Simulation
-        await self.alog("\n🧑‍⚖️  AVUKAT YAZIYOR (Role-Aware Mode)...")
-        await asyncio.sleep(1.5)
-        
-        advice = """
-# HUKUKİ ANALİZ RAPORU
+    def generate_final_opinion(self, story, topic, context_str):
+        return f"MOCK ANALİZ SONUCU:\n\n{story} ve {topic} özelinde yaptığımız simülasyon sonucunda, ekli belgelerin lehinize olduğu değerlendirilmektedir."
 
-## A. MEVZUAT DAYANAKLARI
-Bu olayda Türk Borçlar Kanunu Madde 444 ve ilgili yönetmelikler esas alınmalıdır.
-
-## B. İLGİLİ EMSAL KARARLAR
-**1. Yargıtay 3. Hukuk Dairesi 2023/145:**
-Benzer bir uyuşmazlıkta mahkeme, kiracının tahliyesine karar vermiştir.
-
-**2. Yargıtay 12. Ceza Dairesi 2022/89:**
-Burada suçun maddi unsurlarının oluşmadığına hükmedilmiştir.
-
-## C. SONUÇ VE TAVSİYE
-Müvekkilinizin durumu, yukarıdaki emsal kararlar ışığında değerlendirildiğinde, davanın lehine sonuçlanma ihtimali yüksektir. Ancak delillerin sağlamlaştırılması gerekmektedir.
-"""
-        await self.alog("\n✅ Analiz Tamamlandı.")
-        
-        return advice, docs
-
-# Helper to emulate original file's other exports if needed
-def create_pdf_report_file(story, docs, advice, path):
-    # Just create a dummy file
-    with open(path, "w", encoding="utf-8") as f:
-        f.write("DUMMY PDF CONTENT")
-    return True
+class LegalReporter:
+    @staticmethod
+    def create_report(user_story, valid_docs, advice_text, filename="results/Mock_Rapor.pdf"):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(f"MOCK REPORT\nStory: {user_story}\nAdvice: {advice_text}")
+        return True

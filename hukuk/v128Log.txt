@@ -1,0 +1,154 @@
+C:\Users\democh\PycharmProjects\game\hukuk\Scripts\python.exe C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_v128_Colab.py 
+🚀 LEGAL SUITE V128 (Precedent Layer Added)...
+   🔌 Veritabanı bağlantısı başlatılıyor...
+🔓 KİLİT DOSYASI TEMİZLENDİ.
+   ✅ Veritabanı bağlantısı BAŞARILI.
+   👉 Koleksiyon kontrol ediliyor: MEVZUAT...
+      🔍 Mevcut dosyalar taranıyor...
+      ✅ MEVZUAT güncel (3 dosya).
+   👉 Koleksiyon kontrol ediliyor: EMSAL KARAR...
+      🔍 Mevcut dosyalar taranıyor...
+      ✅ EMSAL KARAR güncel (17 dosya).
+✅ İndeksleme Tamamlandı.
+
+🔥 İÇTİHAT MİMARI: Artımlı Konsolidasyon (V120)...
+   ℹ️ Yeterli yeni veri yok.
+
+✅ SİSTEM HAZIR. (Çıkış: 'q')
+------------------------------------------------------------
+📝 Olay: Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et.
+🎯 Odak: miras hukuku
+🚫 Yasaklı: sendika
+   🛡️ Girdi kontrol ediliyor...
+   ↳ 🧠 Sorgu Genişletiliyor...
+   ✓ Sorgu: 785 karakter
+
+🔍 Belgeler Taranıyor (Dual Search - Aşama 1: Geniş Havuz)...
+   ✅ 10 potansiyel belge bulundu. Yargıca gönderiliyor...
+
+⚖️  Akıllı Yargıç Değerlendiriyor (V120: Corporate Intelligence):
+✅ [EMSAL KARAR] buyuk1.pdf           | Güven: %94.2 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk1.pdf           | Güven: %94.2 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %94.1 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %94.1 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk2.pdf           | Güven: %93.9 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [EMSAL KARAR] buyuk2.pdf           | Güven: %93.9 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk5.pdf           | Güven: %93.1 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %91.8 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %91.1 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %90.6 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+
+📝 PDF İçin Emsal Kartları Hazırlanıyor...
+
+████████████████████████████████████████████████████████████████████████████████
+🖥️  LEGAL OS V120 - YARGISAL ANALİZ VE TARTIŞMA RAPORU
+████████████████████████████████████████████████████████████████████████████████
+
+⏱️ İŞLEM ZAMAN ÇİZELGESİ (AUDIT LOG V120):
+   🔹 [18:36:14] İçtihatlar Analiz Edildi
+      ↳ 3 adet yüksek güvenli ilke tespit edildi.
+   🧠 [18:36:33] JUDGE ANALYSIS COMPLETED
+      ↳ Hakim Refleksi: RED EĞİLİMLİ
+      ↳ Refleks: RED EĞİLİMLİ | Tereddütler: 2
+   ⚔️ [18:36:33] PERSONA PHASE STARTED
+      ↳ Taraf vekilleri ve bilirkişi devreye giriyor.
+   👨‍💼 [18:37:19] DAVACI VEKİLİ DEĞERLENDİRMESİ
+      ↳ Ele alınan tereddüt sayısı: 2
+      ↳ Özet: "-------------------------------------------------- DAVACI VEKİLİ DEĞERLENDİRMESİ  Tereddüt 1: - Ceva..."
+   🏛️ [18:38:20] DAVALI VEKİLİ DEĞERLENDİRMESİ
+      ↳ Karşı argümanlar ve usul itirazları sunuldu.
+      ↳ Özet: "DAVALI VEKİLİ DEĞERLENDİRMESİ  - Karşı Argüman: Mirasçılık belgesinin, vasiyetname veya mirastan çık..."
+   🔍 [18:39:10] BİLİRKİŞİ TESPİTLERİ
+      ↳ Hukuki zincir ve tutarlılık kontrolü yapıldı.
+      ↳ Özet: "BİLİRKİŞİ TESPİTLERİ  Genel Hukuki Değerlendirme: Bu durum, miras hukuku alanında belirli bir teredd..."
+   ⚖️ [18:39:10] PERSONA PHASE COMPLETED
+      ↳ Tüm taraflar dinlendi.
+   🧹 [18:39:19] OUTPUT SANITIZER APPLIED
+      ↳ Tekrar eden paragraflar temizlendi.
+   🧠 [18:39:32] JUDGE ANALYSIS COMPLETED
+      ↳ Hakim Refleksi: RED EĞİLİMLİ
+      ↳ Refleks: RED EĞİLİMLİ | Tereddütler: 2
+   ⚔️ [18:39:32] PERSONA PHASE STARTED
+      ↳ Taraf vekilleri ve bilirkişi devreye giriyor.
+   👨‍💼 [18:40:14] DAVACI VEKİLİ DEĞERLENDİRMESİ
+      ↳ Ele alınan tereddüt sayısı: 2
+      ↳ Özet: " - Cevap:  Mirasçılık belgesinin, vasiyetname ve ıskat bulunmasına rağmen Sulh Hukuk Mahkemesine tra..."
+   🏛️ [18:41:08] DAVALI VEKİLİ DEĞERLENDİRMESİ
+      ↳ Karşı argümanlar ve usul itirazları sunuldu.
+      ↳ Özet: "     - Karşı Argüman: Mirasçılık belgesinin düzenlenmesi durumunda, vasiyetname ve ıskatın varlığı b..."
+   🔍 [18:41:57] BİLİRKİŞİ TESPİTLERİ
+      ↳ Hukuki zincir ve tutarlılık kontrolü yapıldı.
+      ↳ Özet: " Bu durum, miras hukuku alanında kesinlikle belirlenmesi gereken ve dikkatli yakalanması gerektiği b..."
+   ⚖️ [18:41:57] PERSONA PHASE COMPLETED
+      ↳ Tüm taraflar dinlendi.
+   🧹 [18:42:07] OUTPUT SANITIZER APPLIED
+      ↳ Tekrar eden paragraflar temizlendi.
+   🧠 [18:42:19] JUDGE ANALYSIS COMPLETED
+      ↳ Hakim Refleksi: RED EĞİLİMLİ
+      ↳ Refleks: RED EĞİLİMLİ | Tereddütler: 2
+   ⚔️ [18:42:19] PERSONA PHASE STARTED
+      ↳ Taraf vekilleri ve bilirkişi devreye giriyor.
+   👨‍💼 [18:42:59] DAVACI VEKİLİ DEĞERLENDİRMESİ
+      ↳ Ele alınan tereddüt sayısı: 2
+      ↳ Özet: " - Cevap: Mirasçılık belgesinde mirasçılık sıfatının tamamen ortadan kaldırılmasının mümkün olmadığı..."
+   🏛️ [18:43:49] DAVALI VEKİLİ DEĞERLENDİRMESİ
+      ↳ Karşı argümanlar ve usul itirazları sunuldu.
+      ↳ Özet: " - Karşı Argüman: Mirasçılık belgesinde mirasçılık sıfatının tamamen ortadan kaldırılmasının mümkün ..."
+   🔍 [18:44:28] BİLİRKİŞİ TESPİTLERİ
+      ↳ Hukuki zincir ve tutarlılık kontrolü yapıldı.
+      ↳ Özet: "  1. Vasiyetname veya ıskat bulunmadığında, mirastan çıkarılan kişilerin mirasçılık sıfatının tamame..."
+   ⚖️ [18:44:28] PERSONA PHASE COMPLETED
+      ↳ Tüm taraflar dinlendi.
+   🧹 [18:44:35] OUTPUT SANITIZER APPLIED
+      ↳ Tekrar eden paragraflar temizlendi.
+--------------------------------------------------------------------------------
+⚖️  TEMEL İLKE:
+   "Yeni bir mirasçılık belgesinin düzenlenmesi için vasiyetname veya mirastan çıkarma olmaksızın bu işlemin hukuki temeli b..."
+
+🗣️  TARAFLARIN POZİSYONLARI (V120 DETAY):
+   🧠 HAKİM: N/A
+      ⚠️ Tereddütler: ['Mirasçılık belgesinin, vasiyetname veya mirastan çıkarma bulunmasına rağmen Sulh Hukuk Mahkemesine transfer edilmesi durumunda, mirasçılık sıfatının tamamen ortadan kaldırılmasının mümkün olup olmadığı konusundaki belirsizlik.', 'Veraset ilamında mirasçılık sıfatının açıklayıcı şekilde yer alması gerektiği konusundaki eksiklik ve bu durumun hukuki sonuçlarına etki edip etmeyeceğini belirlemek için gerekli olan temel delilin olup olmadığı.']
+----------------------------------------
+   👨‍💼 DAVACI: 595 karakterlik savunma sunuldu.
+   🏛️ DAVALI: 1613 karakterlik itiraz sunuldu.
+   🔍 BİLİRKİŞİ: Zincir kontrolü yapıldı.
+--------------------------------------------------------------------------------
+🚀 GÜÇLENDİRME & SOMUT İŞ PAKETLERİ:
+   📦 Mirasçılık belgesinin Sulh Hukuk Mahkemesine transfer edilmesi durumunda, mirasç... (+9 Puan)
+   📦 Haksız tereddütten arınması ve ilamina açıklayıcı şekilde mirasçılık sıfatının y... (+7 Puan)
+████████████████████████████████████████████████████████████████████████████████
+
+
+🧑‍⚖️  AVUKAT YAZIYOR (V120: Final Output)...
+Bu belgeler, Türk Medeni Kanunu ve mahkeme kararları çerçevesinde mirasçılık belgesinin düzenlenmesi konusunda çeşitli durumlar ele alıyor. İşte analiz sonucu elde edilebilecek temel noktalar:
+
+1. **Mirasçılık Belgesinin Geçerliliği ve Düzenlenmesi:**
+   - Mirasçılık belgesi, miras reddine veya çıkarmaya ilişkin durumlarla ilgili olabilir.
+   - Mirası reddeden mirasçıların miras payı belirli bir şekilde belirlenmesi gerekmektedir (Belge #7).
+   - Mirasçılık belgesinin geçersizliği, vasiyetname veya mirastan çıkarma belgenin bulunmadığı durumlarda hukuki temellere dayalı karar verilmesi gerektiği vurgulanmaktadır (Belge #8 ve #10).
+
+2. **Miras Çıkarması ve Reddine İlişkin Kurallar:**
+   - Miras reddedilen durumlar, üç ay içinde kabul edilebilir.
+   - Mirasçılık belgesi talebi, vasiyetname veya mirastan çıkarma bulunmadığı durumlarda hukuki temellere dayalı karar verilmesi gerekir (Belge #7 ve #8).
+
+3. **Miras Belgesinin Geçerliliği:**
+   - Mirasçılık belgesinin geçersizliği, vasiyetname veya mirastan çıkarma bulunmadığında hukuki temellere dayalı karar verilmesi gerektiği vurgulanmaktadır (Belge #8).
+   - Mirasçılık belgesi, aksi ispat edilinceye kadar adına düzenlenmiş bulunan kişi ve kişilerin mirasçılığı lehine bir karine oluşturur.
+
+4. **Miras Sözleşmesinin Geçerliliği ve Kaldırılması:**
+   - Miras sözleşmesi, tarafların yazılı anlaşmasıyla her zaman ortadan kaldırılabilir.
+   - Tek taraflı ortadan kaldırma veya sözleşmeden dönme yolu ile miras sözleşmesinin kaldırılabilmesi açıklanmıştır (Belge #10).
+
+5. **Miras Belgesinde Mirası Reddenenin Miras Payının Belirlenmesi:**
+   - Mirası reddeden mirasçıların miras payı, belirli bir şekilde belirlenmesi gerekmektedir ve bu durumun terekenin paylaşımında göz önünde bulundurulması gerektiği vurgulanmıştır (Belge #7).
+
+Sonuç olarak, mirasçılık belgesinin düzenlenmesi konusunda hukuki temellere dayalı karar verilme gerekliliği, miras reddine veya çıkarmaya ilişkin kuralların uygulanması ve mirasçılık belgenin geçerliliğinde önemli rol oynayan mevzuat maddeleri analiz edilmiştir. Bu durumlar, mahkeme kararlarının ve mevzuatın miras hakları konusunda tutumu ortaya koymaktadır.
+
+Bu analiz sonucunda, belgelerde vurgulanmış temel noktaları kullanarak, mirasçılık belgesinin düzenlenmesi sürecinde hukuki temellere dayalı karar verilme ve miras reddine veya çıkarmaya ilişkin kuralların uygulanması konusunda daha fazla bilgi edinilebilir.
+
+
+⚠️ Hata: type object 'LegalConfig' has no attribute 'DRIVE_ROOT'
+
+🔒 Veritabanı bağlantısı güvenli şekilde kapatıldı.
+
+Process finished with exit code 0

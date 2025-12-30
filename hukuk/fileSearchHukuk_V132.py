@@ -8,10 +8,10 @@ import atexit
 import json
 import random
 import math
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from datetime import datetime
 from multiprocessing import Pool, cpu_count, freeze_support
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from collections import Counter
 
 # --------------------------------------------------
@@ -29,17 +29,115 @@ from fpdf.enums import XPos, YPos
 from langchain_community.document_loaders import PyMuPDFLoader
 
 
+# PDF CIKTILARI Mevcut importların altına ekleyin
+from pdf_reports import (
+    LegacyPDFReport,
+    JudicialPDFReport,
+    ClientSummaryPDF,  # Eğer kullanacaksanız
+    ReportOrchestrator
+)
+
+
 # UTF-8 Ayarı
 # sys.stdout.reconfigure(encoding="utf-8")
 
 
 # ==================================================
-# 1️⃣ KONFİGÜRASYON SINIFI
+# 1️⃣ KONFİGÜRASYON VE BAĞLAM SINIFLARI
 # ==================================================
+
+# 🔨 Commit 5.3: Query Context (Single Source of Truth)
+@dataclass
+class QueryContext:
+    """
+    Sistemde TEK bağlayıcı bağlam nesnesi.
+    Tüm modüller yalnızca bunu referans alır.
+    """
+    # Kullanıcı girdisi
+    query_text: str
+
+    # Hukuki bağlam
+    topic: str
+    detected_domain: str  # örn: "miras", "icra", "ceza"
+
+    # Kapsam sınırları
+    negative_scope: List[str]
+    allowed_sources: List[str] = None
+
+    # Sistem içi bayraklar
+    allow_analogy: bool = False
+    allow_speculation: bool = False
+    allow_soft_language: bool = False
+
+    # 🆕 EKLENECEK SATIR (Guard Bayrağı)
+    judge_evaluated: bool = False
+
+    def assert_hard_limits(self):
+        """
+        Hukuki güvenlik kemeri.
+        """
+        if self.allow_speculation:
+            raise ValueError("Speculation is forbidden in legal analysis.")
+
+        if self.allow_analogy:
+            raise ValueError("Analogy is forbidden unless explicitly enabled.")
+
+
+# 🔨 Commit 5.4: Decision Context (Yargısal Zemin)
+@dataclass
+class DecisionContext:
+    """
+    Hakim ve LLM için ortak, temiz ve süzülmüş karar zemini.
+    Bu nesne oluşmadan LLM ÇAĞRILAMAZ.
+    """
+
+    # Kaynaklar
+    documents: List[Dict[str, Any]] = field(default_factory=list)
+    principles: List[Dict[str, Any]] = field(default_factory=list)
+
+    # Analitik katman
+    relevance_scores: Dict[str, float] = field(default_factory=dict)
+    conflicts: List[str] = field(default_factory=list)
+
+    def has_minimum_legal_basis(self) -> bool:
+        """
+        Hukuki tartışma yapılabilmesi için asgari eşik.
+        """
+        return bool(self.documents) or bool(self.principles)
+
+
+# 🔨 Commit 5.5: Judge Reflex (Refleks Veri Yapısı)
+@dataclass
+class JudgeReflex:
+    """
+    Hakimin ilk refleksi.
+    """
+    tendency: str  # "KABUL" | "RED" | "TEREDDÜT"
+    score: int  # 0–100
+    doubts: List[str]  # Hakimin kafasına takılanlar
+
+
+# 🔨 Commit 5.6: Persona Response (Persona Çıktı Modeli)
+@dataclass
+class PersonaResponse:
+    role: str  # DAVACI | DAVALI | BILIRKISI
+    response: str
+    addressed_doubts: List[str]
+
+
+# 🔨 Commit 5.7: Strengthening Action (Aksiyon Modeli)
+@dataclass
+class StrengtheningAction:
+    title: str
+    description: str
+    related_doubt: str
+    impact_score: int  # 1–10 arası katkı puanı
+
+
 @dataclass
 class LegalConfig:
     # Google Drive Ana Yolu (HukAI Klasörü)
-    #DRIVE_ROOT = "/content/drive/MyDrive/HukAI"
+    # DRIVE_ROOT = "/content/drive/MyDrive/HukAI"
     DRIVE_ROOT = os.path.dirname(os.path.abspath(__file__))
 
     SOURCES = {
@@ -93,6 +191,9 @@ ZORUNLU YAZIM VE AKIL YÜRÜTME KURALLARI:
 10. Hakim, avukat veya bilirkişi rolü dışında düşünme.
 11. Çıktı, gerçek bir mahkeme dosyasına girebilecek ciddiyette olsun.
 12. Bu kuralların dışına çıkma; çıktıyı bu kurallara göre DENETLE.
+13.Her belge yalnızca bir kez özetlenir.Özet, sorgudaki somut olayla doğrudan bağ kurmak zorundadır.
+"Bu belge, sorgudaki [X] durumuna şu şekilde uygulanır: ..." formatı zorunludur.
+14.Belge → Hukuki İlke → Somut Olay → Dosyaya Etki zinciri kurulmadan belge kullanılamaz.
 """
 
     # --- V120: CORE RULE REGISTRY (YAML SIMULATION) ---
@@ -168,6 +269,16 @@ ZORUNLU YAZIM VE AKIL YÜRÜTME KURALLARI:
 # ==================================================
 # 2️⃣ YARDIMCI ARAÇLAR (STATIC)
 # ==================================================
+def _contains_decision(text: str, decision: str) -> bool:
+    text = text.upper()
+    decision = decision.upper()
+
+    if decision == "KABUL":
+        return "KABUL" in text or "KABUL EDİL" in text
+    if decision == "RED":
+        return "RED" in text or "REDDEDİL" in text
+    return False
+
 def worker_embed_batch_global(args):
     """Multiprocessing için global kalmalı."""
     texts, model_name = args
@@ -177,6 +288,295 @@ def worker_embed_batch_global(args):
     except Exception as e:
         print(f"⚠️ Batch hatası (atlanıyor): {e}")
         return []
+
+
+# 🔨 Commit 5.4: Decision Builder (Adaptör)
+class DecisionBuilder:
+    """
+    Sistemin farklı çıktılarından DecisionContext inşa eden yardımcı sınıf.
+    """
+
+    @staticmethod
+    def build_decision_context_from_valid_docs(valid_docs: list) -> DecisionContext:
+        """
+        LegalJudge tarafından filtrelenmiş 'valid_docs' listesini alır.
+        """
+        context = DecisionContext()
+
+        for doc in valid_docs:
+            # ID yoksa geçici üret, varsa kullan
+            doc_id = str(uuid.uuid4())
+
+            context.documents.append({
+                "id": doc_id,
+                "type": doc.get("type"),  # EMSAL / MEVZUAT
+                "source": doc.get("source"),
+                "confidence": doc.get("score"),  # Judge skoru (0-100)
+                "content": doc.get("text"),
+                "role": doc.get("role"),
+                "reason": doc.get("reason")
+            })
+
+            context.relevance_scores[doc_id] = doc.get("score", 0.0)
+
+        return context
+
+    @staticmethod
+    def enrich_decision_context_with_memory(context: DecisionContext, memory_principles: list) -> DecisionContext:
+        """
+        Hafızadan gelen ilkeleri Context'e ekler.
+        """
+        if not memory_principles:
+            return context
+
+        for principle in memory_principles:
+            context.principles.append({
+                "principle": principle.get("text"),
+                "confidence": principle.get("score_data", {}).get("success_probability", 0),
+                "source": "memory_v1",
+                "trend": principle.get("trend_log", "")
+            })
+
+        return context
+
+
+# 🔨 Commit 5.5: Judge Core (Deterministik Akıl)
+class JudgeCore:
+    """
+    LLM'siz, deterministik hakim muhakemesi.
+    """
+
+    def evaluate(self, decision_context: DecisionContext) -> JudgeReflex:
+        score = 0
+        doubts = []
+
+        # 1️⃣ Belgelerden gelen güç
+        for doc in decision_context.documents:
+            # Skorlar 0-100 arasında geliyordu, burada normalize edip topluyoruz
+            conf = doc.get("confidence", 0)
+            if conf >= 90:
+                score += 15
+            elif conf >= 80:
+                score += 10
+            elif conf >= 70:
+                score += 5
+            else:
+                doubts.append(
+                    f"Düşük güvenli belge: {doc.get('source')}"
+                )
+
+        # 2️⃣ Hukuki ilkeler
+        for principle in decision_context.principles:
+            conf = principle.get("confidence", 0)  # 0-100 arası success probability
+            if conf >= 85:
+                score += 10
+            elif conf < 60:
+                doubts.append(
+                    "Zayıf içtihat/ilke tespiti"
+                )
+
+        # 3️⃣ Skoru sınırla
+        score = min(score, 100)
+
+        # 4️⃣ Hakim refleksi
+        if score >= 70:
+            tendency = "KABUL"
+        elif score <= 40:
+            tendency = "RED"
+        else:
+            tendency = "TEREDDÜT"
+
+        return JudgeReflex(
+            tendency=tendency,
+            score=score,
+            doubts=doubts
+        )
+
+
+# 🔨 Commit 5.6: Persona Engine (Kontrollü LLM)
+class PersonaEngine:
+    """
+    LLM kontrollü persona simülasyonu.
+    Hakimin tereddütlerine cevap üretir.
+    """
+
+    def __init__(self, llm):
+        self.llm = llm
+        self.current_doubts = []
+
+    def run(
+            self,
+            context: QueryContext,
+            decision_context: DecisionContext,
+            judge_reflex: JudgeReflex
+    ) -> List[PersonaResponse]:
+
+        self.current_doubts = judge_reflex.doubts
+        if not self.current_doubts:
+            # Tereddüt yoksa standart bir başlangıç ata
+            self.current_doubts = ["Dosyanın esasına ilişkin genel delil durumu", "Hukuki tavsif"]
+
+        print(f"   🗣️  Persona Tartışması Başlatılıyor ({len(self.current_doubts)} Tereddüt)...")
+        responses = []
+
+        responses.append(
+            self._invoke_persona(
+                role="DAVACI VEKİLİ",
+                instruction="Hakimin tereddütlerini gider, davanın kabulü için argüman üret."
+            )
+        )
+
+        responses.append(
+            self._invoke_persona(
+                role="DAVALI VEKİLİ",
+                instruction="Hakimin tereddütlerini derinleştir, davanın reddi için itiraz et."
+            )
+        )
+
+        responses.append(
+            self._invoke_persona(
+                role="BİLİRKİŞİ",
+                instruction="Tereddütlerin hukuki tutarlılığını ve delil zincirini denetle."
+            )
+        )
+
+        return responses
+
+    def _invoke_persona(self, role: str, instruction: str) -> PersonaResponse:
+        prompt = f"""
+        ROL: {role}
+        BAĞLAM: Türk Hukuku.
+        {LegalConfig.PROMPT_GUARD}
+
+        GÖREV:
+        {instruction}
+
+        HAKİMİN SOMUT TEREDDÜTLERİ:
+        {self._format_doubts()}
+
+        SINIRLAR:
+        - Yeni hukuki kural üretme.
+        - Hakim kararını değiştirmeye çalışma (Sadece ikna et/eleştir).
+        - Skor veya oran verme.
+        - Sadece yukarıdaki tereddütlere odaklan.
+
+        ÇIKTI:
+        - Net, hukuki dilde, maksimum 2 paragraf.
+        """
+
+        try:
+            result = self.llm.invoke(prompt).content.strip()
+        except:
+            result = f"{role}: Beyan oluşturulamadı."
+
+        return PersonaResponse(
+            role=role,
+            response=result,
+            addressed_doubts=self.current_doubts
+        )
+
+    def _format_doubts(self):
+        return "\n".join(f"- {d}" for d in self.current_doubts)
+
+
+# 🔨 Commit 5.7: Action Engine
+class ActionEngine:
+    """
+    Hakim tereddütlerini azaltmaya yönelik
+    somut hukuki aksiyonlar üretir.
+    """
+
+    def __init__(self, llm):
+        self.llm = llm
+
+    def run(
+            self,
+            judge_reflex: JudgeReflex,
+            persona_outputs: List[PersonaResponse]
+    ) -> List[StrengtheningAction]:
+
+        if not judge_reflex.doubts:
+            return []
+
+        actions = []
+
+        for doubt in judge_reflex.doubts:
+            action = self._generate_action(doubt, persona_outputs)
+            if action:
+                actions.append(action)
+
+        return actions
+
+    def _generate_action(
+            self,
+            doubt: str,
+            persona_outputs: List[PersonaResponse]
+    ) -> StrengtheningAction:
+
+        persona_context = "\n\n".join(
+            f"{p.role}: {p.response}"
+            for p in persona_outputs
+            # Eğer persona cevabında bu doubt geçiyorsa al, yoksa hepsini al (basit eşleşme)
+            if True
+        )
+
+        prompt = f"""
+        HAKİM TEREDDÜDÜ:
+        {doubt}
+
+        PERSONA DEĞERLENDİRMELERİ:
+        {persona_context}
+
+        GÖREV:
+        Bu tereddüdü azaltmak için yapılabilecek
+        TEK ve SOMUT hukuki aksiyonu yaz.
+
+        SINIRLAR:
+        - Tavsiye tonu kullanma
+        - Genel laf üretme
+        - En fazla 3 cümle
+
+        FORMAT:
+        Başlık:
+        Açıklama:
+        Etki Puanı (1-10):
+        """
+
+        try:
+            result = self.llm.invoke(prompt).content
+            return self._parse_action(result, doubt)
+        except:
+            return None
+
+    def _parse_action(self, text: str, doubt: str) -> StrengtheningAction:
+        lines = text.splitlines()
+
+        title = "Ek Delil Sunumu"
+        description = "İlgili hususta ek delil sunulmalıdır."
+        impact = 5
+
+        for line in lines:
+            if "Başlık" in line:
+                parts = line.split(":", 1)
+                if len(parts) > 1: title = parts[1].strip()
+            elif "Açıklama" in line:
+                parts = line.split(":", 1)
+                if len(parts) > 1: description = parts[1].strip()
+            elif "Etki" in line:
+                try:
+                    # Sadece rakamları al
+                    impact = int("".join(filter(str.isdigit, line)))
+                    # 10'dan büyükse (örn 810) son basamağı al veya 10 yap
+                    if impact > 10: impact = 5
+                except:
+                    impact = 5
+
+        return StrengtheningAction(
+            title=title,
+            description=description,
+            related_doubt=doubt,
+            impact_score=impact
+        )
 
 
 class LegalUtils:
@@ -221,6 +621,15 @@ class LegalTextSanitizer:
         self.dropped_count = 0
 
     def enforce_no_repeat(self, text):
+
+        PROTECTED_PREFIXES = (
+            "⚠️",
+            "A.",
+            "B.",
+            "C.",
+            "------------------------------------------------",
+        )
+
         """Metindeki anlamsal tekrarları ve aynı kanun maddelerini temizler."""
         if not text: return ""
 
@@ -229,6 +638,10 @@ class LegalTextSanitizer:
         cleaned_lines = []
 
         for line in lines:
+            if clean_line.startswith(PROTECTED_PREFIXES):
+                cleaned_lines.append(line)
+                continue
+
             clean_line = line.strip()
             if len(clean_line) < 5:  # Çok kısa satırları (boşluk vb.) geç
                 cleaned_lines.append(line)
@@ -236,7 +649,11 @@ class LegalTextSanitizer:
 
             # --- V121 GÜNCELLEME: Madde Numarası Kontrolü ---
             # "Madde 598", "Md. 598", "TMK m. 598" gibi yapıları yakalar.
-            article_match = re.search(r'(?:Madde|Md\.|m\.)\s*(\d+)', clean_line, re.IGNORECASE)
+            article_match = re.search(
+                r'(?:(TMK|HMK|BK|TBK|CMK)\s*)?(?:Madde|Md\.|m\.)\s*(\d+)',
+                clean_line,
+                re.IGNORECASE
+            )
             if article_match:
                 article_num = article_match.group(1)  # Sadece numarayı al (örn: "598")
                 if article_num in self.written_articles:
@@ -245,9 +662,10 @@ class LegalTextSanitizer:
                 self.written_articles.add(article_num)
             # ------------------------------------------------
 
-            # Cümlenin "özünü" (ilk 50 karakter) anahtar yap
+            # Cümlenin "özünü" (ilk 80 karakter) anahtar yap
             # Bu sayede "Mirasçılık belgesi..." ile "Mirasçılık belgesinin..." aynı sayılır
-            key = re.sub(r'[^\w\s]', '', clean_line.lower())[:50]
+            key = re.sub(r'\s+', ' ', clean_line.lower())
+            key = re.sub(r'[^\w\s]', '', key)[:80]
 
             if key in self.seen_sentences:
                 self.dropped_count += 1
@@ -1127,7 +1545,7 @@ ALAN: [Hukuk Dalı]
 
 
 # ==================================================
-# 7️⃣ YENİ ARAÇLAR: REASONING & STRATEGY
+# 7️⃣ YENİ ARAÇLAR: REASONING & STRATEGY (RESTORED)
 # ==================================================
 class WhiteLabelConfig:
     def __init__(self, firm_name="LEGAL OS", logo_path=None, footer_text="Otomatik Analiz Raporu", color=(0, 0, 0)):
@@ -1326,7 +1744,7 @@ ITIRAZ ARGUMANI: {arg}
                 if "```json" in res:
                     res = res.split("```json")[1].split("```")[0].strip()
                 elif "```" in res:
-                    res = res.split("```")[1].split("```")[0].strip()
+                    res = res.split("```json")[1].split("```")[0].strip()
 
                 action = json.loads(res)
                 action["action_id"] = str(uuid.uuid4())
@@ -1546,6 +1964,34 @@ class LegalJudge:
         self.memory = memory_manager
         self.sanitizer = LegalTextSanitizer()
 
+    # 🔨 Commit 5.3: Build Query Context (Single Source)
+    def build_query_context(self, story, topic, negatives) -> QueryContext:
+        """
+        Ham kullanıcı girdilerini alır, hukuk alanını tespit eder ve
+        tek bir QueryContext nesnesi olarak paketler.
+        """
+        # Hukuk Alanı Tespiti (Memory varsa oradan, yoksa basitçe 'Genel')
+        domain = "Genel"
+        if self.memory:
+            # Domain tespiti için memory_manager içindeki fonksiyonu kullanıyoruz
+            domain = self.memory._detect_domain_from_query(f"{story} {topic}")
+
+        ctx = QueryContext(
+            query_text=story,
+            topic=topic,
+            detected_domain=domain,
+            negative_scope=negatives,
+            allowed_sources=["mevzuat", "emsal"],
+            allow_analogy=False,
+            allow_speculation=False,
+            allow_soft_language=False
+        )
+
+        # Güvenlik kemerini bağla
+        ctx.assert_hard_limits()
+
+        return ctx
+
     def validate_user_input(self, story, topic):
         prompt = f"""
 GÖREV: Metnin tamamen anlamsız rastgele tuşlama (gibberish) olup olmadığını tespit et.
@@ -1754,20 +2200,43 @@ KURALLAR:
 
         return cards
 
-    def generate_final_opinion(self, story, topic, context_str):
+    # -------------------------------------------------------------------------
+    # DÜZELTME 1: JudgeReflex parametresi eklendi ve Prompt kısıtlandı
+    # -------------------------------------------------------------------------
+    def generate_final_opinion(self, story, topic, context_str, judge_reflex=None):
         print("\n🧑‍⚖️  AVUKAT YAZIYOR (V120: Final Output)...")
 
-        system_content = f"""SEN BİR TÜRK HAKİMİSİN.
+        # Eğer JudgeCore sonucu geldiyse prompt'a gömüyoruz
+        decision_lock = ""
+        if judge_reflex:
+            decision_lock = f"""
+        🛑 KESİN TALİMAT (JUDGE CORE LOCK):
+        Sistem tarafından yapılan matematiksel analiz sonucunda:
+        1. HAKİM EĞİLİMİ: "{judge_reflex.tendency}" olarak tespit edilmiştir.
+        2. DOSYA GÜÇ SKORU: {judge_reflex.score}/100
+        3. TESPİT EDİLEN TEREDDÜTLER: {', '.join(judge_reflex.doubts)}
+
+        GÖREVİN:
+        YENİDEN HÜKÜM KURMAK DEĞİL, YUKARIDAKİ "{judge_reflex.tendency}" KARARINI HUKUKİ DİLLE GEREKÇELENDİRMEKTİR.
+        Analizini bu kararı destekleyecek veya bu kararın risklerini açıklayacak şekilde yap.
+        """
+
+        system_content = f"""SEN, TÜRK MAHKEMESİNDE GÖREVLİ BİR HAKİM RAPORTÖRÜSÜN.
+HÜKMÜ SEN VERMİYORSUN; VERİLMİŞ HÜKMÜN GEREKÇESİNİ YAZIYORSUN.
 {LegalConfig.PROMPT_GUARD}
 
 🛑 KRİTİK VE ZORUNLU KURAL:
 BU SİSTEM SADECE TÜRKÇE ÇALIŞIR. 
+
+{decision_lock}
+
 HER NE OLURSA OLSUN ÇIKTIYI SADECE VE SADECE **TÜRKÇE** DİLİNDE VER.
 (RESPONSE MUST BE ONLY IN TURKISH LANGUAGE. DO NOT USE CHINESE OR ENGLISH.)
 
 Görevin:
 - Tarafları savunmak DEĞİL
-- Dosyanın RED veya KABUL ihtimallerini, hukuki ve usuli açıdan değerlendirmektir.
+- JudgeCore tarafından belirlenen eğilim doğrultusunda
+  RED riskinin nedenleri ve azaltma yollarını değerlendir.
 
 NORMLAR HİYERARŞİSİ (ZORUNLU):
 - [MEVZUAT] etiketli metinler KANUN maddesidir (TMK, BK vb.). Bunları kesin kural olarak sun.
@@ -1778,6 +2247,10 @@ NORMLAR HİYERARŞİSİ (ZORUNLU):
 2. Çekişmesiz yargı kararları maddi anlamda kesin hüküm oluşturmaz.
 3. Hakim her zaman önce RED ihtimalini değerlendirir.
 4. Usul eksikliği varsa ESASA GİRİLMEZ.
+5. Analiz bölümünde en fazla 5 belge kullan.
+6. Her belge en fazla 3 cümleyle özetlenir.
+7. Aynı belge ikinci kez yazılamaz.
+
 
 SANA SAĞLANAN BELGELER ETİKETLİDİR:
 - [MEVZUAT]
@@ -1788,8 +2261,12 @@ YENİ EMSAL UYDURMA.
 GENEL HUKUK ANLATISI YAPMA.
 
 ----------------------------------------------------------------
-AŞAMA 1 — YARGISAL DEĞERLENDİRME (İÇ MUHAKEME)
+AŞAMA 1 — JUDGE CORE DEĞERLENDİRMESİNİN HUKUKİ OKUMASI
 ----------------------------------------------------------------
+UYARI:
+Bu aşamada YENİ bir değerlendirme yapma.
+Sadece JudgeCore tarafından tespit edilen tereddütleri hukuki dile çevir.
+Yeni tereddüt ekleme.
 
 Aşağıdaki soruları KENDİN için cevapla ve analizini buna göre yap:
 
@@ -1872,6 +2349,13 @@ ANALİZİ BAŞLAT (TÜRKÇE):"""
 
         # V120 SANITIZATION
         cleaned_res = self.sanitizer.enforce_no_repeat(full_res)
+
+        if judge_reflex and not _contains_decision(cleaned_res, judge_reflex.tendency):
+            cleaned_res = (
+                    f"⚠️ JUDGE CORE EĞİLİMİ: {judge_reflex.tendency}\n\n"
+                    + cleaned_res
+            )
+
         return cleaned_res
 
 
@@ -2125,6 +2609,72 @@ class LegalReporter:
             pdf.line(pdf.get_x(), pdf.get_y(), 200, pdf.get_y())
             pdf.ln(4)
 
+    # 🔨 Commit 5.1: Yeni Hızlı Özet Sayfası Metodu
+    @staticmethod
+    def add_executive_summary_page(pdf, story, docs, personas, advice_text):
+        pdf.add_page()
+        pdf.set_font("DejaVu", "B", 16)
+        pdf.cell(0, 10, "YÖNETİCİ ÖZETİ (Executive Summary)", align='C', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.ln(10)
+
+        def clean(t):
+            return t.replace("\r", "") if t else ""
+
+        # 1. Sorgu Özeti
+        pdf.set_font("DejaVu", "B", 11)
+        pdf.cell(0, 8, "1. SORGU ÖZETİ:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_font("DejaVu", "", 10)
+        pdf.multi_cell(0, 6, clean(story)[:400] + ("..." if len(story) > 400 else ""))
+        pdf.ln(5)
+
+        # 2. 3 Ana Hukuki Bulgı
+        pdf.set_font("DejaVu", "B", 11)
+        pdf.cell(0, 8, "2. ANA HUKUKİ BULGULAR:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_font("DejaVu", "", 10)
+        if docs:
+            count = 0
+            for d in docs:
+                if count >= 3: break
+                # Type ve Reason kullanarak özetle
+                bullet = f"• {d['type']} ({d['role']}): {d['reason']}"
+                pdf.multi_cell(0, 6, clean(bullet))
+                count += 1
+        else:
+            pdf.multi_cell(0, 6, "Yeterli hukuki bulgu elde edilemedi.")
+        pdf.ln(5)
+
+        # 3. Hakim Riski
+        pdf.set_font("DejaVu", "B", 11)
+        pdf.cell(0, 8, "3. HAKİM RİSKİ (EĞİLİM):", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_font("DejaVu", "B", 10)  # Biraz daha vurgulu
+        risk = "Belirsiz"
+        if personas and "judge_reflex" in personas:
+            risk = personas["judge_reflex"]
+        pdf.cell(0, 8, f">> {clean(risk)}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.ln(5)
+
+        # 4. Net Öneri
+        # Advice text içinden sonucu çıkarmaya çalışalım veya son paragrafı alalım
+        recommendation = "Detaylı raporda sonuç bölümünü inceleyiniz."
+        if advice_text:
+            # Basit bir parsing denemesi: Sonuç başlığını ara
+            parts = advice_text.split("C. SONUÇ VE HUKUKİ TAVSİYE")
+            if len(parts) > 1:
+                recommendation = parts[1].strip()[:600] + "..."  # İlk 600 karakter
+            else:
+                # Son 500 karakteri al
+                recommendation = advice_text[-500:]
+
+        pdf.set_font("DejaVu", "B", 11)
+        pdf.cell(0, 8, "4. NET ÖNERİ:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_font("DejaVu", "I", 10)
+        pdf.multi_cell(0, 6, clean(recommendation))
+        pdf.ln(5)
+
+        # Sayfa sonu çizgisi
+        pdf.set_draw_color(0, 0, 0)
+        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+
     @staticmethod
     def create_report(user_story, valid_docs, advice_text, audit_data=None, filename="Hukuki_Rapor_V120.pdf", llm=None,
                       personas=None, case_topic="", precedent_cards=None):
@@ -2136,6 +2686,9 @@ class LegalReporter:
         pdf = BrandedPDFGenerator(branding)
 
         CorporateCover.add(pdf, audit_data.get("case_id", "N/A") if audit_data else "N/A", "V120")
+
+        # 🔨 Commit 5.1 Entegrasyonu: Hızlı Özet Sayfası Ekle
+        LegalReporter.add_executive_summary_page(pdf, user_story, valid_docs, personas, advice_text)
 
         pdf.add_page();
         pdf.set_font("DejaVu", size=11)
@@ -2222,6 +2775,34 @@ class LegalReporter:
 # 1️⃣1️⃣ LEGAL UI PRINTER
 # ==================================================
 class LegalUIPrinter:
+    # 🔨 Commit 5.2: Sade Log Tablosu
+    @staticmethod
+    def print_simple_console_table(audit_data):
+        if not audit_data or "timeline" not in audit_data: return
+
+        print("\n" + "=" * 80)
+        print(f"📊 İŞLEM ÖZET TABLOSU (Commit 5.2)")
+        print("=" * 80)
+        # Başlıklar: Zaman | Aşama | Sonuç
+        print(f"| {'ZAMAN':<10} | {'AŞAMA':<25} | {'SONUÇ':<38} |")
+        print("|" + "-" * 12 + "|" + "-" * 27 + "|" + "-" * 40 + "|")
+
+        for log in audit_data["timeline"]:
+            ts = datetime.fromtimestamp(log.get("timestamp", time.time())).strftime('%H:%M:%S')
+            stage = log.get("title", "İşlem")[:24]
+            # Sonuç kısmına score varsa onu, yoksa kısa description, yoksa boş
+            result = ""
+            if log.get("resulting_score"):
+                result = f"Skor: {log['resulting_score']}"
+            elif log.get("outputs") and "reflex" in log["outputs"]:
+                result = f"Refleks: {log['outputs']['reflex']}"
+            else:
+                result = log.get("description", "")[:37]
+
+            print(f"| {ts:<10} | {stage:<25} | {result:<38} |")
+
+        print("=" * 80 + "\n")
+
     @staticmethod
     def print_grand_ui_log(ui_data, doc_scan_log):
         if not ui_data or not ui_data.get("principles"): return
@@ -2333,19 +2914,25 @@ class LegalApp:
                     print("   ❌ UYARI: Girdi anlamsız. Lütfen mantıklı bir olay giriniz.")
                     continue
 
-                expanded = self.judge.generate_expanded_queries(story, topic)
-                full_query = f"{story} {topic} " + " ".join(expanded)
+                # 🔨 Commit 5.3: Single Source of Truth
+                # Artık dağınık değişkenler yerine "QueryContext" nesnesi oluşturuyoruz.
+                ctx = self.judge.build_query_context(story, topic, negatives)
+                print(f"   ✓ Bağlam Oluşturuldu: {ctx.detected_domain}")
+
+                expanded = self.judge.generate_expanded_queries(ctx.query_text, ctx.topic)
+                full_query = f"{ctx.query_text} {ctx.topic} " + " ".join(expanded)
                 print(f"   ✓ Sorgu: {len(full_query)} karakter")
 
                 candidates = self.search_engine.retrieve_raw_candidates(full_query)
                 if not candidates: continue
 
-                valid_docs = self.judge.evaluate_candidates(candidates, story, topic, negatives)
+                # Mevcut fonksiyonlara ctx içinden okuyarak gönderiyoruz (Geri uyumluluk)
+                valid_docs = self.judge.evaluate_candidates(candidates, ctx.query_text, ctx.topic, ctx.negative_scope)
                 if not valid_docs: print("🔴 Yargıç hepsini eledi."); continue
 
                 # [V128 EKLENTİSİ] PDF Katmanı için Veri Hazırlığı
                 # Ana motor etkilenmez, sadece PDF'e gidecek 'precedent_cards' hazırlanır.
-                precedent_cards = self.judge.explain_precedents_for_pdf(valid_docs, topic)
+                precedent_cards = self.judge.explain_precedents_for_pdf(valid_docs, ctx.topic)
 
                 context_str = ""
                 doc_scan_log = []
@@ -2372,30 +2959,110 @@ class LegalApp:
                         """
 
                 current_personas = {}
+                mem_principles = []  # Hafızadan gelen ilkeleri tutmak için
                 if self.memory_manager:
                     self.memory_manager.recall_principles(full_query)
                     self.ui_printer.print_grand_ui_log(self.memory_manager.latest_ui_data, doc_scan_log)
 
                     if self.memory_manager.latest_ui_data.get("principles"):
                         p_data = self.memory_manager.latest_ui_data["principles"][0]
+                        mem_principles = self.memory_manager.latest_ui_data["principles"]
                         # V120 kontrolü
                         if "personas_v120" in p_data:
                             current_personas = p_data["personas_v120"]
                         else:
                             current_personas = p_data["personas"]
 
-                full_advice = self.judge.generate_final_opinion(story, topic, context_str)
+                # 🔨 Commit 5.4: Decision Context Entegrasyonu
+                # Arama ve hafıza sonuçlarını ortak bir yargısal zeminde birleştiriyoruz.
+                decision_context = DecisionBuilder.build_decision_context_from_valid_docs(valid_docs)
+                decision_context = DecisionBuilder.enrich_decision_context_with_memory(decision_context, mem_principles)
 
-                # V120: FULL PARAMETER PASS
+                if not decision_context.has_minimum_legal_basis():
+                    print("🔴 KRİTİK UYARI: Yeterli hukuki belge veya ilke bulunamadı. Analiz durduruluyor.")
+                    continue
+
+                # 🔨 Commit 5.5: Judge Core (Deterministik Akıl)
+                # LLM'e gitmeden önce dosyanın gücünü matematiksel olarak ölçüyoruz.
+                judge_core = JudgeCore()
+                reflex = judge_core.evaluate(decision_context)
+                print(f"   ⚖️  ÖN YARGIÇ REFLEKSİ: {reflex.tendency} (Skor: {reflex.score})")
+
+                if reflex.score < 30:
+                    raise RuntimeError(
+                        f"Dosya hukuki olarak zayıf (Skor: {reflex.score}). Hakim ilk refleksi RED yönünde. Lütfen daha güçlü delil veya emsal ile tekrar deneyin.")
+
+                # 🔨 Commit 5.6: Persona Engine (Kontrollü LLM)
+                # Hakim tereddütlerine cevap veren yeni persona motoru
+                llm_for_persona = ChatOllama(model=LegalConfig.LLM_MODEL, temperature=0.7)  # Biraz daha yaratıcı
+                persona_engine = PersonaEngine(llm_for_persona)
+
+                persona_outputs = persona_engine.run(ctx, decision_context, reflex)
+
+                # PDF Raporu için persona verilerini güncelle
+                # (Eski hafıza verilerini ezerek güncel duruma göre cevap veriyoruz)
+                current_personas = {
+                    "judge_reflex": reflex.tendency,
+                    "doubts": reflex.doubts,
+                    "plaintiff": next((p.response for p in persona_outputs if "DAVACI" in p.role), "Beyan yok"),
+                    "defendant": next((p.response for p in persona_outputs if "DAVALI" in p.role), "Beyan yok"),
+                    "expert": next((p.response for p in persona_outputs if "BİLİRKİŞİ" in p.role), "Beyan yok")
+                }
+
+                # 🔨 Commit 5.7: Action Engine (Somut Güçlendirme)
+                action_engine = ActionEngine(llm_for_persona)  # Reuse LLM
+                strengthening_actions = action_engine.run(reflex, persona_outputs)
+
+                # Avukat Masası (Konsol Çıktısı)
+                if strengthening_actions:
+                    print(f"\n   🛠️  GÜÇLENDİRME AKSİYONLARI ({len(strengthening_actions)} Adet):")
+                    for act in strengthening_actions:
+                        print(f"      🔹 [{act.impact_score}/10] {act.title}: {act.description[:100]}...")
+
+                full_advice = self.judge.generate_final_opinion(ctx.query_text, ctx.topic, context_str,judge_reflex=reflex)
+
+                # =========================================================
+                # 🚀 COMMIT 6.0 ENTEGRASYONU: RAPOR ORKESTRASYONU
+                # =========================================================
+
+                print("\n🖨️  Raporlama Süreci Başlatılıyor...")
+
+                # 1. Orkestratörü Hazırla
+                # İsterseniz buraya ClientSummaryPDF() de ekleyebilirsiniz listeye.
+                report_orchestrator = ReportOrchestrator(
+                    reporters=[
+                        LegacyPDFReport(),  # pdf_reports.py içindeki basit legacy
+                        JudicialPDFReport()  # pdf_reports.py içindeki gelişmiş judicial
+                    ]
+                )
+
+                # 2. Tüm Raporları Tek Seferde Üret
+                # Not: decision_context (d_ctx) içinden documents listesini çekiyoruz.
+                pdf_paths = report_orchestrator.generate_all(
+                    context=ctx,  # QueryContext
+                    judge_reflex=reflex,  # JudgeReflex (Commit 5.5)
+                    persona_outputs=persona_outputs,  # List[PersonaResponse] (Commit 5.6)
+                    actions=strengthening_actions,  # List[StrengtheningAction] (Commit 5.7)
+                    documents=decision_context.documents  # DecisionContext (Commit 5.4)
+                )
+
+                # 3. Sonuçları Bildir
+                for path in pdf_paths:
+                    print(f"   ✅ Rapor Üretildi: {path}")
+
+                # 4. Müşteri Özeti (Opsiyonel - Veri varsa)
+                # Not: client_summary objesi şu an kodda üretilmiyor,
+                # eğer üretirseniz burayı açabilirsiniz.
+                """
+                client_pdf = ClientSummaryPDF()
+                client_pdf.generate(client_summary=client_summary_objesi)
+                """
+
+                # 5. Konsol Tablosu (Commit 5.2)
                 audit_dump = {}
-                llm_instance = None
                 if self.memory_manager and hasattr(self.memory_manager, 'latest_ui_data'):
                     audit_dump = self.memory_manager.latest_ui_data.get("audit_log", {})
-                    llm_instance = self.memory_manager.recommendation_engine.llm
-
-                self.reporter.create_report(story, valid_docs, full_advice, audit_dump, "Hukuki_Rapor_V128.pdf",
-                                            llm_instance, current_personas, full_query,
-                                            precedent_cards=precedent_cards)  # V128: Kartları PDF'e gönder
+                self.ui_printer.print_simple_console_table(audit_dump)
 
         except KeyboardInterrupt:
             print("\n👋 Program durduruldu.")

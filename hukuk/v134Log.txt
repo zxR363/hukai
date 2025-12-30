@@ -1,0 +1,117 @@
+🚀 LEGAL SUITE V128 (Precedent Layer Added)...
+   🔌 Veritabanı bağlantısı başlatılıyor...
+🔓 KİLİT DOSYASI TEMİZLENDİ.
+   ✅ Veritabanı bağlantısı BAŞARILI.
+   👉 Koleksiyon kontrol ediliyor: MEVZUAT...
+      🔍 Mevcut dosyalar taranıyor...
+      ✅ MEVZUAT güncel (3 dosya).
+   👉 Koleksiyon kontrol ediliyor: EMSAL KARAR...
+      🔍 Mevcut dosyalar taranıyor...
+      ✅ EMSAL KARAR güncel (17 dosya).
+✅ İndeksleme Tamamlandı.
+
+🔥 İÇTİHAT MİMARI: Artımlı Konsolidasyon (V120)...
+   ℹ️ Yeterli yeni veri yok.
+
+✅ SİSTEM HAZIR. (Çıkış: 'q')
+------------------------------------------------------------
+📝 Olay: Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et.
+🎯 Odak: miras hukuku
+🚫 Yasaklı: sendika
+   🛡️ Girdi kontrol ediliyor...
+   ✓ Bağlam Oluşturuldu: MirasHukuku
+   ↳ 🧠 Sorgu Genişletiliyor...
+   ✓ Sorgu: 694 karakter
+
+🔍 Belgeler Taranıyor (Dual Search - Aşama 1: Geniş Havuz)...
+   ✅ 10 potansiyel belge bulundu. Yargıca gönderiliyor...
+
+⚖️  Akıllı Yargıç Değerlendiriyor (V120: Corporate Intelligence):
+✅ [EMSAL KARAR] buyuk1.pdf           | Güven: %95.1 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [EMSAL KARAR] buyuk2.pdf           | Güven: %94.8 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %94.0 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %93.5 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk5.pdf           | Güven: %93.0 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %91.7 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk5.pdf           | Güven: %91.5 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %93.3 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %91.9 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %90.4 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+
+📝 PDF İçin Emsal Kartları Hazırlanıyor...
+   ⚖️  ÖN YARGIÇ REFLEKSİ: KABUL (Skor: 100)
+   🗣️  Persona Tartışması Başlatılıyor (2 Tereddüt)...
+
+🧑‍⚖️  AVUKAT YAZIYOR (V120: Final Output)...
+### Analiz Sonucu
+
+Verilen belgeler ve içerikler, Türk Medeni Kanun'unda (TMK) miras reddine ve mirasçılık belgesinin düzenlenmesi konularını ele alıyor. Özetle, aşağıdaki noktaları öne çıkabilir:
+
+1. **Mirasçılık Belgesinin Düzenlenmesi:**
+   - Mirasçılık belgesi, aksi ispat edilinceye kadar adına düzenlenmiş bulunan kişilere ve kişilerin mirasçılığı lehine bir kılavuz olmak üzere düzenlenmelidir (TMK 598 maddesi).
+   - Mirası reddedenlerin miras paylarının terekenin paylaşım sırasında göz önünde bulundurulması gerekmektedir.
+
+2. **Miras Reddine İlişkin Süreler ve Koşullar:**
+   - Miras, üç ay içinde reddolunabilir (TMK 606 maddesi).
+   - Ölümü tarihinde mirasbırakanın ödemeden açıkça belli veya resmen tespit edilmiş ise, miras reddedilir.
+
+3. **Miras Çıkarma ve Vasiyetname:**
+   - Mirastan çıkarma ve vasiyetname bulunsa da, sulh hukuku mahkemesinin görevli olduğu konusunda benzer bir temel oluşturulmuştur (TMK 605 maddesi).
+
+4. **Miras Ortaklığının Meydana Gelmesi:**
+   - Birden çok mirasçı bulunması durumunda, mirasın geçmesiyle birlikte terekeye kadar ortaklık meydana gelir (TMK 640 maddesi).
+
+5. **Miras Çıkarma ve Vasiyetname:**
+   - Mirastan çıkarma ve vasiyetname bulunsa da, sulh hukuku mahkemesinin görevli olduğu konusunda benzer bir temel oluşturulmuştur.
+
+### Sonuç
+
+Verilen belgeler ve içerikler, miras reddine ve mirasçılık belgesinin düzenlenmesi konularında TMK'ye dayalı olarak çeşitli durumlar ele alıyor. Mirası reddedenlerin miras paylarının terekenin paylaşım sırasında göz önünde bulundurulması, üç ay içinde mirasın reddolunabilmesi ve vasiyetname bulunsa da sulh hukuku mahkemesinin görevli olduğu konular incelenmiştir.
+
+Bu durumlar, TMK'ye dayalı olarak karar verilirken göz önünde bulundurulması gereken temel ilkeleri ve kuralları yansıtmaktadır. Miras reddine ilişkin süreler ve koşullar, mirasçılık belgesinin düzenlenmesi gibi konular, her durumda yasal çerçeveye uygun karar verilmesini sağlar.
+
+### Öneriler
+
+1. **Mirasçılık Belgesinin Düzenlenmesi:**
+   - Mirası reddedenlerin miras paylarının terekenin paylaşım sırasında göz önünde bulundurulması gerekmektedir.
+   - Mirasçılık belgesi, aksi ispat edilinceye kadar adına düzenlenmiş bulunan kişilere ve kişilerin mirasçılığı lehine düzenlenmelidir.
+
+2. **Miras Reddine İlişkin Süreler:**
+   - Miras üç ay içinde reddolunabilir.
+   - Ölümü tarihinde mirasbırakanın ödemeden açıkça belli veya resmen tespit edilmiş ise, miras reddedilir.
+
+3. **Miras Çıkarma ve Vasiyetname:**
+   - Mirastan çıkarma ve vasiyetname bulunsa da, sulh hukuku mahkemesinin görevli olduğu konusunda benzer bir temel oluşturulmalıdır.
+   - Sulh hukuku mahkemesi, miras reddine ilişkin süreler ve koşulları belirlemektedir.
+
+Bu öneriler, yasal çerçeveye uygun karar verilmesini ve her durumda doğru kararın verilmesini sağlayacaktır.
+
+
+🖨️  Raporlama Süreci Başlatılıyor...
+⚠️ DejaVu fontu bulunamadı. Arial fallback kullanılıyor.
+   ✅ Rapor Üretildi: Legacy_Rapor_20251230_1920.pdf
+   ✅ Rapor Üretildi: Judicial_Rapor_20251230_1920.pdf
+
+📊 İŞLEM ZAMAN ÇİZELGESİ:
+   1767122117.3770247 | İçtihatlar Analiz Edildi → 3 adet yüksek güvenli ilke tespit edildi.
+   1767122122.2185237 | JUDGE ANALYSIS COMPLETED → Hakim Refleksi: RED EĞİLİMLİ
+   1767122122.218526 | PERSONA PHASE STARTED → Taraf vekilleri ve bilirkişi devreye giriyor.
+   1767122140.4844885 | DAVACI VEKİLİ DEĞERLENDİRMESİ → Ele alınan tereddüt sayısı: 2
+   1767122163.2024775 | DAVALI VEKİLİ DEĞERLENDİRMESİ → Karşı argümanlar ve usul itirazları sunuldu.
+   1767122180.2878168 | BİLİRKİŞİ TESPİTLERİ → Hukuki zincir ve tutarlılık kontrolü yapıldı.
+   1767122180.2878199 | PERSONA PHASE COMPLETED → Tüm taraflar dinlendi.
+   1767122185.0351012 | OUTPUT SANITIZER APPLIED → Tekrar eden paragraflar temizlendi.
+   1767122191.2329354 | JUDGE ANALYSIS COMPLETED → Hakim Refleksi: RED EĞİLİMLİ
+   1767122191.2329388 | PERSONA PHASE STARTED → Taraf vekilleri ve bilirkişi devreye giriyor.
+   1767122209.7588181 | DAVACI VEKİLİ DEĞERLENDİRMESİ → Ele alınan tereddüt sayısı: 3
+   1767122225.3164072 | DAVALI VEKİLİ DEĞERLENDİRMESİ → Karşı argümanlar ve usul itirazları sunuldu.
+   1767122247.184636 | BİLİRKİŞİ TESPİTLERİ → Hukuki zincir ve tutarlılık kontrolü yapıldı.
+   1767122247.1846395 | PERSONA PHASE COMPLETED → Tüm taraflar dinlendi.
+   1767122255.367832 | OUTPUT SANITIZER APPLIED → Tekrar eden paragraflar temizlendi.
+   1767122261.1181698 | JUDGE ANALYSIS COMPLETED → Hakim Refleksi: RED EĞİLİMLİ
+   1767122261.1181722 | PERSONA PHASE STARTED → Taraf vekilleri ve bilirkişi devreye giriyor.
+   1767122282.9389727 | DAVACI VEKİLİ DEĞERLENDİRMESİ → Ele alınan tereddüt sayısı: 2
+   1767122301.6027863 | DAVALI VEKİLİ DEĞERLENDİRMESİ → Karşı argümanlar ve usul itirazları sunuldu.
+   1767122319.528728 | BİLİRKİŞİ TESPİTLERİ → Hukuki zincir ve tutarlılık kontrolü yapıldı.
+   1767122319.5287318 | PERSONA PHASE COMPLETED → Tüm taraflar dinlendi.
+   1767122326.0473306 | OUTPUT SANITIZER APPLIED → Tekrar eden paragraflar temizlendi.

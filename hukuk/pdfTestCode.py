@@ -1,132 +1,102 @@
-import os
-import sys
-from dataclasses import dataclass
-from typing import List
+# test_pdf_reports.py
+# Yeni pdf_reports.py'yi test etmek için bağımsız script
+# Çalıştır: python test_pdf_reports.py
 
-# Dosya yollarını kontrol et
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(current_dir)
+from datetime import datetime
+import uuid
 
-try:
-    from pdf_reports import JudicialPDFReport, ReportOrchestrator
-
-    print("✅ pdf_reports modülü başarıyla içe aktarıldı.")
-except ImportError as e:
-    print(f"❌ HATA: pdf_reports modülü bulunamadı. ({e})")
-    sys.exit(1)
-
-
-# ---------------------------------------------------------
-# MOCK VERİ YAPILARI (V132'deki Dataclass'ların Taklidi)
-# ---------------------------------------------------------
-@dataclass
-class MockJudgeReflex:
-    tendency: str
-    score: int
-    doubts: List[str]
-
-
-@dataclass
-class MockPersonaResponse:
-    role: str
-    response: str
-
-
-@dataclass
-class MockStrengtheningAction:
-    title: str
-    description: str
-    impact_score: int
-    related_doubt: str = "Test"
-
-
-# ---------------------------------------------------------
-# TEST VERİLERİ (Türkçe Karakter Zorlamalı)
-# ---------------------------------------------------------
-print("\n🛠️  Test verileri hazırlanıyor...")
-
-# 1. Hakim Refleksi
-mock_reflex = MockJudgeReflex(
-    tendency="KABUL EĞİLİMLİ (Şartlı)",
-    score=85,
-    doubts=[
-        "Davacı tarafın 'işçi alacağı' iddiası ispatlanmalı.",
-        "Özellikle 'Çalışma Bakanlığı' kayıtları eksik."
-    ]
+# pdf_reports.py'yi import et (aynı klasörde olmalı)
+from pdf_reports import (
+    LegacyPDFReport,
+    JudicialPDFReport,
+    ClientSummaryPDF,
+    ReportOrchestrator
 )
 
-# 2. Persona Çıktıları
-mock_personas = [
-    MockPersonaResponse(
-        role="DAVACI VEKİLİ",
-        response="Müvekkilimiz 'ağır şartlarda' çalışmıştır. İspat yükü işverendedir."
-    ),
-    MockPersonaResponse(
-        role="DAVALI VEKİLİ",
-        response="İddialar asılsızdır. Zaman aşımı defi (itirazı) mevcuttur."
-    )
+# Mock (sahte) veri hazırlıyoruz – gerçek sistemdeki gibi
+class MockJudgeReflex:
+    def __init__(self):
+        self.tendency = "TEREDDÜTLÜ – BİLİRKİŞİ MUĞLAK"
+        self.score = 25
+        self.doubts = [
+            "Zayıf içtihat/ilke tespiti",
+            "Delil zincirinde belirsizlik"
+        ]
+
+class MockPersonaResponse:
+    def __init__(self, role, response):
+        self.role = role
+        self.response = response
+
+class MockAction:
+    def __init__(self, impact_score, title, description):
+        self.impact_score = impact_score
+        self.title = title
+        self.description = description
+
+# Sahte veri
+mock_context = None  # Kullanılmıyor ama kwargs için lazım
+
+mock_judge_reflex = MockJudgeReflex()
+
+mock_persona_outputs = [
+    MockPersonaResponse("DAVACI VEKİLİ",
+        "Davacı vekili olarak, mevcut delillerin davayı desteklediğini düşünüyorum. "
+        "Ancak karşı tarafın olası itirazlarına karşı daha güçlü emsal kararlar sunulabilir."),
+    MockPersonaResponse("DAVALI VEKİLİ",
+        "Davalı vekili olarak, delil yetersizliği ve usul hataları nedeniyle davanın reddedilmesi gerektiğini savunuyorum. "
+        "Yargıtay içtihatları bu yöndedir."),
+    MockPersonaResponse("BİLİRKİŞİ",
+        "Bilirkişi olarak, delil zincirinde bazı belirsizlikler tespit ettim. "
+        "Ek inceleme ile daha net bir kanaate varılabilir.")
 ]
 
-# 3. Aksiyonlar
 mock_actions = [
-    MockStrengtheningAction(
-        title="Tanık Dinletilmesi",
-        description="İş yeri çalışma şartlarını bilen 2 şahit mahkemeye sunulmalı.",
-        impact_score=8
-    )
+    MockAction(10, "Ek Emsal Karar Araştırması",
+               "Zayıf içtihat tespitini güçlendirmek için Yargıtay 2. ve 3. Hukuk Dairesi kararları taranmalı."),
+    MockAction(8, "Bilirkişi Raporu Talebi",
+               "Mahkemeden ek bilirkişi incelemesi talep edilerek tereddüt giderilebilir.")
 ]
 
-# 4. Belgeler
-mock_docs = [
-    {"source": "Yargıtay 9. HD 2023/12345", "confidence": 0.95, "type": "EMSAL"},
-    {"source": "TMK Madde 6", "confidence": 1.0, "type": "MEVZUAT"}
+mock_documents = [
+    {"source": "TürkMedeniKanunu.pdf", "score": 94.7},
+    {"source": "buyuk2.pdf", "score": 96.7},
+    {"source": "buyuk7.pdf", "score": 93.6},
 ]
 
+mock_full_advice = (
+    "Türk Medeni Kanunu md. 598 ve 605 hükümleri ile Yargıtay içtihatları ışığında, "
+    "mirasçılık belgesi talebinde mirastan çıkarma (ıskat) bulunsa dahi Sulh Hukuk Mahkemesi görevlidir. "
+    "Mirastan çıkarılan kişinin mirasçılık sıfatı tamamen kalkmaz; bu husus veraset ilamında açıklayıcı şekilde belirtilmelidir. "
+    "Dosyada bu yönde yeterli delil bulunmamaktadır."
+)
 
-# ---------------------------------------------------------
-# TEST ÇALIŞTIRMA
-# ---------------------------------------------------------
-def run_test():
-    print("\n🚀 Raporlama Orkestratörü Test Ediliyor...")
+# Test verisi
+test_kwargs = {
+    "context": mock_context,
+    "judge_reflex": mock_judge_reflex,
+    "persona_outputs": mock_persona_outputs,
+    "actions": mock_actions,
+    "documents": mock_documents,
+    "full_advice": mock_full_advice
+}
 
-    # Font kontrolü (Bilgilendirme amaçlı)
-    font_path = os.path.join(current_dir, "fonts", "DejaVuSans.ttf")
-    if os.path.exists(font_path):
-        print(f"ℹ️  Bilgi: DejaVu fontu bulundu ({font_path}). Unicode çıktı bekleniyor.")
-    else:
-        print("⚠️  Uyarı: Font dosyası bulunamadı. Sistem 'Arial' fallback modunda çalışacak (ASCII normalize).")
+print("PDF raporları üretiliyor...\n")
 
-    try:
-        # Orkestratörü başlat
-        orchestrator = ReportOrchestrator(
-            reporters=[JudicialPDFReport()]
-        )
+# Orchestrator ile üç rapor birden üret
+orchestrator = ReportOrchestrator([
+    LegacyPDFReport(),
+    JudicialPDFReport(),
+    ClientSummaryPDF()
+])
 
-        # Raporu üret
-        generated_files = orchestrator.generate_all(
-            context=None,  # PDF raporunda doğrudan kullanılmıyor, None geçilebilir
-            judge_reflex=mock_reflex,
-            persona_outputs=mock_personas,
-            actions=mock_actions,
-            documents=mock_docs
-        )
+produced_files = orchestrator.generate_all(**test_kwargs)
 
-        print("\n✅ İŞLEM BAŞARILI!")
-        print("--------------------------------------------------")
-        for f in generated_files:
-            if os.path.exists(f):
-                print(f"📄 Oluşturulan Dosya: {f} (Boyut: {os.path.getsize(f)} bytes)")
-            else:
-                print(f"❌ Dosya oluşturulamadı: {f}")
-        print("--------------------------------------------------")
-        print("Lütfen oluşturulan PDF dosyasını açıp Türkçe karakterleri (İ, ş, ğ) kontrol edin.")
+print("Üretilen PDF'ler:")
+for file in produced_files:
+    print(f"   ✅ {file}")
 
-    except Exception as e:
-        print(f"\n❌ TEST SIRASINDA HATA OLUŞTU:")
-        print(e)
-        import traceback
-        traceback.print_exc()
-
-
-if __name__ == "__main__":
-    run_test()
+print("\nTest tamamlandı! Dosyaları klasörde kontrol edebilirsin.")
+print("Legacy: Basit iç rapor")
+print("Judicial: Tam detaylı rapor (gerekçe, itiraz, istinaf taslağı vs.)")
+print("ClientSummary: Müşteriye verilecek sade özet")

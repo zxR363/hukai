@@ -1,4 +1,5 @@
-# pdf_reports.py - TAM ÇALIŞAN VERSİYON (Sıra Düzeltilmiş + Tüm Raporlar Dolu)
+# pdf_reports.py - TAM ÇALIŞAN VERSİYON (V135 İçin Optimize Edilmiş)
+# Hukuki_Rapor_V128_RELEASEv128.pdf formatına benzer profesyonel yapı
 
 from fpdf import FPDF
 from datetime import datetime
@@ -7,7 +8,7 @@ import os
 import unicodedata
 
 # =========================================================
-# BASE REPORT ARAYÜZÜ (EN ÜSTE TAŞINDI - KRİTİK!)
+# BASE REPORT ARAYÜZÜ (EN ÜSTE)
 # =========================================================
 
 class BaseReport:
@@ -25,17 +26,19 @@ class PDFFontManager:
 
     def setup(self):
         try:
-            if os.path.exists("fonts/DejaVuSans.ttf") and os.path.exists("fonts/DejaVuSans-Bold.ttf"):
-                self.pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
-                self.pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
+            font_path_regular = "fonts/DejaVuSans.ttf"
+            font_path_bold = "fonts/DejaVuSans-Bold.ttf"
+            if os.path.exists(font_path_regular) and os.path.exists(font_path_bold):
+                self.pdf.add_font("DejaVu", "", font_path_regular, uni=True)
+                self.pdf.add_font("DejaVu", "B", font_path_bold, uni=True)
                 self.pdf.set_font("DejaVu", "", 10)
                 self.unicode_enabled = True
             else:
-                print("⚠️ DejaVu fontu yok → Arial kullanılıyor")
+                print("⚠️ DejaVu fontu bulunamadı. Arial fallback kullanılıyor.")
                 self.pdf.set_font("Arial", "", 10)
                 self.unicode_enabled = False
         except Exception as e:
-            print(f"⚠️ Font hatası: {e}")
+            print(f"⚠️ Font hatası: {e}. Arial fallback kullanılıyor.")
             self.pdf.set_font("Arial", "", 10)
             self.unicode_enabled = False
 
@@ -59,10 +62,11 @@ class LegalPDF(FPDF):
         self.font_manager.setup()
 
     def header(self):
-        if self.page_no() > 1:
-            self.set_font("DejaVu", "B", 8) if self.font_manager.unicode_enabled else self.set_font("Arial", "B", 8)
-            self.cell(0, 10, "LEGAL OS CORP", align="R")
-            self.ln(10)
+        if self.page_no() == 1:
+            return  # İlk sayfada header yok
+        self.set_font("DejaVu", "B", 8) if self.font_manager.unicode_enabled else self.set_font("Arial", "B", 8)
+        self.cell(0, 10, "LEGAL OS CORP", align="R")
+        self.ln(10)
 
     def footer(self):
         self.set_y(-15)
@@ -71,11 +75,11 @@ class LegalPDF(FPDF):
 
     def title_page(self, dosya_id: str):
         self.add_page()
-        self.ln(30)
-        self.set_font("DejaVu", "B", 22) if self.font_manager.unicode_enabled else self.set_font("Arial", "B", 22)
+        self.ln(40)
+        self.set_font("DejaVu", "B", 20) if self.font_manager.unicode_enabled else self.set_font("Arial", "B", 20)
         self.cell(0, 20, "LEGAL OS", align="C")
-        self.ln(15)
-        self.set_font("DejaVu", "", 16) if self.font_manager.unicode_enabled else self.set_font("Arial", "", 16)
+        self.ln(10)
+        self.set_font("DejaVu", "", 14) if self.font_manager.unicode_enabled else self.set_font("Arial", "", 14)
         self.cell(0, 10, "Yapay Zeka Destekli Hukuki Analiz Raporu", align="C")
         self.ln(40)
         self.set_font("DejaVu", "", 12) if self.font_manager.unicode_enabled else self.set_font("Arial", "", 12)
@@ -83,34 +87,42 @@ class LegalPDF(FPDF):
         self.ln(10)
         self.cell(0, 10, f"RAPOR TARİHİ: {datetime.now().strftime('%d.%m.%Y %H:%M')}", align="C")
         self.ln(10)
-        self.cell(0, 10, "SİSTEM SÜRÜMÜ: V135", align="C")
+        self.cell(0, 10, "SİSTEM SÜRÜMÜ: V143", align="C")
         self.ln(30)
-        disclaimer = "YASAL UYARI: Bu rapor yapay zeka algoritmaları ile üretilmiştir. Hukuki tavsiye niteliğinde olmayıp yalnızca karar destek amaçlıdır."
+        self.set_font("DejaVu", "", 10) if self.font_manager.unicode_enabled else self.set_font("Arial", "", 10)
+        disclaimer = "YASAL UYARI: Bu rapor, yapay zeka algoritmaları kullanılarak üretilmiştir. Hukuki tavsiye niteliğinde olmayıp, karar destek amaçlıdır."
         self.multi_cell(0, 6, self.font_manager.text(disclaimer), align="C")
 
     def section(self, title: str):
         self.ln(8)
-        self.set_font("DejaVu", "B", 14) if self.font_manager.unicode_enabled else self.set_font("Arial", "B", 14)
+        self.set_font("DejaVu", "B", 13) if self.font_manager.unicode_enabled else self.set_font("Arial", "B", 13)
         self.multi_cell(0, 8, self.font_manager.text(title))
-        self.ln(2)
+        self.ln(1)
         self.line(self.l_margin, self.get_y(), self.w - self.r_margin, self.get_y())
-        self.ln(4)
 
     def paragraph(self, text: str):
         self.set_font("DejaVu", "", 11) if self.font_manager.unicode_enabled else self.set_font("Arial", "", 11)
-        for line in text.split("\n"):
+        lines = text.split('\n')
+        for line in lines:
             if not line.strip():
-                self.ln(6)
+                self.ln(5)
                 continue
-            self.multi_cell(0, 6, self.font_manager.text(line))
+            # Uzun satırları parçala
+            words = line.split(' ')
+            current_line = ""
+            for word in words:
+                test_line = current_line + word + " "
+                if self.get_string_width(test_line) > self.epw - 2 * self.c_margin:
+                    self.cell(0, 6, self.font_manager.text(current_line.strip()), ln=1)
+                    current_line = word + " "
+                else:
+                    current_line = test_line
+            if current_line.strip():
+                self.cell(0, 6, self.font_manager.text(current_line.strip()), ln=1)
         self.ln(4)
 
 # =========================================================
-# 1. LEGACY PDF RAPOR (Artık Dolu!)
-# =========================================================
-
-# =========================================================
-# 1. LEGACY PDF RAPOR (GÜVENLİ VE DOLU VERSİYON - HATA ÇÖZÜLDÜ)
+# 1. LEGACY PDF RAPOR (GÜVENLİ VE DOLU VERSİYON)
 # =========================================================
 
 class LegacyPDFReport(BaseReport):
@@ -122,12 +134,7 @@ class LegacyPDFReport(BaseReport):
         dosya_id = str(uuid.uuid4())
         filename = f"Legacy_Rapor_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf"
         pdf = LegalPDF()
-
-        # İlk sayfa: Kapak
         pdf.title_page(dosya_id)
-
-        # İçerik sayfası
-        pdf.add_page()
 
         # Hızlı Özet
         pdf.section("Hızlı Özet")
@@ -151,29 +158,13 @@ class LegacyPDFReport(BaseReport):
         pdf.section("Taraf Görüşleri")
         for p in persona_outputs:
             pdf.section(p.role.upper())
-            # Uzun metinlerde kelime kırılımı için güvenli yazım
-            response_lines = p.response.split('\n')
-            for line in response_lines:
-                if len(line) > 100:  # Çok uzun satırları parçala
-                    words = line.split(' ')
-                    current = ""
-                    for word in words:
-                        if len(current + word) > 90:
-                            pdf.paragraph(current.strip())
-                            current = word + " "
-                        else:
-                            current += word + " "
-                    if current.strip():
-                        pdf.paragraph(current.strip())
-                else:
-                    pdf.paragraph(line)
+            pdf.paragraph(p.response)
 
-        # Güçlendirme Aksiyonları
+        # Güçlendirme ve Aksiyon Planı
         pdf.section("Güçlendirme ve Aksiyon Planı")
         if actions:
             for act in actions:
-                pdf.paragraph(f"[{act.impact_score}/10] {act.title}")
-                pdf.paragraph(f"   {act.description}")
+                pdf.paragraph(f"[{act.impact_score}/10] {act.title}: {act.description}")
         else:
             pdf.paragraph("Önerilen ek aksiyon bulunmamaktadır.")
 
@@ -212,7 +203,7 @@ class JudicialPDFReport(BaseReport):
             for d in doubts:
                 pdf.paragraph(f"- {d}")
         else:
-            pdf.paragraph("Tereddüt tespit edilmedi.")
+            pdf.paragraph("Belirgin bir tereddüt tespit edilmemiştir.")
 
         pdf.section("Taraf Görüşleri")
         for p in persona_outputs:
@@ -224,18 +215,24 @@ class JudicialPDFReport(BaseReport):
             for act in actions:
                 pdf.paragraph(f"[{act.impact_score}/10] {act.title}: {act.description}")
         else:
-            pdf.paragraph("Önerilen aksiyon yok.")
+            pdf.paragraph("Önerilen ek aksiyon bulunmamaktadır.")
 
         pdf.section("Hakim Gerekçe Taslağı")
-        pdf.paragraph(full_advice or "Gerekçe taslağı sistem tarafından hazırlanmıştır.")
+        pdf.paragraph(full_advice or "Gerekçe taslağı sistem tarafından oluşturulmuştur.")
 
         pdf.section("Olası İtiraz Argümanları")
-        pdf.paragraph("- Delil yetersizliği ve ispat yükü hatası")
-        pdf.paragraph("- Usul hükümlerine aykırılık")
-        pdf.paragraph("- Hukuki tavsif yanlışı")
+        appeal_arguments = kwargs.get('appeal_arguments', '')
+        if appeal_arguments:
+            pdf.paragraph(appeal_arguments)
+        else:
+            pdf.paragraph("- Delil yetersizliği ve ispat yükü hatası\n- Usul hükümlerine aykırılık\n- Hukuki tavsif yanlışı")
 
         pdf.section("İstinaf/Temyiz Dilekçesi Taslağı")
-        pdf.paragraph("Kararın usul ve esas yönünden hukuka aykırı olduğu gerekçesiyle istinaf/temyiz yoluna gidilmesi önerilir.")
+        appeal_petition = kwargs.get('appeal_petition', '')
+        if appeal_petition:
+            pdf.paragraph(appeal_petition)
+        else:
+            pdf.paragraph("Kararın usul ve esas yönünden hukuka aykırı olduğu gerekçesiyle istinaf/temyiz yoluna gidilmesi önerilir.")
 
         pdf.section("Aksiyon İtiraz Planı")
         pdf.paragraph("1. Ek delil ve bilirkişi talebi")

@@ -1,0 +1,143 @@
+C:\Users\democh\PycharmProjects\game\hukuk\Scripts\python.exe C:\Users\democh\PycharmProjects\hukuk\fileSearchHukuk_V137_colab.py 
+🚀 LEGAL SUITE V128 (Precedent Layer Added)...
+   🔌 Veritabanı bağlantısı başlatılıyor...
+🔓 KİLİT DOSYASI TEMİZLENDİ.
+   ✅ Veritabanı bağlantısı BAŞARILI.
+   👉 Koleksiyon kontrol ediliyor: MEVZUAT...
+      🔍 Mevcut dosyalar taranıyor...
+      ✅ MEVZUAT güncel (3 dosya).
+   👉 Koleksiyon kontrol ediliyor: EMSAL KARAR...
+      🔍 Mevcut dosyalar taranıyor...
+      ✅ EMSAL KARAR güncel (17 dosya).
+✅ İndeksleme Tamamlandı.
+
+🔥 İÇTİHAT MİMARI: Artımlı Konsolidasyon (V120)...
+   🔍 7 adet YENİ gerekçe analiz ediliyor...
+✅ Konsolidasyon tamamlandı.
+
+✅ SİSTEM HAZIR. (Çıkış: 'q')
+------------------------------------------------------------
+📝 Olay: Mirasçılık belgesi talebi, mirastan çıkarma (ıskat) ve vasiyetname bulunmasına rağmen Sulh Hukuk Mahkemesinin görevli olduğu, mirastan çıkarılan kişilerin mirasçılık sıfatının tamamen ortadan kalkmadığı ve bu hususların veraset ilamında açıklayıcı şekilde yer alması gerektiği yönündeki Yargıtay içtihadına anlamsal olarak benzer kararları ve hukuki belgeleri tespit et.
+🎯 Odak: miras hukuku
+🚫 Yasaklı: sendika
+   🛡️ Girdi kontrol ediliyor...
+   ✓ Bağlam Oluşturuldu: miras_hukuku
+   ↳ 🧠 Sorgu Genişletiliyor...
+   ✓ Sorgu: 733 karakter
+
+🔍 Belgeler Taranıyor (Dual Search - Aşama 1: Geniş Havuz)...
+   ✅ 10 potansiyel belge bulundu. Yargıca gönderiliyor...
+
+⚖️  Akıllı Yargıç Değerlendiriyor (V120: Corporate Intelligence):
+✅ [EMSAL KARAR] buyuk1.pdf           | Güven: %95.3 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [EMSAL KARAR] buyuk1.pdf           | Güven: %95.3 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [EMSAL KARAR] buyuk2.pdf           | Güven: %95.1 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk2.pdf           | Güven: %95.1 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %93.7 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [EMSAL KARAR] buyuk7.pdf           | Güven: %93.7 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [EMSAL KARAR] buyuk5.pdf           | Güven: %93.4 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %94.4 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+✅ [MEVZUAT] TürkMedeniKanunu.pdf | Güven: %94.2 (⬆️ YÜKSEK GÜVEN) | Rol: [EMSAL İLKE]
+✅ [MEVZUAT] Miras Hukuku.pdf     | Güven: %93.1 (⬆️ YÜKSEK GÜVEN) | Rol: [DOĞRUDAN DELİL]
+
+📝 PDF İçin Emsal Kartları Hazırlanıyor...
+ 🗣️ Persona Tartışması Başlatılıyor (2 Tereddüt)...
+   ✅ DAVACI VEKİLİ beyanı tamamlandı
+   ✅ DAVALI VEKİLİ beyanı tamamlandı
+   ✅ BİLİRKİŞİ beyanı tamamlandı
+
+🧠 MANTIK MOTORU DEVREDE:
+   - Tereddüt Sayısı: 2
+   - Davalı Gücü: 3
+   - Bilirkişi Net mi?: False
+   - Eski Skor: 75 -> Yeni Skor: 19
+   - Eski Karar: KABUL -> Yeni Karar: TEREDDÜTLÜ – BİLİRKİŞİ MUĞLAK
+
+   🛠️  GÜÇLENDİRME AKSİYONLARI (2 Adet):
+      🔹 [10/10] Mirastan Çıkarılanların Sıfatının Tamamen Kalktığı Belirlişi İste: Dava belgelerinde mirastan çıkarılan kişinin mirasçılık sıfatının tamamen ortadan kaldırıldığı açık ...
+      🔹 [10/10] Mirasçılık Sıfatının Tamamen Ortadan Kalktığı Belirliyoruz: Mirastan çıkarılan kişinin mirasçılık sıfatının tamamen ortadan kaldırıldığına açık ve net bir kanıt...
+
+🧑‍⚖️ AVUKAT YAZIYOR (V120: Final Output)...
+### Analiz Sonucu
+
+**1. Temel Sorun:**
+- Sorulan durum, miras reddini ve bu durumu belgeleyen bir mirasçılık belgesinin olmazsa olmasının önemi ile ilgili.
+
+**2. Ana Konular:**
+- Miras reddi durumları
+- Mirasçılık belgesinin düzenlenmesi
+- Vasiyetname veya mirastan çıkarma belgesinin eksikliği durumu
+
+### **Belge #1 ve Belge #7:**
+- **Ana Konu:** Mirası reddeden mirasçıların miras payının belirli bir şekilde belgelenmesi.
+- **Sonuç:** Mirası reddeden mirasçının miras payı, mirasçılık belgesinde açıkça gösterilmesi gerektiği karar verildi.
+
+### **Belge #2 ve Belge #8:**
+- **Ana Konu:** Miras reddine ilişkin temel kavramlar ve süreler.
+- **Sonuç:** Ölümü tarihinde mirasbırakanın ödemeden açıkça belli veya resmen tespit edilmiş durumda, mirası reddedilir. Miras, genellikle üç ay içinde reddolunabilir.
+
+### **Belge #3 ve Belge #9:**
+- **Ana Konu:** Mirasçılık belgesinin düzenlenmesi ve mirastan çıkarılan kişilerin mirası reddetme durumları.
+- **Sonuç:** Mirasçılık belgesinin geçersizliği her zaman ileri sürülebilir. Mirasçılar, mirasbırakanın ölümüyle mirası bir bütün olarak kazanırlar.
+
+### **Belge #4 ve Belge #10:**
+- **Ana Konu:** Vasiyetname veya mirastan çıkarma belgesinin eksikliği durumu.
+- **Sonuç:** Özel bir yazılı irade belgesi olmaksızın hukuki süreçlerin uygulanması gerektiği, vasiyetname konusu da dahil olmak üzere belirtilmiştir.
+
+### **Çıkışlar:**
+1. **Miras Reddine İlişkin Hukuki Temellere Dayalı Karar Verme:**
+   - Mirası reddeden mirasçının miras payı, mirasçılık belgesinde açıkça gösterilmesi gerektiği.
+   
+2. **Mirasçılık Belgesinin Geçerliliği ve Miras Reddine İlişkin Süreler:**
+   - Mirası reddeden durumlar genellikle üç ay içinde değerlendirilebilir.
+
+3. **Vasiyetname veya Mirastan Çıkarma Belgesinin Eksikliği Durumu:**
+   - Özel bir yazılı irade belgesi olmaksızın hukuki süreçlerin uygulanması gerektiği.
+
+### **Sonuç:**
+Sorulan durum, miras reddine ilişkin temel kavramlar ve süreleri belirten mevzuat maddelerini ve durumu açıkça gösteren mirasçılık belgesinin düzenlenmesi gerekliliğini vurgulayan belgelerle uyumludur. Mirası reddeden durumlar genellikle üç ay içinde değerlendirilebilir ve mirasçılık belgesinde mirası reddedenin payı açıkça gösterilmesi gerektiği karar verildi.
+
+### **Öneriler:**
+- Miras reddine ilişkin hukuki süreçleri daha ayrıntılı olarak uygulamak.
+- Mirasçılık belgesinin geçerliliğini ve mirası reddeden durumları dikkatlice göz önünde bulundurmak.
+
+
+🖨️  Raporlama Süreci Başlatılıyor...
+   ✅ Rapor Üretildi: ClientSummary_20251231_1503.pdf
+   ✅ Rapor Üretildi: Judicial_Rapor_20251231_1503.pdf
+
+📊 İŞLEM ZAMAN ÇİZELGESİ:
+   1767181745.9773426 | İçtihatlar Analiz Edildi → 3 adet yüksek güvenli ilke tespit edildi.
+   1767181763.867797 | JUDGE ANALYSIS COMPLETED → Hakim Refleksi: RED EĞİLİMLİ
+   1767181763.867797 | PERSONA PHASE STARTED → Taraf vekilleri ve bilirkişi devreye giriyor.
+   1767181835.5120537 | DAVACI VEKİLİ DEĞERLENDİRMESİ → Ele alınan tereddüt sayısı: 2
+   1767181885.6194885 | DAVALI VEKİLİ DEĞERLENDİRMESİ → Karşı argümanlar ve usul itirazları sunuldu.
+   1767181964.0047052 | BİLİRKİŞİ TESPİTLERİ → Hukuki zincir ve tutarlılık kontrolü yapıldı.
+   1767181964.005706 | PERSONA PHASE COMPLETED → Tüm taraflar dinlendi.
+   1767181977.5468647 | OUTPUT SANITIZER APPLIED → Tekrar eden paragraflar temizlendi.
+   1767181988.3214993 | JUDGE ANALYSIS COMPLETED → Hakim Refleksi: RED EĞİLİMLİ
+   1767181988.3214993 | PERSONA PHASE STARTED → Taraf vekilleri ve bilirkişi devreye giriyor.
+   1767182050.341988 | DAVACI VEKİLİ DEĞERLENDİRMESİ → Ele alınan tereddüt sayısı: 2
+   1767182118.7788892 | DAVALI VEKİLİ DEĞERLENDİRMESİ → Karşı argümanlar ve usul itirazları sunuldu.
+   1767182171.9415946 | BİLİRKİŞİ TESPİTLERİ → Hukuki zincir ve tutarlılık kontrolü yapıldı.
+   1767182171.9415946 | PERSONA PHASE COMPLETED → Tüm taraflar dinlendi.
+   1767182185.7420747 | OUTPUT SANITIZER APPLIED → Tekrar eden paragraflar temizlendi.
+   1767182198.9494114 | JUDGE ANALYSIS COMPLETED → Hakim Refleksi: RED EĞİLİMLİ
+   1767182198.9494114 | PERSONA PHASE STARTED → Taraf vekilleri ve bilirkişi devreye giriyor.
+   1767182266.9006672 | DAVACI VEKİLİ DEĞERLENDİRMESİ → Ele alınan tereddüt sayısı: 3
+   1767182333.83127 | DAVALI VEKİLİ DEĞERLENDİRMESİ → Karşı argümanlar ve usul itirazları sunuldu.
+   1767182399.0957544 | BİLİRKİŞİ TESPİTLERİ → Hukuki zincir ve tutarlılık kontrolü yapıldı.
+   1767182399.0957544 | PERSONA PHASE COMPLETED → Tüm taraflar dinlendi.
+   1767182414.372523 | OUTPUT SANITIZER APPLIED → Tekrar eden paragraflar temizlendi.
+------------------------------------------------------------
+📝 Olay: 🎯 Odak: 🚫 Yasaklı:    🛡️ Girdi kontrol ediliyor...
+   ✓ Bağlam Oluşturuldu: Bilgi
+   ↳ 🧠 Sorgu Genişletiliyor...
+   ✓ Sorgu: 339 karakter
+
+🔍 Belgeler Taranıyor (Dual Search - Aşama 1: Geniş Havuz)...
+   ✅ 10 potansiyel belge bulundu. Yargıca gönderiliyor...
+
+⚖️  Akıllı Yargıç Değerlendiriyor (V120: Corporate Intelligence):
+
+Process finished with exit code -1
